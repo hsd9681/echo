@@ -1,0 +1,11 @@
+services:
+  mariadb:
+    image: mariadb
+    ports:
+      - 13306:3306
+    environment:
+      TZ: Asia/Seoul
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_USER: ${MARIADB_USER}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+      MARIADB_DATABASE: ${MARIADB_DATABASE}
