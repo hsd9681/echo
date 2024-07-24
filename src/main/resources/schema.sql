@@ -19,6 +19,7 @@ create table if not exists space (
 create table if not exists channel (
     id bigint primary key auto_increment,
     channel_name varchar(50),
+    channel_type varchar(1),
     space_id bigint not null,
     foreign key(space_id) references space(id)
 );
