@@ -18,8 +18,7 @@ public class UserController {
 
     @PostMapping("/signup")
     public Mono<ResponseEntity<UserResponseDto>> signup(@RequestBody UserRequestDto req) {
-        return userFacade.signup(req)
-                .flatMap(res -> Mono.just(ResponseEntity.ok().body(res)));
+        return userFacade.signup(req).map(ResponseEntity::ok);
     }
 
     @GetMapping("/test")
