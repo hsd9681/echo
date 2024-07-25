@@ -13,6 +13,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import reactor.core.publisher.Mono;
 
 import javax.crypto.SecretKey;
 import java.security.Key;
@@ -78,15 +79,17 @@ public class JwtService {
                 .email(claims.getSubject())
                 .build();
 
-        return new UsernamePasswordAuthenticationToken(new UserPrincipal(user), token, authorities);
+        return new UsernamePasswordAuthenticationToken(new UserPrincipal(user), null, authorities);
     }
 
-    public String resolveToken(ServerHttpRequest request) {
-        String token = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-        if (StringUtils.hasText(token) && token.startsWith(HEADER_PREFIX)) {
-            return token.substring(HEADER_PREFIX.length()).trim();
-        }
-        return null;
+    public Mono<String> resolveToken(ServerHttpRequest request) {
+        return Mono.justOrEmpty(request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION))
+                .flatMap(token -> {
+                    if (token.startsWith(HEADER_PREFIX)) {
+                        return Mono.just(token.substring(HEADER_PREFIX.length()));
+                    }
+                    return Mono.empty();
+                });
     }
 
     private Claims getClaims(String token) {

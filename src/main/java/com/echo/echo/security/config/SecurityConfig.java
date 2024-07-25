@@ -73,12 +73,8 @@ public class SecurityConfig {
     }
 
     private ServerAuthenticationConverter serverAuthenticationConverter() {
-        return exchange -> {
-            String token = jwtService.resolveToken(exchange.getRequest());
-            if (StringUtils.hasText(token) && jwtService.isValidToken(token)) {
-                return Mono.justOrEmpty(jwtService.getAuthentication(token));
-            }
-            return Mono.empty();
-        };
+        return exchange -> jwtService.resolveToken(exchange.getRequest())
+                .filter(jwtService::isValidToken)
+                .flatMap(token -> Mono.justOrEmpty(jwtService.getAuthentication(token)));
     }
 }
