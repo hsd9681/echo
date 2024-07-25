@@ -43,4 +43,11 @@ public class SpaceController {
         return spaceFacade.deleteSpace(spaceId)
             .then(Mono.just(ResponseEntity.ok("삭제 완료입니다")));
     }
+
+    @PostMapping("/join/{uuid}")
+    public Mono<ResponseEntity<SpaceResponseDto>> joinSpace(@PathVariable String uuid, @RequestHeader("Authorization") String authorization) {
+        return spaceFacade.joinSpace(uuid, authorization)
+            .map(ResponseEntity::ok)
+            .switchIfEmpty(Mono.just(ResponseEntity.badRequest().body(null))); //메세지는 추후에
+    }
 }

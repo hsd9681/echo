@@ -3,7 +3,9 @@ package com.echo.echo.domain.space;
 import com.echo.echo.domain.space.dto.SpaceRequestDto;
 import com.echo.echo.domain.space.dto.SpaceResponseDto;
 import com.echo.echo.domain.space.entity.Space;
+import com.echo.echo.domain.space.entity.SpaceMember;
 import com.echo.echo.domain.space.repository.SpaceRepository;
+import com.echo.echo.domain.space.repository.SpaceMemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -14,6 +16,8 @@ import reactor.core.publisher.Mono;
 public class SpaceService {
 
     private final SpaceRepository spaceRepository;
+    private final SpaceMemberRepository spaceMemberRepository;
+    private final UserService userService;
 
     public Mono<SpaceResponseDto> createSpace(SpaceRequestDto requestDto) {
         Space space = Space.builder()
@@ -62,4 +66,16 @@ public class SpaceService {
             .uuid(space.getUuid())
             .build();
     }
+
+    public Mono<SpaceResponseDto> joinSpace(String uuid, String authorization) {
+        return userService.extractUserIdFromToken(authorization)
+            .flatMap(userId -> spaceRepository.findByUuid(uuid)
+                .flatMap(space -> spaceMemberRepository.save(new SpaceMember(userId, space.getId()))
+                    .then(Mono.just(space))
+                    .map(this::toResponseDto)
+                )
+            );
+    }
+
+
 }
