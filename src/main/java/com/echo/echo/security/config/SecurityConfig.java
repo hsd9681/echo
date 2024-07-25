@@ -1,6 +1,7 @@
 package com.echo.echo.security.config;
 
 import com.echo.echo.security.jwt.JwtService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,16 +20,13 @@ import org.springframework.security.web.server.context.NoOpServerSecurityContext
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
-@Configuration
+@RequiredArgsConstructor
 @EnableWebFluxSecurity
+@Configuration
 @Slf4j
 public class SecurityConfig {
 
     private final JwtService jwtService;
-
-    public SecurityConfig(JwtService jwtService) {
-        this.jwtService = jwtService;
-    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -36,7 +34,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http, JwtService jwtService) {
+    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
