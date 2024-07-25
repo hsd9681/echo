@@ -33,7 +33,7 @@ public class SpaceFacade {
         return spaceService.deleteSpace(spaceId);
     }
 
-    public Mono<SpaceResponseDto> joinSpace(String uuid, String authorization) {
-        return spaceService.joinSpace(uuid, authorization);
+    public Mono<SpaceResponseDto> joinSpace(String uuid, Long userId) {
+        return spaceService.joinSpace(uuid, userId);
     }
 }

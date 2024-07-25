@@ -17,7 +17,6 @@ public class SpaceService {
 
     private final SpaceRepository spaceRepository;
     private final SpaceMemberRepository spaceMemberRepository;
-    private final UserService userService;
 
     public Mono<SpaceResponseDto> createSpace(SpaceRequestDto requestDto) {
         Space space = Space.builder()
@@ -26,7 +25,7 @@ public class SpaceService {
             .thumbnail(requestDto.getThumbnail())
             .build();
         return spaceRepository.save(space)
-            .map(this::toResponseDto);
+            .map(spaceEntity -> toResponseDto(spaceEntity, null));
     }
 
     public Mono<SpaceResponseDto> updateSpace(Long spaceId, SpaceRequestDto requestDto) {
@@ -38,44 +37,42 @@ public class SpaceService {
                     requestDto.getThumbnail()
                 );
                 return spaceRepository.save(updatedSpace)
-                    .map(this::toResponseDto);
+                    .map(spaceEntity -> toResponseDto(spaceEntity, null));
             });
     }
 
     public Flux<SpaceResponseDto> getAllPublicSpaces() {
         return spaceRepository.findAll()
             .filter(space -> "Y".equals(space.getIsPublic()))
-            .map(this::toResponseDto);
+            .map(spaceEntity -> toResponseDto(spaceEntity, null));
     }
 
     public Mono<SpaceResponseDto> getSpaceById(Long spaceId) {
         return spaceRepository.findById(spaceId)
-            .map(this::toResponseDto);
+            .map(spaceEntity -> toResponseDto(spaceEntity, null));
     }
 
     public Mono<Void> deleteSpace(Long spaceId) {
         return spaceRepository.deleteById(spaceId);
     }
 
-    private SpaceResponseDto toResponseDto(Space space) {
+    private SpaceResponseDto toResponseDto(Space space, String message) {
         return SpaceResponseDto.builder()
             .id(space.getId())
             .spaceName(space.getSpaceName())
             .isPublic(space.getIsPublic())
             .thumbnail(space.getThumbnail())
             .uuid(space.getUuid())
+            .message(message)
             .build();
     }
 
-    public Mono<SpaceResponseDto> joinSpace(String uuid, String authorization) {
-        return userService.extractUserIdFromToken(authorization)
-            .flatMap(userId -> spaceRepository.findByUuid(uuid)
-                .flatMap(space -> spaceMemberRepository.save(new SpaceMember(userId, space.getId()))
-                    .then(Mono.just(space))
-                    .map(this::toResponseDto)
-                )
+    public Mono<SpaceResponseDto> joinSpace(String uuid, Long userId) {
+        return spaceRepository.findByUuid(uuid)
+            .flatMap(space -> spaceMemberRepository.findByUserIdAndSpaceId(userId, space.getId())
+                .switchIfEmpty(spaceMemberRepository.save(new SpaceMember(userId, space.getId())).thenReturn(new SpaceMember(userId, space.getId())))
+                .thenReturn(space)
+                .map(spaceEntity -> toResponseDto(spaceEntity, "입장 성공입니다"))
             );
     }
-
-
 }

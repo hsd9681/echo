@@ -2,8 +2,10 @@ package com.echo.echo.domain.space;
 
 import com.echo.echo.domain.space.dto.SpaceRequestDto;
 import com.echo.echo.domain.space.dto.SpaceResponseDto;
+import com.echo.echo.security.principal.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -45,9 +47,11 @@ public class SpaceController {
     }
 
     @PostMapping("/join/{uuid}")
-    public Mono<ResponseEntity<SpaceResponseDto>> joinSpace(@PathVariable String uuid, @RequestHeader("Authorization") String authorization) {
-        return spaceFacade.joinSpace(uuid, authorization)
+    public Mono<ResponseEntity<SpaceResponseDto>> joinSpace(@PathVariable String uuid, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        return spaceFacade.joinSpace(uuid, userPrincipal.getUser().getId())
             .map(ResponseEntity::ok)
-            .switchIfEmpty(Mono.just(ResponseEntity.badRequest().body(null))); //메세지는 추후에
+            .switchIfEmpty(Mono.just(ResponseEntity.badRequest()
+                .body(SpaceResponseDto.builder().message("입장 실패: 코드가 유효하지 않습니다.").build())));
     }
+
 }

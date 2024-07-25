@@ -16,4 +16,5 @@ public class SpaceResponseDto {
     private String isPublic;
     private byte[] thumbnail;
     private String uuid;
+    private String message;
 }

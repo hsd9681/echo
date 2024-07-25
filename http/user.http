@@ -11,4 +11,9 @@ Content-Type: application/json
 ### Security Test
 GET localhost:8080/api/users/test
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QHRlc3QuY29tIiwiYXV0aCI6W10sImV4cCI6MTcyMTgzODczNCwiaWF0IjoxNzIxODM2OTM0fQ.kkzAwk7atQkbTO7ufCzKy0XPOfpsbfYkhKVBMcd26xU0IKniUMyqxDNERreffSqROHNF0dPyyEJ4NEGhKUSwaA
+Authorization: Bearer
+
+### Space Join
+POST localhost:8080/spaces/join/{uuid}
+Content-Type: application/json
+Authorization: Bearer
