@@ -1,11 +1,11 @@
-package com.echo.echo.domain;
+package com.echo.echo.domain.user;
 
-import com.echo.echo.domain.user.UserFacadeService;
-import com.echo.echo.domain.user.UserService;
 import com.echo.echo.domain.user.dto.UserRequestDto;
 import com.echo.echo.domain.user.dto.UserResponseDto;
+import com.echo.echo.security.principal.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -14,16 +14,16 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/api/users")
 public class UserController {
 
-    private final UserFacadeService userFacadeService;
+    private final UserFacade userFacade;
 
     @PostMapping("/signup")
     public Mono<ResponseEntity<UserResponseDto>> signup(@RequestBody UserRequestDto req) {
-        return userFacadeService.signup(req)
+        return userFacade.signup(req)
                 .flatMap(res -> Mono.just(ResponseEntity.ok().body(res)));
     }
 
     @GetMapping("/test")
-    public Mono<?> test() {
-        return Mono.just("test");
+    public Mono<?> test(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        return Mono.just(userPrincipal.getUser().getId());
     }
 }

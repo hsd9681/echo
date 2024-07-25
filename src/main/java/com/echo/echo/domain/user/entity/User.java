@@ -31,6 +31,6 @@ public class User {
         this.email = email;
         this.password = password;
         this.intro = intro;
-        this.status = status.ordinal();
+        this.status = status == null? Status.TEMPORARY.ordinal() : status.ordinal();
     }
 }

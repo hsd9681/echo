@@ -14,8 +14,9 @@ class JwtServiceTest {
 
     @Test
     void createToken() {
+        Long id = 1L;
         String email = "test@test.com";
-        String token = jwtService.createToken(email);
+        String token = jwtService.createToken(id, email);
         System.out.println(token);
     }
 }

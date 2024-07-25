@@ -1,5 +1,7 @@
 package com.echo.echo.security.jwt;
 
+import com.echo.echo.domain.user.entity.User;
+import com.echo.echo.security.principal.UserPrincipal;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,7 +11,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -24,6 +25,7 @@ public class JwtService {
     private Key key;
     public static final String HEADER_PREFIX = "Bearer ";
     private final String AUTHORITIES_KEY = "auth";
+    private final String ID_KEY = "id";
     @Value("${jwt.time.access}")
     private Long ACCESS_TOKEN_TIME;
     @Value("${jwt.time.refresh}")
@@ -34,12 +36,13 @@ public class JwtService {
         this.key = Keys.hmacShaKeyFor(byteKey);
     }
 
-    public String createToken(String uesrname) {
+    public String createToken(Long id, String username) {
         Date now = new Date();
         return Jwts.builder()
-                .subject(uesrname)
+                .subject(username)
                 .claims()
                 .add(AUTHORITIES_KEY, AuthorityUtils.NO_AUTHORITIES)
+                .add(ID_KEY, id)
                 .expiration(new Date(now.getTime() + ACCESS_TOKEN_TIME))
                 .issuedAt(now)
                 .and()
@@ -70,8 +73,12 @@ public class JwtService {
         Collection<? extends GrantedAuthority> authorities = authoritiesClaim == null ? AuthorityUtils.NO_AUTHORITIES
                 : AuthorityUtils.commaSeparatedStringToAuthorityList(authoritiesClaim.toString());
 
-        User principal = new User(claims.getSubject(), "", authorities);
-        return new UsernamePasswordAuthenticationToken(principal, token, authorities);
+        User user = User.builder()
+                .id(Long.valueOf((Integer) claims.get(ID_KEY)))
+                .email(claims.getSubject())
+                .build();
+
+        return new UsernamePasswordAuthenticationToken(new UserPrincipal(user), token, authorities);
     }
 
     public String resolveToken(ServerHttpRequest request) {
