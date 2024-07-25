@@ -40,6 +40,7 @@ public class SpaceController {
 
     @DeleteMapping("/{spaceId}")
     public Mono<ResponseEntity<String>> deleteSpace(@PathVariable Long spaceId) {
-        return spaceFacade.deleteSpace(spaceId);
+        return spaceFacade.deleteSpace(spaceId)
+            .then(Mono.just(ResponseEntity.ok("삭제 완료입니다")));
     }
 }

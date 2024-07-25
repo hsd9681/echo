@@ -1,4 +1,4 @@
-package com.echo.echo.domain.space.service;
+package com.echo.echo.domain.space;
 
 import com.echo.echo.domain.space.dto.SpaceRequestDto;
 import com.echo.echo.domain.space.dto.SpaceResponseDto;

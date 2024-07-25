@@ -2,9 +2,7 @@ package com.echo.echo.domain.space;
 
 import com.echo.echo.domain.space.dto.SpaceRequestDto;
 import com.echo.echo.domain.space.dto.SpaceResponseDto;
-import com.echo.echo.domain.space.service.SpaceService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -31,8 +29,7 @@ public class SpaceFacade {
         return spaceService.getSpaceById(spaceId);
     }
 
-    public Mono<ResponseEntity<String>> deleteSpace(Long spaceId) {
-        return spaceService.deleteSpace(spaceId)
-                .then(Mono.just(ResponseEntity.ok("삭제 완료입니다")));
+    public Mono<Void> deleteSpace(Long spaceId) {
+        return spaceService.deleteSpace(spaceId);
     }
 }
