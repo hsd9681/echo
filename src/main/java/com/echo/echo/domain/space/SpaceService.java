@@ -25,7 +25,7 @@ public class SpaceService {
             .thumbnail(requestDto.getThumbnail())
             .build();
         return spaceRepository.save(space)
-            .map(spaceEntity -> toResponseDto(spaceEntity, null));
+            .map(SpaceResponseDto::new);
     }
 
     public Mono<SpaceResponseDto> updateSpace(Long spaceId, SpaceRequestDto requestDto) {
@@ -37,42 +37,34 @@ public class SpaceService {
                     requestDto.getThumbnail()
                 );
                 return spaceRepository.save(updatedSpace)
-                    .map(spaceEntity -> toResponseDto(spaceEntity, null));
+                    .map(SpaceResponseDto::new);
             });
     }
 
     public Flux<SpaceResponseDto> getAllPublicSpaces() {
         return spaceRepository.findAll()
             .filter(space -> "Y".equals(space.getIsPublic()))
-            .map(spaceEntity -> toResponseDto(spaceEntity, null));
+            .map(SpaceResponseDto::new);
     }
 
     public Mono<SpaceResponseDto> getSpaceById(Long spaceId) {
         return spaceRepository.findById(spaceId)
-            .map(spaceEntity -> toResponseDto(spaceEntity, null));
+            .map(SpaceResponseDto::new);
     }
 
     public Mono<Void> deleteSpace(Long spaceId) {
         return spaceRepository.deleteById(spaceId);
     }
 
-    private SpaceResponseDto toResponseDto(Space space, String message) {
-        return SpaceResponseDto.builder()
-            .id(space.getId())
-            .spaceName(space.getSpaceName())
-            .isPublic(space.getIsPublic())
-            .thumbnail(space.getThumbnail())
-            .uuid(space.getUuid())
-            .message(message)
-            .build();
-    }
-
     public Mono<SpaceResponseDto> joinSpace(String uuid, Long userId) {
         return spaceRepository.findByUuid(uuid)
             .flatMap(space -> spaceMemberRepository.findByUserIdAndSpaceId(userId, space.getId())
-                .switchIfEmpty(spaceMemberRepository.save(new SpaceMember(userId, space.getId())).thenReturn(new SpaceMember(userId, space.getId())))
+                .switchIfEmpty(spaceMemberRepository.save(SpaceMember.builder()
+                    .userId(userId)
+                    .spaceId(space.getId())
+                    .build()).thenReturn(SpaceMember.builder().userId(userId).spaceId(space.getId()).build()))
                 .thenReturn(space)
-                .map(spaceEntity -> toResponseDto(spaceEntity, "입장 성공입니다"))
+                .map(spaceEntity -> new SpaceResponseDto(spaceEntity, "입장 성공입니다"))
             );
     }
 }
