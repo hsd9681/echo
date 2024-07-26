@@ -1,5 +1,7 @@
 package com.echo.echo.domain.space;
 
+import com.echo.echo.common.exception.CommonCode;
+import com.echo.echo.common.exception.ErrorCode;
 import com.echo.echo.domain.space.dto.SpaceRequestDto;
 import com.echo.echo.domain.space.dto.SpaceResponseDto;
 import com.echo.echo.security.principal.UserPrincipal;
@@ -9,6 +11,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+/**
+ * SpaceController는 스페이스 관련 API 요청을 처리
+ */
 
 @RestController
 @RequiredArgsConstructor
@@ -43,7 +49,7 @@ public class SpaceController {
     @DeleteMapping("/{spaceId}")
     public Mono<ResponseEntity<String>> deleteSpace(@PathVariable Long spaceId) {
         return spaceFacade.deleteSpace(spaceId)
-            .then(Mono.just(ResponseEntity.ok("삭제 완료입니다")));
+            .then(Mono.just(ResponseEntity.ok(CommonCode.DELETE_SUCCESS.getMsg())));
     }
 
     @PostMapping("/join/{uuid}")
@@ -51,7 +57,6 @@ public class SpaceController {
         return spaceFacade.joinSpace(uuid, userPrincipal.getUser().getId())
             .map(ResponseEntity::ok)
             .switchIfEmpty(Mono.just(ResponseEntity.badRequest()
-                .body(SpaceResponseDto.builder().message("입장 실패: 코드가 유효하지 않습니다.").build())));
+                .body(SpaceResponseDto.builder().message(ErrorCode.ENTRY_FAILURE.getMsg()).build())));
     }
-
 }

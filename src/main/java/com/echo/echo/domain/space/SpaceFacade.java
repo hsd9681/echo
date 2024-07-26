@@ -7,6 +7,10 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+/**
+ * SpaceFacade는 SpaceService를 통해 스페이스 관련 비즈니스 로직을 처리
+ */
+
 @RequiredArgsConstructor
 @Component
 public class SpaceFacade {

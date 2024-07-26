@@ -10,7 +10,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum CommonCode implements BaseCode {
-    SUCCESS(1, "성공하였습니다.", "성공하였습니다.");
+    SUCCESS(1, "성공하였습니다.", "성공하였습니다."),
+    ENTRY_SUCCESS(2, "입장 성공입니다.", "입장이 성공적으로 완료되었습니다."),
+    DELETE_SUCCESS(3, "삭제 완료입니다.", "삭제가 성공적으로 완료되었습니다.");
 
     private final int code;
     private final String msg;

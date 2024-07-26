@@ -1,5 +1,8 @@
 package com.echo.echo.domain.space;
 
+import com.echo.echo.common.exception.CommonCode;
+import com.echo.echo.common.exception.CustomException;
+import com.echo.echo.common.exception.ErrorCode;
 import com.echo.echo.domain.space.dto.SpaceRequestDto;
 import com.echo.echo.domain.space.dto.SpaceResponseDto;
 import com.echo.echo.domain.space.entity.Space;
@@ -10,6 +13,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+/**
+ * SpaceService는 스페이스 관련 비즈니스 로직을 처리
+ */
 
 @RequiredArgsConstructor
 @Service
@@ -30,6 +37,7 @@ public class SpaceService {
 
     public Mono<SpaceResponseDto> updateSpace(Long spaceId, SpaceRequestDto requestDto) {
         return spaceRepository.findById(spaceId)
+            .switchIfEmpty(Mono.error(new CustomException(ErrorCode.NOT_FOUND)))
             .flatMap(existingSpace -> {
                 Space updatedSpace = existingSpace.update(
                     requestDto.getSpaceName(),
@@ -49,22 +57,26 @@ public class SpaceService {
 
     public Mono<SpaceResponseDto> getSpaceById(Long spaceId) {
         return spaceRepository.findById(spaceId)
+            .switchIfEmpty(Mono.error(new CustomException(ErrorCode.NOT_FOUND)))
             .map(SpaceResponseDto::new);
     }
 
     public Mono<Void> deleteSpace(Long spaceId) {
-        return spaceRepository.deleteById(spaceId);
+        return spaceRepository.findById(spaceId)
+            .switchIfEmpty(Mono.error(new CustomException(ErrorCode.NOT_FOUND)))
+            .flatMap(existingSpace -> spaceRepository.deleteById(spaceId));
     }
 
     public Mono<SpaceResponseDto> joinSpace(String uuid, Long userId) {
         return spaceRepository.findByUuid(uuid)
+            .switchIfEmpty(Mono.error(new CustomException(ErrorCode.NOT_FOUND)))
             .flatMap(space -> spaceMemberRepository.findByUserIdAndSpaceId(userId, space.getId())
                 .switchIfEmpty(spaceMemberRepository.save(SpaceMember.builder()
                     .userId(userId)
                     .spaceId(space.getId())
                     .build()).thenReturn(SpaceMember.builder().userId(userId).spaceId(space.getId()).build()))
                 .thenReturn(space)
-                .map(spaceEntity -> new SpaceResponseDto(spaceEntity, "입장 성공입니다"))
+                .map(spaceEntity -> new SpaceResponseDto(spaceEntity, CommonCode.ENTRY_SUCCESS.getMsg()))
             );
     }
 }
