@@ -16,21 +16,15 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    protected Mono<User> signup(UserRequestDto userRequestDto) {
-        return existsByEmail(userRequestDto.getEmail())
-                .flatMap(flag -> {
-                    if (flag) {
-                        return Mono.error(new IllegalArgumentException(userRequestDto.getEmail() + " already exists"));
-                    }
-                    return Mono.just(userRequestDto);
-                })
+    protected Mono<User> signup(UserRequestDto req) {
+        return checkDuplicateEmail(req.getEmail())
                 .subscribeOn(Schedulers.boundedElastic())
                 .then(Mono.just(User.builder()
-                                .email(userRequestDto.getEmail())
-                                .password(passwordEncoder.encode(userRequestDto.getPassword()))
-                                .intro(userRequestDto.getIntro())
-                                .status(User.Status.TEMPORARY)
-                                .build())
+                        .email(req.getEmail())
+                        .password(passwordEncoder.encode(req.getPassword()))
+                        .intro(req.getIntro())
+                        .status(User.Status.TEMPORARY)
+                        .build())
                 )
                 .flatMap(userRepository::save)
                 .doOnError(error -> System.err.println("Error: " + error.getMessage()));
@@ -45,10 +39,18 @@ public class UserService {
     }
 
     protected Mono<User> findByEmail(String email) {
-        return userRepository.findByEmail(email);
+        return userRepository.findByEmail(email)
+                .switchIfEmpty(Mono.error(new IllegalArgumentException("해당하는 이메일이 존재하지 않습니다.")));
     }
 
     protected Mono<Boolean> existsByEmail(String email) {
         return userRepository.existsByEmail(email);
+    }
+
+    protected Mono<Void> checkDuplicateEmail(String email) {
+        return existsByEmail(email)
+                .filter(isDuplicated -> !isDuplicated)
+                .switchIfEmpty(Mono.error(new IllegalArgumentException("이미 존재하는 이메일입니다.")))
+                .then();
     }
 }
