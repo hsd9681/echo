@@ -12,7 +12,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import javax.crypto.SecretKey;
@@ -22,7 +21,7 @@ import java.util.Collection;
 import java.util.Date;
 
 @Component
-public class JwtService {
+public class JwtProvider {
     private Key key;
     public static final String HEADER_PREFIX = "Bearer ";
     private final String AUTHORITIES_KEY = "auth";
@@ -32,12 +31,12 @@ public class JwtService {
     @Value("${jwt.time.refresh}")
     private Long REFRESH_TOKEN_TIME;
 
-    public JwtService(@Value("${jwt.secret}") String secret) {
+    public JwtProvider(@Value("${jwt.secret}") String secret) {
         byte[] byteKey = Base64.getDecoder().decode(secret);
         this.key = Keys.hmacShaKeyFor(byteKey);
     }
 
-    public String createToken(Long id, String username) {
+    public String createAccessToken(Long id, String username) {
         Date now = new Date();
         return Jwts.builder()
                 .subject(username)
@@ -49,6 +48,27 @@ public class JwtService {
                 .and()
                 .signWith(key)
                 .compact();
+    }
+
+    public String createRefreshToken() {
+        Date now = new Date();
+        return Jwts.builder()
+                .claims()
+                .expiration(new Date(now.getTime() + REFRESH_TOKEN_TIME))
+                .issuedAt(now)
+                .and()
+                .signWith(key)
+                .compact();
+    }
+
+    public Mono<Token> createToken(Long id, String username) {
+        return Mono.fromCallable(() -> createAccessToken(id, username))
+                .zipWith(Mono.fromCallable(this::createRefreshToken))
+                .map(tuple -> Token.builder()
+                        .accessToken(tuple.getT1())
+                        .refreshToken(tuple.getT2())
+                        .build()
+                );
     }
 
     public boolean isValidToken(String token) {
