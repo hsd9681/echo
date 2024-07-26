@@ -12,7 +12,8 @@ import lombok.Getter;
 public enum ErrorCode implements BaseCode {
     FAIL(-1, "실패했습니다.", "서버 에러"),
     NOT_FOUND(404, "데이터를 찾을 수 없습니다.", "데이터가 존재하지 않습니다."),
-    ENTRY_FAILURE(400, "입장 실패: 코드가 유효하지 않습니다.", "유효하지 않은 입장 코드입니다.");
+    ENTRY_FAILURE(401, "입장 실패: 코드가 유효하지 않습니다.", "유효하지 않은 입장 코드입니다."),
+    ALREADY_JOINED(409, "입장 실패: 이미 입장한 사용자입니다.", "이미 입장한 사용자입니다.");
 
     private final int code;
     private final String msg;

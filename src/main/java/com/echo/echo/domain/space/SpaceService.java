@@ -64,19 +64,21 @@ public class SpaceService {
     public Mono<Void> deleteSpace(Long spaceId) {
         return spaceRepository.findById(spaceId)
             .switchIfEmpty(Mono.error(new CustomException(ErrorCode.NOT_FOUND)))
-            .flatMap(existingSpace -> spaceRepository.deleteById(spaceId));
+            .flatMap(existingSpace -> spaceMemberRepository.deleteBySpaceId(spaceId)
+                .then(spaceRepository.deleteById(spaceId)));
     }
 
     public Mono<SpaceResponseDto> joinSpace(String uuid, Long userId) {
         return spaceRepository.findByUuid(uuid)
-            .switchIfEmpty(Mono.error(new CustomException(ErrorCode.NOT_FOUND)))
+            .switchIfEmpty(Mono.error(new CustomException(ErrorCode.ENTRY_FAILURE)))
             .flatMap(space -> spaceMemberRepository.findByUserIdAndSpaceId(userId, space.getId())
+                .flatMap(existingMember -> Mono.error(new CustomException(ErrorCode.ALREADY_JOINED)))
                 .switchIfEmpty(spaceMemberRepository.save(SpaceMember.builder()
                     .userId(userId)
                     .spaceId(space.getId())
                     .build()).thenReturn(SpaceMember.builder().userId(userId).spaceId(space.getId()).build()))
                 .thenReturn(space)
-                .map(spaceEntity -> new SpaceResponseDto(spaceEntity, CommonCode.ENTRY_SUCCESS.getMsg()))
+                .map(SpaceResponseDto::new)
             );
     }
 }

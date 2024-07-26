@@ -10,4 +10,5 @@ import reactor.core.publisher.Mono;
 
 public interface SpaceMemberRepository extends ReactiveCrudRepository<SpaceMember, Long> {
     Mono<SpaceMember> findByUserIdAndSpaceId(Long userId, Long spaceId);
+    Mono<Void> deleteBySpaceId(Long spaceId);
 }
