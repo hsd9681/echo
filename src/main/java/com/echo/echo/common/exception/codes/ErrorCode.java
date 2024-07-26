@@ -1,5 +1,7 @@
-package com.echo.echo.common.exception;
+package com.echo.echo.common.exception.codes;
 
+import com.echo.echo.common.exception.BaseCode;
+import com.echo.echo.common.exception.CommonReason;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

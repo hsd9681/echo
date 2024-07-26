@@ -1,5 +1,7 @@
-package com.echo.echo.common.exception;
+package com.echo.echo.common.exception.handler;
 
+import com.echo.echo.common.exception.CommonReason;
+import com.echo.echo.common.exception.CustomException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
