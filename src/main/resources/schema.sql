@@ -3,7 +3,8 @@ create table if not exists user (
     email varchar(50),
     password varchar(255),
     intro varchar(100),
-    status int(1)
+    status int(1),
+    verification_code int(6)
 );
 
 create table if not exists space (

@@ -53,7 +53,7 @@ public class SecurityConfig {
 
                 .authorizeExchange(authorizeExchangeSpec -> authorizeExchangeSpec
                         .pathMatchers(HttpMethod.GET,"/auth").permitAll()
-                        .pathMatchers(HttpMethod.POST, "/users/signup", "/auth/**").permitAll()
+                        .pathMatchers(HttpMethod.POST, "/users/signup", "/users/activate/**", "/auth/**").permitAll()
                         .anyExchange().authenticated()
                 )
                 .addFilterAt(authenticationWebFilter(), SecurityWebFiltersOrder.AUTHENTICATION)

@@ -3,9 +3,17 @@ POST localhost:8080/api/users/signup
 Content-Type: application/json
 
 {
-  "email": "test@test.com",
+  "email": "apfhd0257@naver.com",
   "password": "password",
   "intro": "intro"
+}
+
+### user activate
+POST localhost:8080/api/users/activate/111800
+Content-Type: application/json
+
+{
+  "email": "apfhd0257@naver.com"
 }
 
 ### Security Test

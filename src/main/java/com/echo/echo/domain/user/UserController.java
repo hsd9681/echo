@@ -1,5 +1,7 @@
 package com.echo.echo.domain.user;
 
+import com.echo.echo.domain.auth.dto.LoginResponseDto;
+import com.echo.echo.domain.auth.dto.VerificationRequest;
 import com.echo.echo.domain.user.dto.UserRequestDto;
 import com.echo.echo.domain.user.dto.UserResponseDto;
 import com.echo.echo.security.principal.UserPrincipal;
@@ -19,6 +21,12 @@ public class UserController {
     @PostMapping("/signup")
     public Mono<ResponseEntity<UserResponseDto>> signup(@RequestBody UserRequestDto req) {
         return userFacade.signup(req).map(ResponseEntity::ok);
+    }
+
+    @PostMapping("activate/{code}")
+    public Mono<ResponseEntity<String>> activate(@PathVariable("code") int code, @RequestBody VerificationRequest req) {
+        return userFacade.verifyCode(code, req)
+                .then(Mono.just(ResponseEntity.ok("계정 활성화가 완료되었습니다.")));
     }
 
     @GetMapping("/test")
