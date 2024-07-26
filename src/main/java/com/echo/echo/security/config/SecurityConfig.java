@@ -1,6 +1,6 @@
 package com.echo.echo.security.config;
 
-import com.echo.echo.security.jwt.JwtService;
+import com.echo.echo.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +17,6 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
@@ -26,7 +25,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class SecurityConfig {
 
-    private final JwtService jwtService;
+    private final JwtProvider jwtProvider;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -54,7 +53,7 @@ public class SecurityConfig {
 
                 .authorizeExchange(authorizeExchangeSpec -> authorizeExchangeSpec
                         .pathMatchers(HttpMethod.GET,"/auth").permitAll()
-                        .pathMatchers(HttpMethod.POST, "/users/signup").permitAll()
+                        .pathMatchers(HttpMethod.POST, "/users/signup", "/auth/**").permitAll()
                         .anyExchange().authenticated()
                 )
                 .addFilterAt(authenticationWebFilter(), SecurityWebFiltersOrder.AUTHENTICATION)
@@ -71,8 +70,8 @@ public class SecurityConfig {
     }
 
     private ServerAuthenticationConverter serverAuthenticationConverter() {
-        return exchange -> jwtService.resolveToken(exchange.getRequest())
-                .filter(jwtService::isValidToken)
-                .flatMap(token -> Mono.justOrEmpty(jwtService.getAuthentication(token)));
+        return exchange -> jwtProvider.resolveToken(exchange.getRequest())
+                .filter(jwtProvider::isValidToken)
+                .flatMap(token -> Mono.justOrEmpty(jwtProvider.getAuthentication(token)));
     }
 }
