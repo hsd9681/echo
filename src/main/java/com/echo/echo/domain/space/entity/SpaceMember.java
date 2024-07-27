@@ -1,6 +1,7 @@
 package com.echo.echo.domain.space.entity;
 
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.relational.core.mapping.Column;
@@ -17,6 +18,7 @@ public class SpaceMember {
     @Column("space_id")
     private Long spaceId;
 
+    @Builder
     public SpaceMember(Long userId, Long spaceId) {
         this.userId = userId;
         this.spaceId = spaceId;

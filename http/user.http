@@ -11,9 +11,4 @@ Content-Type: application/json
 ### Security Test
 GET localhost:8080/api/users/test
 Content-Type: application/json
-Authorization: Bearer
-
-### Space Join
-POST localhost:8080/spaces/join/{uuid}
-Content-Type: application/json
-Authorization: Bearer
+Authorization: Bearer {{accessToken}}
