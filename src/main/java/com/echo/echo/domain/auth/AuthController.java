@@ -2,12 +2,10 @@ package com.echo.echo.domain.auth;
 
 import com.echo.echo.domain.auth.dto.LoginRequestDto;
 import com.echo.echo.domain.auth.dto.LoginResponseDto;
+import com.echo.echo.domain.auth.dto.VerificationRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RestController
