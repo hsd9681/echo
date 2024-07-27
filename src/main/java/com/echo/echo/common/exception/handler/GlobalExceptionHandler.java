@@ -20,7 +20,6 @@ import reactor.core.publisher.Mono;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
-    @ResponseStatus(HttpStatus.OK)
     protected ResponseEntity<Mono<CommonReason>> handleCustomException(ServerWebExchange exchange, CustomException e) {
         return ResponseEntity.status(e.getBaseCode().getCommonReason().getStatus())
                         .body(Mono.just(e.getBaseCode().getCommonReason()));
