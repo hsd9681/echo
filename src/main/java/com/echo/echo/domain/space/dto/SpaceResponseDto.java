@@ -7,6 +7,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * SpaceResponseDto 클래스는 스페이스 응답 데이터
+ */
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -17,18 +21,12 @@ public class SpaceResponseDto {
     private String isPublic;
     private byte[] thumbnail;
     private String uuid;
-    private String message;
 
-    public SpaceResponseDto(Space space, String message) {
+    public SpaceResponseDto(Space space ) {
         this.id = space.getId();
         this.spaceName = space.getSpaceName();
         this.isPublic = space.getIsPublic();
         this.thumbnail = space.getThumbnail();
         this.uuid = space.getUuid();
-        this.message = message;
-    }
-
-    public SpaceResponseDto(Space space) {
-        this(space, null);
     }
 }

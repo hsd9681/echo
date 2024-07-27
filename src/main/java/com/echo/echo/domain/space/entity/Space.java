@@ -10,6 +10,10 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import java.util.UUID;
 
+/**
+ * Space 엔티티는 스페이스 테이블의 데이터를 매핑
+ */
+
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Table(name = "space")
