@@ -25,19 +25,16 @@ public class SpaceController {
     private final SpaceFacade spaceFacade;
 
     @PostMapping
-    public Mono<ResponseEntity<SpaceResponseDto>> createSpace(
-        @RequestBody SpaceRequestDto requestDto) {
+    public Mono<ResponseEntity<SpaceResponseDto>> createSpace(@RequestBody SpaceRequestDto requestDto) {
         return spaceFacade.createSpace(requestDto)
             .map(ResponseEntity::ok);
     }
 
     @PutMapping("/{spaceId}")
     public Mono<ResponseEntity<SpaceResponseDto>> updateSpace(@PathVariable Long spaceId,
-        @RequestBody SpaceRequestDto requestDto) {
+                                                              @RequestBody SpaceRequestDto requestDto) {
         return spaceFacade.updateSpace(spaceId, requestDto)
-            .map(ResponseEntity::ok)
-            .onErrorResume(CustomException.class,
-                e -> Mono.just(ResponseEntity.badRequest().body(null)));
+            .map(ResponseEntity::ok);
     }
 
     @GetMapping("/public")
@@ -48,27 +45,20 @@ public class SpaceController {
     @GetMapping("/{spaceId}")
     public Mono<ResponseEntity<Object>> getSpaceById(@PathVariable Long spaceId) {
         return spaceFacade.getSpaceById(spaceId)
-            .map(spaceResponseDto -> ResponseEntity.ok((Object) spaceResponseDto))
-            .onErrorResume(CustomException.class, e -> Mono.just(
-                ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body((Object) e.getBaseCode().getMsg())));
+                .map(ResponseEntity::ok);
     }
 
     @DeleteMapping("/{spaceId}")
     public Mono<ResponseEntity<String>> deleteSpace(@PathVariable Long spaceId) {
         return spaceFacade.deleteSpace(spaceId)
-            .then(Mono.just(ResponseEntity.ok(CommonCode.DELETE_SUCCESS.getMsg())))
-            .onErrorResume(CustomException.class, e -> Mono.just(
-                ResponseEntity.badRequest().body(e.getBaseCode().getCommonReason().getMsg())));
+            .then(Mono.just(ResponseEntity.ok(CommonCode.DELETE_SUCCESS.getMsg())));
     }
 
     @PostMapping("/join/{uuid}")
-    public Mono<ResponseEntity<Object>> joinSpace(@PathVariable String uuid,
-        @AuthenticationPrincipal UserPrincipal userPrincipal) {
+    public Mono<ResponseEntity<Object>> joinSpace(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                                  @PathVariable String uuid) {
         return spaceFacade.joinSpace(uuid, userPrincipal.getUser().getId())
-            .map(response -> ResponseEntity.ok((Object) response))
-            .onErrorResume(CustomException.class, e -> Mono.just(ResponseEntity.badRequest()
-                .body((Object) e.getBaseCode().getCommonReason().getMsg())));
+            .map(ResponseEntity::ok);
     }
 
 }

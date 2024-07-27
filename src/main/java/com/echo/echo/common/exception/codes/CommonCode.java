@@ -4,6 +4,7 @@ import com.echo.echo.common.exception.BaseCode;
 import com.echo.echo.common.exception.CommonReason;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 /**
  * CommonCode 열거형(enum)은 공통적으로 사용할 성공 메시지를 정의
@@ -23,10 +24,9 @@ public enum CommonCode implements BaseCode {
     @Override
     public CommonReason getCommonReason() {
         return CommonReason.builder()
+                .status(HttpStatus.OK)
                 .code(code)
                 .msg(msg)
-                .remark(remark)
-                .name(name())
                 .build();
     }
 }
