@@ -1,0 +1,39 @@
+### create space
+POST localhost:8080/api/spaces
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "spaceName": "space Name",
+  "isPublic": "Y",
+  "thumbnail": "VGhpcyBpcyBhIHRlc3QgdGh1bWJuYWls"
+}
+
+> {%
+  client.global.set("spaceId", response.body.id)
+%}
+
+
+### read space
+GET localhost:8080/api/spaces/{{spaceId}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+### update space
+PUT localhost:8080/api/spaces/{{spaceId}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "spaceName": "New spaceName",
+  "isPublic": "N",
+  "thumbnail": "VGhpcyBpcyBhIHRlc3QgdGh1bWJuYWls"
+}
+
+### get public space
+GET localhost:8080/api/spaces/public
+Authorization: Bearer {{accessToken}}
+
+### delete space
+DELETE localhost:8080/api/spaces/{{spaceId}}
+Authorization: Bearer {{accessToken}}
