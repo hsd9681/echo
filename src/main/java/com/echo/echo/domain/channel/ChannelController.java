@@ -1,39 +1,44 @@
 package com.echo.echo.domain.channel;
 
-import com.echo.echo.domain.channel.entity.Channel;
+import com.echo.echo.common.exception.codes.CommonCode;
+import com.echo.echo.domain.channel.dto.ChannelRequestDto;
+import com.echo.echo.domain.channel.dto.ChannelResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+/**
+ * ChannelController는 채널 관련 API 요청을 처리
+ */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/spaces/{spaceId}/channels")
 public class ChannelController {
 
     private final ChannelFacade channelFacade;
 
-    @PostMapping("/spaces/{spaceId}/channels")
-    public Mono<ResponseEntity<Channel>> createChannel(@PathVariable Long spaceId, @RequestParam String channelType) {
-        return channelFacade.createChannel(spaceId,channelType).map(ResponseEntity::ok);
+    @PostMapping
+    public Mono<ResponseEntity<ChannelResponseDto>> createChannel(@PathVariable Long spaceId, @RequestBody ChannelRequestDto requestDto) {
+        return channelFacade.createChannel(spaceId, requestDto)
+            .map(ResponseEntity::ok);
     }
 
-    @GetMapping("/spaces/{spaceId}/channels")
-    public Flux<ResponseEntity<Channel>> getChannel(@PathVariable Long spaceId, @RequestParam String channelType) {
-        return channelFacade.getChannel(spaceId, channelType).map(ResponseEntity::ok);
+    @GetMapping
+    public Flux<ChannelResponseDto> getChannels(@PathVariable Long spaceId) {
+        return channelFacade.getChannels(spaceId);
     }
 
-    @PutMapping("/spaces/{spaceId}/channels/{channelId}")
-    public Mono<ResponseEntity<Channel>> updateChannel(@PathVariable Long spaceId, @PathVariable Long channelId) {
-        return channelFacade.updateChannel(spaceId, channelId).map(ResponseEntity::ok);
+    @PutMapping("/{channelId}")
+    public Mono<ResponseEntity<ChannelResponseDto>> updateChannel(@PathVariable Long channelId, @RequestBody ChannelRequestDto requestDto) {
+        return channelFacade.updateChannel(channelId, requestDto)
+            .map(ResponseEntity::ok);
     }
 
-    @DeleteMapping("/spaces/{spaceId}/channels/{channelId}")
-    public Mono<ResponseEntity<Void>> deleteChannel(@RequestBody Long channelId) {
-        return channelFacade.deleteChannel(channelId).then(Mono.just(ResponseEntity.noContent().build()));
+    @DeleteMapping("/{channelId}")
+    public Mono<ResponseEntity<String>> deleteChannel(@PathVariable Long channelId) {
+        return channelFacade.deleteChannel(channelId)
+            .then(Mono.just(ResponseEntity.ok(CommonCode.DELETE_SUCCESS.getMsg())));
     }
-
 }
-
-

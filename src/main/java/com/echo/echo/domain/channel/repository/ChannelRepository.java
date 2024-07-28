@@ -3,11 +3,10 @@ package com.echo.echo.domain.channel.repository;
 import com.echo.echo.domain.channel.entity.Channel;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
-import java.util.Optional;
-
+/**
+ * ChannelRepository는 채널 데이터를 처리하는 리포지토리 인터페이스
+ */
 public interface ChannelRepository extends ReactiveCrudRepository<Channel, Long> {
-    Flux<Channel> findByChannelType(String channelType);
-    Mono<Channel> findByChannelId(Long channelId);
+    Flux<Channel> findBySpaceId(Long spaceId);
 }
