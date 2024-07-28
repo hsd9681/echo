@@ -1,0 +1,22 @@
+### user signup
+POST localhost:8080/api/users/signup
+Content-Type: application/json
+
+{
+  "email": "apfhd0257@naver.com",
+  "password": "password",
+  "intro": "intro"
+}
+
+### user activate
+POST localhost:8080/api/users/activate/111800
+Content-Type: application/json
+
+{
+  "email": "apfhd0257@naver.com"
+}
+
+### Security Test
+GET localhost:8080/api/users/test
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
