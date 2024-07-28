@@ -1,14 +1,12 @@
 package com.echo.echo.domain.user.entity;
 
-import com.echo.echo.domain.text.entity.Text;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Transient;
 
-import java.util.List;
+import java.util.Random;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -19,6 +17,7 @@ public class User {
     private String password;
     private String intro;
     private int status;
+    private int verificationCode;
 
     // 상태: 인증 전, 인증 완료, 탈퇴
     public enum Status {
@@ -26,11 +25,23 @@ public class User {
     }
 
     @Builder
-    public User(Long id, String email, String password, String intro, Status status) {
+    public User(Long id, String email, String password, String intro, Status status, Integer verificationCode) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.intro = intro;
-        this.status = status.ordinal();
+        this.status = status == null? Status.TEMPORARY.ordinal() : status.ordinal();
+        this.verificationCode = verificationCode == null? new Random(System.currentTimeMillis()).nextInt(900000) + 100000 : verificationCode;
+    }
+
+    public void activateStatus() {
+        if (this.status == Status.ACTIVATE.ordinal()) {
+            throw new RuntimeException("이미 활성화된 계정입니다.");
+        }
+        this.status = Status.ACTIVATE.ordinal();
+    }
+
+    public boolean checkVerificationCode(int inputCode) {
+        return this.getVerificationCode() == inputCode;
     }
 }

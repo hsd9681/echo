@@ -3,14 +3,15 @@ create table if not exists user (
     email varchar(50),
     password varchar(255),
     intro varchar(100),
-    status int(1)
+    status int(1),
+    verification_code int(6)
 );
 
 create table if not exists space (
     id bigint auto_increment primary key,
     space_name varchar(20) not null,
     is_public varchar(1) default 'n' not null,
-    thumnail blob,
+    thumbnail blob,
     uuid varchar(36) not null,
     created_at timestamp not null,
     modified_at timestamp not null
@@ -42,3 +43,5 @@ create table if not exists text (
     foreign key(user_id) references user(id),
     foreign key(channel_id) references channel(id)
 );
+
+
