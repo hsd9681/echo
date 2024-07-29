@@ -1,12 +1,10 @@
 package com.echo.echo.domain.space;
 
-import com.echo.echo.common.exception.codes.CommonCode;
-import com.echo.echo.common.exception.CustomException;
+import com.echo.echo.domain.space.error.SpaceSuccessCode;
 import com.echo.echo.domain.space.dto.SpaceRequestDto;
 import com.echo.echo.domain.space.dto.SpaceResponseDto;
 import com.echo.echo.security.principal.UserPrincipal;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -51,7 +49,7 @@ public class SpaceController {
     @DeleteMapping("/{spaceId}")
     public Mono<ResponseEntity<String>> deleteSpace(@PathVariable Long spaceId) {
         return spaceFacade.deleteSpace(spaceId)
-            .then(Mono.just(ResponseEntity.ok(CommonCode.DELETE_SUCCESS.getMsg())));
+            .then(Mono.just(ResponseEntity.ok(SpaceSuccessCode.SPACE_DELETE.getMsg())));
     }
 
     @PostMapping("/join/{uuid}")

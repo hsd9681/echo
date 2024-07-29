@@ -1,7 +1,8 @@
 package com.echo.echo.domain.channel;
 
 import com.echo.echo.common.exception.CustomException;
-import com.echo.echo.common.exception.codes.ErrorCode;
+import com.echo.echo.domain.channel.error.ChannelErrorCode;
+import com.echo.echo.domain.space.error.SpaceErrorCode;
 import com.echo.echo.domain.channel.dto.ChannelRequestDto;
 import com.echo.echo.domain.channel.dto.ChannelResponseDto;
 import com.echo.echo.domain.channel.entity.Channel;
@@ -54,12 +55,12 @@ public class ChannelService {
 
     private Mono<Space> findSpaceById(Long spaceId) {
         return spaceRepository.findById(spaceId)
-            .switchIfEmpty(Mono.error(new CustomException(ErrorCode.NOT_FOUND)));
+            .switchIfEmpty(Mono.error(new CustomException(SpaceErrorCode.SPACE_NOT_FOUND)));
     }
 
     private Mono<Channel> findChannelById(Long channelId) {
         return channelRepository.findById(channelId)
-            .switchIfEmpty(Mono.error(new CustomException(ErrorCode.NOT_FOUND)));
+            .switchIfEmpty(Mono.error(new CustomException(ChannelErrorCode.CHANNEL_NOT_FOUND)));
     }
 
     private Channel buildChannel(Long channelId, Long spaceId, ChannelRequestDto requestDto) {
