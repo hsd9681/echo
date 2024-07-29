@@ -1,6 +1,6 @@
 package com.echo.echo.domain.space;
 
-import com.echo.echo.common.exception.codes.success.SpaceSuccessCode;
+import com.echo.echo.domain.space.error.SpaceSuccessCode;
 import com.echo.echo.domain.space.dto.SpaceRequestDto;
 import com.echo.echo.domain.space.dto.SpaceResponseDto;
 import com.echo.echo.security.principal.UserPrincipal;

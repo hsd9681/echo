@@ -1,8 +1,7 @@
 package com.echo.echo.domain.space;
 
 import com.echo.echo.common.exception.CustomException;
-import com.echo.echo.common.exception.codes.error.CommonErrorCode;
-import com.echo.echo.common.exception.codes.error.SpaceErrorCode;
+import com.echo.echo.domain.space.error.SpaceErrorCode;
 import com.echo.echo.domain.space.dto.SpaceRequestDto;
 import com.echo.echo.domain.space.dto.SpaceResponseDto;
 import com.echo.echo.domain.space.entity.Space;

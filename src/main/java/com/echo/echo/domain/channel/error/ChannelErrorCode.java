@@ -1,4 +1,4 @@
-package com.echo.echo.common.exception.codes.error;
+package com.echo.echo.domain.channel.error;
 
 import com.echo.echo.common.exception.BaseCode;
 import com.echo.echo.common.exception.CommonReason;

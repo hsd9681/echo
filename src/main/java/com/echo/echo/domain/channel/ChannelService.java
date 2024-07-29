@@ -1,8 +1,8 @@
 package com.echo.echo.domain.channel;
 
 import com.echo.echo.common.exception.CustomException;
-import com.echo.echo.common.exception.codes.error.ChannelErrorCode;
-import com.echo.echo.common.exception.codes.error.SpaceErrorCode;
+import com.echo.echo.domain.channel.error.ChannelErrorCode;
+import com.echo.echo.domain.space.error.SpaceErrorCode;
 import com.echo.echo.domain.channel.dto.ChannelRequestDto;
 import com.echo.echo.domain.channel.dto.ChannelResponseDto;
 import com.echo.echo.domain.channel.entity.Channel;

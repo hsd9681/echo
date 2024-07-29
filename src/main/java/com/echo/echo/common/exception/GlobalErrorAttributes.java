@@ -1,6 +1,6 @@
 package com.echo.echo.common.exception;
 
-import com.echo.echo.common.exception.codes.error.CommonErrorCode;
+import com.echo.echo.common.exception.codes.CommonErrorCode;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
 import org.springframework.stereotype.Component;

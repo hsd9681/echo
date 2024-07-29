@@ -1,6 +1,6 @@
 package com.echo.echo.domain.channel;
 
-import com.echo.echo.common.exception.codes.success.ChannelSuccessCode;
+import com.echo.echo.domain.channel.error.ChannelSuccessCode;
 import com.echo.echo.domain.channel.dto.ChannelRequestDto;
 import com.echo.echo.domain.channel.dto.ChannelResponseDto;
 import lombok.RequiredArgsConstructor;

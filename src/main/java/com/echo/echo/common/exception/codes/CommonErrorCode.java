@@ -1,4 +1,4 @@
-package com.echo.echo.common.exception.codes.success;
+package com.echo.echo.common.exception.codes;
 
 import com.echo.echo.common.exception.BaseCode;
 import com.echo.echo.common.exception.CommonReason;
@@ -7,14 +7,16 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 /**
- * SpaceSuccessCode 열거형(enum)은 스페이스 관련 성공 메시지를 정의
+ * CommonErrorCode 열거형(enum)은 공통적으로 사용할 에러 코드를 정의
  */
-
 @Getter
 @AllArgsConstructor
-public enum SpaceSuccessCode implements BaseCode {
-    SPACE_DELETE(3, "스페이스 삭제 완료입니다.", "스페이스 삭제가 성공적으로 완료되었습니다.");
+public enum CommonErrorCode implements BaseCode {
 
+    FAIL(HttpStatus.INTERNAL_SERVER_ERROR, -1, "실패했습니다.", "서버 에러"),
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, 401, "로그인이 안되어있거나 만료된 사용자입니다.", "비정상적인 토큰입니다.");
+
+    private final HttpStatus status;
     private final int code;
     private final String msg;
     private final String remark;
@@ -22,7 +24,7 @@ public enum SpaceSuccessCode implements BaseCode {
     @Override
     public CommonReason getCommonReason() {
         return CommonReason.builder()
-            .status(HttpStatus.OK)
+            .status(status)
             .code(code)
             .msg(msg)
             .build();
