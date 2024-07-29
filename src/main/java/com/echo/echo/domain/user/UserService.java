@@ -24,6 +24,7 @@ public class UserService {
                         .email(req.getEmail())
                         .password(passwordEncoder.encode(req.getPassword()))
                         .intro(req.getIntro())
+                        .username(req.getUsername())
                         .status(User.Status.TEMPORARY)
                         .build())
                 )

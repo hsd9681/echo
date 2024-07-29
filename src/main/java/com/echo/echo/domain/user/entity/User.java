@@ -18,6 +18,7 @@ public class User {
     private String email;
     private String password;
     private String intro;
+    private String username;
     private int status;
     private int verificationCode;
 
@@ -27,13 +28,14 @@ public class User {
     }
 
     @Builder
-    public User(Long id, String email, String password, String intro, Status status, Integer verificationCode) {
+    public User(Long id, String email, String password, String intro, String username, Status status, Integer verificationCode) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.intro = intro;
-        this.status = status == null? Status.TEMPORARY.ordinal() : status.ordinal();
-        this.verificationCode = verificationCode == null? new Random(System.currentTimeMillis()).nextInt(900000) + 100000 : verificationCode;
+        this.username = username;
+        this.status = status == null ? Status.TEMPORARY.ordinal() : status.ordinal();
+        this.verificationCode = verificationCode == null ? new Random(System.currentTimeMillis()).nextInt(900000) + 100000 : verificationCode;
     }
 
     public boolean checkActivate() {
@@ -49,5 +51,17 @@ public class User {
 
     public boolean checkVerificationCode(int inputCode) {
         return this.getVerificationCode() == inputCode;
+    }
+
+    public void updateUsername(String username) {
+        this.username = username;
+    }
+
+    public void updateIntro(String intro) {
+        this.intro = intro;
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
     }
 }
