@@ -55,14 +55,12 @@ public class SpaceService {
     }
 
     public Mono<SpaceResponseDto> getSpaceById(Long spaceId) {
-        return spaceRepository.findById(spaceId)
-            .switchIfEmpty(Mono.error(new CustomException(ErrorCode.NOT_FOUND)))
+        return findSpaceById(spaceId)
             .map(SpaceResponseDto::new);
     }
 
     public Mono<Void> deleteSpace(Long spaceId) {
-        return spaceRepository.findById(spaceId)
-            .switchIfEmpty(Mono.error(new CustomException(ErrorCode.NOT_FOUND)))
+        return findSpaceById(spaceId)
             .flatMap(existingSpace -> spaceMemberRepository.deleteBySpaceId(spaceId)
                 .then(spaceRepository.deleteById(spaceId)));
     }
@@ -75,9 +73,14 @@ public class SpaceService {
                 .switchIfEmpty(spaceMemberRepository.save(SpaceMember.builder()
                     .userId(userId)
                     .spaceId(space.getId())
-                    .build()).thenReturn(SpaceMember.builder().userId(userId).spaceId(space.getId()).build()))
-                .thenReturn(space)
+                    .build()))
+                .then(Mono.just(space))
                 .map(SpaceResponseDto::new)
             );
+    }
+
+    private Mono<Space> findSpaceById(Long spaceId) {
+        return spaceRepository.findById(spaceId)
+            .switchIfEmpty(Mono.error(new CustomException(ErrorCode.NOT_FOUND)));
     }
 }
