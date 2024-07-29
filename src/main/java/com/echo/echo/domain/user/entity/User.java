@@ -1,5 +1,7 @@
 package com.echo.echo.domain.user.entity;
 
+import com.echo.echo.common.exception.CustomException;
+import com.echo.echo.domain.user.error.UserErrorCode;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,9 +36,13 @@ public class User {
         this.verificationCode = verificationCode == null? new Random(System.currentTimeMillis()).nextInt(900000) + 100000 : verificationCode;
     }
 
+    public boolean checkActivate() {
+        return this.status == Status.ACTIVATE.ordinal();
+    }
+
     public void activateStatus() {
         if (this.status == Status.ACTIVATE.ordinal()) {
-            throw new RuntimeException("이미 활성화된 계정입니다.");
+            throw new CustomException(UserErrorCode.ALREADY_ACCOUNT_ACTIVATED);
         }
         this.status = Status.ACTIVATE.ordinal();
     }
