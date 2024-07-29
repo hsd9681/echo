@@ -3,20 +3,46 @@ POST localhost:8080/api/users/signup
 Content-Type: application/json
 
 {
-  "email": "dkssud0257@naver.com",
+  "email": "{{email}}",
+  "username":"이름",
   "password": "password",
   "intro": "intro"
 }
 
 ### user activate
-POST localhost:8080/api/users/activate/111800
+POST localhost:8080/api/users/activate/{{Verification_code}}
 Content-Type: application/json
 
 {
-  "email": "apfhd0257@naver.com"
+  "email": "{{email}}"
 }
 
 ### Security Test
 GET localhost:8080/api/users/test
 Content-Type: application/json
+Authorization: Bearer
+
+### get user profile
+GET localhost:8080/api/users/profile
+Content-Type: application/json
 Authorization: Bearer {{accessToken}}
+
+### update user profile
+PUT localhost:8080/api/users/profile
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "username": "newUsername",
+  "intro": "newIntro"
+}
+
+### change user password
+PUT localhost:8080/api/users/password
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "password": "password",
+  "newPassword": "newPassword"
+}
