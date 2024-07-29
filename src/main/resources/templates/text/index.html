@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commeow Chat</title>
+</head>
+<body>
+<div id="chat-container">
+    <div class="chat-box">
+        <ul id="message-list"></ul>
+        <div id="message-input">
+            <input type="text" id="inputMessage" placeholder="메시지를 입력하세요...">
+            <button id="sendButton">전송</button>
+        </div>
+    </div>
+    <div id="nickname-input">
+        <input type="text" id="username" placeholder="닉네임을 입력하세요...">
+        <button id="confirmUsername" onclick="confirmUsername()">완료</button>
+    </div>
+</div>
+</body>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const chatWebSocket = new WebSocket('ws://localhost:8080/api/text');
+        const inputMessage = document.getElementById('inputMessage');
+        const messageList = document.getElementById('message-list');
+        const usernameInput = document.getElementById("username");
+        const sendButton = document.getElementById("sendButton");
+        const confirmButton = document.getElementById("confirmUsername");
+
+        chatWebSocket.onopen = function(event) {
+            console.log('소켓 연결 완료', event);
+        }
+
+        chatWebSocket.onmessage = function(event) {
+            console.log('수신', event);
+            const li = document.createElement('li');
+            li.innerText = event.data;
+            messageList.appendChild(li);
+        };
+
+        chatWebSocket.onclose = function(event) {
+            console.log('소켓 연결 종료', event);
+            alert('웹소켓이 닫혔습니다! 다시 연결하려면 페이지를 새로고침 해주세요.');
+        };
+
+        chatWebSocket.onerror = function(event) {
+            console.log('소켓 오류', event);
+        }
+
+        function sendMessage() {
+            if (inputMessage.value.trim() === '') {
+                return;
+            }
+
+            const username = usernameInput.value.trim();
+            const messageObject = {
+                username:username,
+                message:inputMessage.value,
+            };
+            chatWebSocket.send(JSON.stringify(messageObject));
+            inputMessage.value = '';
+        }
+
+        sendButton.addEventListener('click', sendMessage);
+
+        confirmButton.addEventListener('click', function() {
+            if (usernameInput.value.trim() !== '') {
+                usernameInput.disabled = true;
+                confirmButton.disabled = true;
+                confirmButton.style.backgroundColor = "gray";
+            }
+        });
+
+        document.getElementById('message-input').addEventListener('submit', function(event) {
+            event.preventDefault();
+            sendMessage();
+        });
+    });
+</script>
+</html>
