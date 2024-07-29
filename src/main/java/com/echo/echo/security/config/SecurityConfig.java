@@ -17,7 +17,12 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.CorsConfigurationSource;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 import reactor.core.publisher.Mono;
+
+import java.util.Arrays;
 
 @RequiredArgsConstructor
 @EnableWebFluxSecurity
@@ -57,10 +62,13 @@ public class SecurityConfig {
                         .anyExchange().authenticated()
                 )
                 .addFilterAt(authenticationWebFilter(), SecurityWebFiltersOrder.AUTHENTICATION)
-                ;
+                .cors(corsSpec -> corsSpec.configurationSource(corsConfigurationSource()))
+        ;
+
 
         return http.build();
     }
+
 
     private AuthenticationWebFilter authenticationWebFilter() {
         ReactiveAuthenticationManager authenticationManager = Mono::just;
@@ -73,5 +81,16 @@ public class SecurityConfig {
         return exchange -> jwtProvider.resolveToken(exchange.getRequest())
                 .filter(jwtProvider::isValidToken)
                 .flatMap(token -> Mono.justOrEmpty(jwtProvider.getAuthentication(token)));
+    }
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // 프론트엔드 주소
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
