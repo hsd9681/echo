@@ -1,6 +1,6 @@
 package com.echo.echo.domain.channel;
 
-import com.echo.echo.common.exception.codes.CommonCode;
+import com.echo.echo.common.exception.codes.success.ChannelSuccessCode;
 import com.echo.echo.domain.channel.dto.ChannelRequestDto;
 import com.echo.echo.domain.channel.dto.ChannelResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +39,6 @@ public class ChannelController {
     @DeleteMapping("/{channelId}")
     public Mono<ResponseEntity<String>> deleteChannel(@PathVariable Long channelId) {
         return channelFacade.deleteChannel(channelId)
-            .then(Mono.just(ResponseEntity.ok(CommonCode.DELETE_SUCCESS.getMsg())));
+            .then(Mono.just(ResponseEntity.ok(ChannelSuccessCode.CHANNEL_DELETE.getMsg())));
     }
 }

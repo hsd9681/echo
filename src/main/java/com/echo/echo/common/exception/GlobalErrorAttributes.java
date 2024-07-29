@@ -1,6 +1,6 @@
 package com.echo.echo.common.exception;
 
-import com.echo.echo.common.exception.codes.ErrorCode;
+import com.echo.echo.common.exception.codes.error.CommonErrorCode;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
 import org.springframework.stereotype.Component;
@@ -16,7 +16,7 @@ public class GlobalErrorAttributes extends DefaultErrorAttributes {
         Map<String, Object> originMap = super.getErrorAttributes(request, options);
         Map<String, Object> map = new HashMap<>();
 
-        map.put("status", ErrorCode.FAIL.getStatus().value());
+        map.put("status", CommonErrorCode.FAIL.getStatus().value());
 
         Throwable throwable = getError(request);
         if (throwable instanceof CustomException) {
@@ -26,8 +26,8 @@ public class GlobalErrorAttributes extends DefaultErrorAttributes {
         }
 
         if (throwable instanceof SecurityException) {
-            map.put("message", ErrorCode.UNAUTHORIZED.getMsg());
-            map.put("status", ErrorCode.UNAUTHORIZED.getStatus().value());
+            map.put("message", CommonErrorCode.UNAUTHORIZED.getMsg());
+            map.put("status", CommonErrorCode.UNAUTHORIZED.getStatus().value());
         }
 
         map.put("path", originMap.get("path"));
