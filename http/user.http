@@ -3,7 +3,7 @@ POST localhost:8080/api/users/signup
 Content-Type: application/json
 
 {
-  "email": "apfhd0257@naver.com",
+  "email": "dkssud0257@naver.com",
   "password": "password",
   "intro": "intro"
 }

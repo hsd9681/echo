@@ -1,7 +1,9 @@
 package com.echo.echo.domain.user;
 
+import com.echo.echo.common.exception.CustomException;
 import com.echo.echo.domain.user.dto.UserRequestDto;
 import com.echo.echo.domain.user.entity.User;
+import com.echo.echo.domain.user.error.UserErrorCode;
 import com.echo.echo.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -45,13 +47,13 @@ public class UserService {
     public Mono<Void> checkVerificationCodeAndActivateUser(int code, String email) {
         return findByEmail(email)
                 .filter(user -> user.checkVerificationCode(code))
-                .switchIfEmpty(Mono.error(new IllegalArgumentException("인증번호가 올바르지 않습니다.")))
+                .switchIfEmpty(Mono.error(new CustomException(UserErrorCode.INCORRECT_VERIFICATION_NUMBER)))
                 .flatMap(this::activateUserStatus).then();
     }
 
     protected Mono<User> findByEmail(String email) {
         return userRepository.findByEmail(email)
-                .switchIfEmpty(Mono.error(new IllegalArgumentException("해당하는 이메일을 찾을 수 없습니다.")));
+                .switchIfEmpty(Mono.error(new CustomException(UserErrorCode.USER_NOT_FOUND)));
     }
 
     protected Mono<Boolean> existsByEmail(String email) {
@@ -61,7 +63,7 @@ public class UserService {
     protected Mono<Void> checkDuplicateEmail(String email) {
         return existsByEmail(email)
                 .filter(isDuplicated -> !isDuplicated)
-                .switchIfEmpty(Mono.error(new IllegalArgumentException("이미 존재하는 이메일입니다.")))
+                .switchIfEmpty(Mono.error(new CustomException(UserErrorCode.ALREADY_EXIST_EMAIL)))
                 .then();
     }
 }

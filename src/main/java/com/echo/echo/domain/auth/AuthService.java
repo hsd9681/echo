@@ -1,6 +1,8 @@
 package com.echo.echo.domain.auth;
 
+import com.echo.echo.common.exception.CustomException;
 import com.echo.echo.domain.auth.dto.LoginResponseDto;
+import com.echo.echo.domain.auth.error.AuthErrorCode;
 import com.echo.echo.domain.user.entity.User;
 import com.echo.echo.security.jwt.JwtProvider;
 import com.echo.echo.security.jwt.Token;
@@ -20,6 +22,9 @@ public class AuthService {
 
     public Mono<LoginResponseDto> login(String inputPassword, User user) {
         return checkPassword(inputPassword, user.getPassword())
+                .then(Mono.just(user))
+                .filter(User::checkActivate)
+                .switchIfEmpty(Mono.error(new CustomException(AuthErrorCode.NOT_ACTIVATED_ACCOUNT)))
                 .then(Mono.defer(() -> jwtProvider.createToken(user.getId(), user.getEmail())))
                 .map(LoginResponseDto::new);
     }
@@ -27,7 +32,7 @@ public class AuthService {
     private Mono<Void> checkPassword(String inputPassword, String password) {
         return Mono.just(passwordEncoder.matches(inputPassword, password))
                 .filter(isMatch -> isMatch)
-                .switchIfEmpty(Mono.error(new IllegalArgumentException("비밀번호가 일치하지 않습니다.")))
+                .switchIfEmpty(Mono.error(new CustomException(AuthErrorCode.PASSWORD_NOT_MATCH)))
                 .then();
     }
 }
