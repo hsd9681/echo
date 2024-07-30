@@ -5,6 +5,7 @@ import com.echo.echo.common.exception.CommonReason;
 import com.echo.echo.common.exception.CustomException;
 import com.echo.echo.domain.user.error.UserErrorCode;
 import com.echo.echo.domain.space.error.SpaceErrorCode;
+import com.echo.echo.domain.channel.error.ChannelErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,6 +44,10 @@ public class GlobalExceptionHandler {
             errorCode = SpaceErrorCode.INVALID_SPACE_NAME;
         } else if (defaultMessage.contains("공개 여부는 Y 또는 N이어야 합니다.")) {
             errorCode = SpaceErrorCode.INVALID_IS_PUBLIC;
+        } else if (defaultMessage.contains("채널 이름은 50자 미만이어야 합니다.")) {
+            errorCode = ChannelErrorCode.INVALID_CHANNEL_NAME;
+        } else if (defaultMessage.contains("채널 타입은 T 또는 V이어야 합니다.")) {
+            errorCode = ChannelErrorCode.INVALID_CHANNEL_TYPE;
         } else {
             errorCode = UserErrorCode.USER_NOT_FOUND;
         }
