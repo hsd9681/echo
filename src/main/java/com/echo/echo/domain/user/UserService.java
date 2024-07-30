@@ -26,7 +26,7 @@ public class UserService {
                         .email(req.getEmail())
                         .password(passwordEncoder.encode(req.getPassword()))
                         .intro(req.getIntro())
-                        .username(req.getUsername())
+                        .nickname(req.getNickname())
                         .status(User.Status.TEMPORARY)
                         .build())
                 )
@@ -78,7 +78,7 @@ public class UserService {
     public Mono<User> updateProfile(Long userId, UpdateProfileRequestDto req) {
         return findById(userId)
             .flatMap(user -> {
-                user.updateUsername(req.getUsername());
+                user.updateUsername(req.getNickname());
                 user.updateIntro(req.getIntro());
                 return save(user);
             });
