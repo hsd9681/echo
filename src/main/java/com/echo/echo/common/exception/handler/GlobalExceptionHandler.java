@@ -1,8 +1,10 @@
 package com.echo.echo.common.exception.handler;
 
+import com.echo.echo.common.exception.BaseCode;
 import com.echo.echo.common.exception.CommonReason;
 import com.echo.echo.common.exception.CustomException;
 import com.echo.echo.domain.user.error.UserErrorCode;
+import com.echo.echo.domain.space.error.SpaceErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +30,27 @@ public class GlobalExceptionHandler {
             .body(reason));
     }
 
+    @ExceptionHandler(WebExchangeBindException.class)
+    protected Mono<ResponseEntity<CommonReason>> handleValidationException(WebExchangeBindException e) {
+        String defaultMessage = e.getAllErrors().get(0).getDefaultMessage();
+        BaseCode errorCode;
+
+        if (defaultMessage.contains("이메일 형식이 올바르지 않습니다.")) {
+            errorCode = UserErrorCode.EMAIL_FORMAT_INVALID;
+        } else if (defaultMessage.contains("비밀번호는 대소문자, 숫자, 특수문자(~!@#$%^&*)를 포함하여 8자 이상이어야 합니다.")) {
+            errorCode = UserErrorCode.PASSWORD_FORMAT_INVALID;
+        } else if (defaultMessage.contains("스페이스 이름은 20자 미만이어야 합니다.")) {
+            errorCode = SpaceErrorCode.INVALID_SPACE_NAME;
+        } else if (defaultMessage.contains("공개 여부는 Y 또는 N이어야 합니다.")) {
+            errorCode = SpaceErrorCode.INVALID_IS_PUBLIC;
+        } else {
+            errorCode = UserErrorCode.USER_NOT_FOUND;
+        }
+
+        CommonReason reason = errorCode.getCommonReason();
+        return Mono.just(ResponseEntity.status(reason.getStatus()).body(reason));
+    }
+
     @ExceptionHandler(Exception.class)
     protected Mono<ResponseEntity<CommonReason>> handleGeneralException(Exception e) {
         log.error("Exception: {}", e.getMessage());
@@ -39,22 +62,5 @@ public class GlobalExceptionHandler {
         return Mono.just(ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(reason));
-    }
-
-    @ExceptionHandler(WebExchangeBindException.class)
-    protected Mono<ResponseEntity<CommonReason>> handleValidationException(WebExchangeBindException e) {
-        String defaultMessage = e.getAllErrors().get(0).getDefaultMessage();
-        UserErrorCode errorCode;
-
-        if (defaultMessage.contains("이메일 형식이 올바르지 않습니다.")) {
-            errorCode = UserErrorCode.EMAIL_FORMAT_INVALID;
-        } else if (defaultMessage.contains("비밀번호는 대소문자, 숫자, 특수문자(~!@#$%^&*)를 포함하여 8자 이상이어야 합니다.")) {
-            errorCode = UserErrorCode.PASSWORD_FORMAT_INVALID;
-        } else {
-            errorCode = UserErrorCode.USER_NOT_FOUND;
-        }
-
-        CommonReason reason = errorCode.getCommonReason();
-        return Mono.just(ResponseEntity.status(reason.getStatus()).body(reason));
     }
 }
