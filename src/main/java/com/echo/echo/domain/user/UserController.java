@@ -1,9 +1,11 @@
 package com.echo.echo.domain.user;
 
-import com.echo.echo.domain.auth.dto.LoginResponseDto;
 import com.echo.echo.domain.auth.dto.VerificationRequest;
+import com.echo.echo.domain.user.dto.ChangePasswordRequestDto;
+import com.echo.echo.domain.user.dto.UpdateProfileRequestDto;
 import com.echo.echo.domain.user.dto.UserRequestDto;
 import com.echo.echo.domain.user.dto.UserResponseDto;
+import com.echo.echo.domain.user.error.UserSuccessCode;
 import com.echo.echo.security.principal.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -33,4 +35,27 @@ public class UserController {
     public Mono<?> test(@AuthenticationPrincipal UserPrincipal userPrincipal) {
         return Mono.just(userPrincipal.getUser().getId());
     }
+
+    @GetMapping("/profile")
+    public Mono<ResponseEntity<UserResponseDto>> getProfile(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        return userFacade.findUserById(userPrincipal.getUser().getId())
+            .map(UserResponseDto::new)
+            .map(ResponseEntity::ok);
+    }
+
+    @PutMapping("/profile")
+    public Mono<ResponseEntity<UserResponseDto>> updateProfile(@AuthenticationPrincipal UserPrincipal userPrincipal,
+        @RequestBody UpdateProfileRequestDto req) {
+        return userFacade.updateProfile(userPrincipal.getUser().getId(), req)
+            .map(UserResponseDto::new)
+            .map(ResponseEntity::ok);
+    }
+
+    @PutMapping("/password")
+    public Mono<ResponseEntity<String>> changePassword(@AuthenticationPrincipal UserPrincipal userPrincipal,
+        @RequestBody ChangePasswordRequestDto req) {
+        return userFacade.changePassword(userPrincipal.getUser().getId(), req)
+            .then(Mono.just(ResponseEntity.ok(UserSuccessCode.PASSWORD_CHANGE_SUCCESS.getMsg())));
+    }
+
 }

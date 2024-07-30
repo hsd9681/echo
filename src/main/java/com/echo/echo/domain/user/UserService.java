@@ -1,6 +1,8 @@
 package com.echo.echo.domain.user;
 
 import com.echo.echo.common.exception.CustomException;
+import com.echo.echo.domain.user.dto.ChangePasswordRequestDto;
+import com.echo.echo.domain.user.dto.UpdateProfileRequestDto;
 import com.echo.echo.domain.user.dto.UserRequestDto;
 import com.echo.echo.domain.user.entity.User;
 import com.echo.echo.domain.user.error.UserErrorCode;
@@ -24,6 +26,7 @@ public class UserService {
                         .email(req.getEmail())
                         .password(passwordEncoder.encode(req.getPassword()))
                         .intro(req.getIntro())
+                        .username(req.getUsername())
                         .status(User.Status.TEMPORARY)
                         .build())
                 )
@@ -66,4 +69,31 @@ public class UserService {
                 .switchIfEmpty(Mono.error(new CustomException(UserErrorCode.ALREADY_EXIST_EMAIL)))
                 .then();
     }
+
+    public Mono<User> findById(Long id) {
+        return userRepository.findById(id)
+            .switchIfEmpty(Mono.error(new CustomException(UserErrorCode.USER_NOT_FOUND)));
+    }
+
+    public Mono<User> updateProfile(Long userId, UpdateProfileRequestDto req) {
+        return findById(userId)
+            .flatMap(user -> {
+                user.updateUsername(req.getUsername());
+                user.updateIntro(req.getIntro());
+                return save(user);
+            });
+    }
+
+    public Mono<Void> changePassword(Long userId, ChangePasswordRequestDto req, PasswordEncoder passwordEncoder) {
+        return findById(userId)
+            .flatMap(user -> {
+                if (!passwordEncoder.matches(req.getPassword(), user.getPassword())) {
+                    return Mono.error(new CustomException(UserErrorCode.PASSWORD_NOT_MATCH));
+                }
+                user.updatePassword(passwordEncoder.encode(req.getNewPassword()));
+                return save(user);
+            })
+            .then();
+    }
+
 }
