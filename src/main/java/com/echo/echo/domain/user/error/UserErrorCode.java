@@ -15,6 +15,8 @@ public enum UserErrorCode implements BaseCode {
     ALREADY_EXIST_EMAIL(HttpStatus.BAD_REQUEST, 102, "이미 존재하는 이메일입니다.", "이미 존재하는 이메일입니다."),
     ALREADY_ACCOUNT_ACTIVATED(HttpStatus.BAD_REQUEST, 103, "이미 인증 완료된 계정입니다.", "이미 활성화 완료된 계정입니다."),
     PASSWORD_NOT_MATCH(HttpStatus.BAD_REQUEST, 104, "패스워드가 일치하지 않습니다.", "패스워드가 일치하지 않습니다."),
+    EMAIL_FORMAT_INVALID(HttpStatus.BAD_REQUEST, 105, "이메일 형식이 올바르지 않습니다.", "이메일 형식이 올바르지 않습니다."),
+    PASSWORD_FORMAT_INVALID(HttpStatus.BAD_REQUEST, 106, "비밀번호 형식이 올바르지 않습니다.", "비밀번호는 대소문자, 숫자, 특수문자(~!@#$%^&*)를 포함하여 8자 이상이어야 합니다."),
     ;
 
     private final HttpStatus httpStatus;

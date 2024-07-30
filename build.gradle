@@ -45,6 +45,8 @@ dependencies {
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.12.6'
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.12.6'
 
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
     // Test
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -54,7 +56,7 @@ dependencies {
     testRuntimeOnly 'org.mariadb:r2dbc-mariadb'
 }
 
+
 tasks.named('test') {
     useJUnitPlatform()
 }
-
