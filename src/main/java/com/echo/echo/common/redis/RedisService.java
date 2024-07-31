@@ -33,7 +33,7 @@ public class RedisService {
 
     public <T> Mono<T> getCacheValueGeneric(String key, Class<T> clazz) {
         return redisOps.opsForValue().get(key)
-                .switchIfEmpty(Mono.defer(() -> Mono.error(new CustomException(CommonErrorCode.NOT_FOUND_DATA))))
+                .switchIfEmpty(Mono.empty())
                 .flatMap(value -> Mono.just(objectMapper.convertValue(value, clazz)));
     }
 

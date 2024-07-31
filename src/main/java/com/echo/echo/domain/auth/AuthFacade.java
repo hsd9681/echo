@@ -17,4 +17,8 @@ public class AuthFacade {
         return userService.findByEmail(req.getEmail())
                 .flatMap(user -> authService.login(req.getPassword(), user));
     }
+
+    public Mono<TokenResponseDto> reissueToken(String inputRefreshToken) {
+        return authService.reissueToken(inputRefreshToken);
+    }
 }

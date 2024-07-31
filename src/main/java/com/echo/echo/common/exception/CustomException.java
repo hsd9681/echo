@@ -16,7 +16,7 @@ public class CustomException extends RuntimeException {
         super(baseCode.getRemark());
         this.baseCode = baseCode;
         log.info("ExceptionMethod: {}", getExceptionMethod());
-        log.info("ErrorCode: {}, ErrorMsg: {}", baseCode.getCommonReason().getCode(), baseCode.getCommonReason().getMsg());
+        log.info("ErrorCode: {}, ErrorRemark: {}", baseCode.getCommonReason().getCode(), baseCode.getRemark());
     }
 
     public String getExceptionMethod() {
