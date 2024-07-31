@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+/**
+ * FriendController는 친구 관련 API 요청을 처리
+ */
+
 @RestController
 @RequestMapping("/users/friends")
 @RequiredArgsConstructor

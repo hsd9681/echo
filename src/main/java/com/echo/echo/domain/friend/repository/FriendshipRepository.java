@@ -6,6 +6,10 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+/**
+ * FriendshipRepository는 Friendship 엔티티에 대한 데이터 접근을 처리
+ */
+
 @Repository
 public interface FriendshipRepository extends ReactiveCrudRepository<Friendship, Long> {
     Flux<Friendship> findAllByUserId(Long userId);

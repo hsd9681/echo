@@ -6,6 +6,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+/**
+ * FriendErrorCode는 친구 관련 오류 코드를 정의
+ */
+
 @Getter
 @AllArgsConstructor
 public enum FriendErrorCode implements BaseCode {

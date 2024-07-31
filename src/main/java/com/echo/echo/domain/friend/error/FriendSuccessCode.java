@@ -6,6 +6,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+/**
+ * FriendSuccessCode는 친구 관련 성공 코드를 정의
+ */
+
 @Getter
 @AllArgsConstructor
 public enum FriendSuccessCode implements BaseCode {

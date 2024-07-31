@@ -9,6 +9,10 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
+/**
+ * Friendship 엔티티는 친구 관계를 나타낸다
+ */
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table("friendship")

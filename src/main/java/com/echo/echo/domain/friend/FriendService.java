@@ -14,6 +14,10 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+/**
+ * FriendService는 친구 관련 비즈니스 로직을 처리
+ */
+
 @Service
 @RequiredArgsConstructor
 public class FriendService {
