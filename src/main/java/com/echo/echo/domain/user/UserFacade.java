@@ -39,10 +39,6 @@ public class UserFacade {
         return userService.checkVerificationCodeAndActivateUser(code, req.getEmail());
     }
 
-    public Mono<User> findUserByEmail(String email) {
-        return userService.findByEmail(email);
-    }
-
     public Mono<User> findUserById(Long id) {
         return userService.findById(id);
     }
