@@ -1,11 +1,7 @@
 package com.echo.echo.common.exception.handler;
 
-import com.echo.echo.common.exception.BaseCode;
 import com.echo.echo.common.exception.CommonReason;
 import com.echo.echo.common.exception.CustomException;
-import com.echo.echo.domain.user.error.UserErrorCode;
-import com.echo.echo.domain.space.error.SpaceErrorCode;
-import com.echo.echo.domain.channel.error.ChannelErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,26 +30,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(WebExchangeBindException.class)
     protected Mono<ResponseEntity<CommonReason>> handleValidationException(WebExchangeBindException e) {
         String defaultMessage = e.getAllErrors().get(0).getDefaultMessage();
-        BaseCode errorCode;
-
-        if (defaultMessage.contains("이메일 형식이 올바르지 않습니다.")) {
-            errorCode = UserErrorCode.EMAIL_FORMAT_INVALID;
-        } else if (defaultMessage.contains("비밀번호는 대소문자, 숫자, 특수문자(~!@#$%^&*)를 포함하여 8자 이상이어야 합니다.")) {
-            errorCode = UserErrorCode.PASSWORD_FORMAT_INVALID;
-        } else if (defaultMessage.contains("스페이스 이름은 20자 미만이어야 합니다.")) {
-            errorCode = SpaceErrorCode.INVALID_SPACE_NAME;
-        } else if (defaultMessage.contains("공개 여부는 Y 또는 N이어야 합니다.")) {
-            errorCode = SpaceErrorCode.INVALID_IS_PUBLIC;
-        } else if (defaultMessage.contains("채널 이름은 50자 미만이어야 합니다.")) {
-            errorCode = ChannelErrorCode.INVALID_CHANNEL_NAME;
-        } else if (defaultMessage.contains("채널 타입은 T 또는 V이어야 합니다.")) {
-            errorCode = ChannelErrorCode.INVALID_CHANNEL_TYPE;
-        } else {
-            errorCode = UserErrorCode.USER_NOT_FOUND;
-        }
-
-        CommonReason reason = errorCode.getCommonReason();
-        return Mono.just(ResponseEntity.status(reason.getStatus()).body(reason));
+        CommonReason reason = CommonReason.builder()
+            .status(HttpStatus.BAD_REQUEST)
+            .code(400)
+            .msg(defaultMessage)
+            .build();
+        return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(reason));
     }
 
     @ExceptionHandler(Exception.class)
