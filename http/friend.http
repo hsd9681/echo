@@ -1,0 +1,35 @@
+### 친구 요청 보내기
+POST localhost:8080/api/users/friends/request/{{toUserId}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+> {%
+  client.global.set("requestId", response.body.id)
+%}
+
+### 친구 수락 하기
+POST localhost:8080/api/users/friends/accept/{{requestId}}
+Authorization: Bearer {{accessToken}}
+
+### 친구 요청 거절하기
+POST localhost:8080/api/users/friends/reject/{{requestId}}
+Authorization: Bearer {{accessToken}}
+
+### 친구 요청 목록 조회
+GET localhost:8080/api/users/friends/requests
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+### 친구 목록 조회
+GET localhost:8080/api/users/friends
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+### 친구 삭제
+DELETE localhost:8080/api/users/friends/{{friendId}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+> {%
+client.global.set("friendId", response.body.id)
+%}
