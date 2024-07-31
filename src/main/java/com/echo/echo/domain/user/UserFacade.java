@@ -32,7 +32,8 @@ public class UserFacade {
                             .build();
                     mailService.sendMail(mail).subscribe(data -> System.out.println("메일 전송 완료"));
                 })
-                .map(UserResponseDto::new);
+                .map(UserResponseDto::new)
+            .doOnError(error -> System.err.println("Error: " + error.getMessage()));
     }
 
     public Mono<Void> verifyCode(int code, VerificationRequest req) {

@@ -7,28 +7,32 @@ import com.echo.echo.domain.user.dto.UserRequestDto;
 import com.echo.echo.domain.user.dto.UserResponseDto;
 import com.echo.echo.domain.user.error.UserSuccessCode;
 import com.echo.echo.security.principal.UserPrincipal;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/users")
+@Validated
 public class UserController {
 
     private final UserFacade userFacade;
 
     @PostMapping("/signup")
-    public Mono<ResponseEntity<UserResponseDto>> signup(@RequestBody UserRequestDto req) {
-        return userFacade.signup(req).map(ResponseEntity::ok);
+    public Mono<ResponseEntity<String>> signup(@Valid @RequestBody UserRequestDto req) {
+        return userFacade.signup(req)
+            .then(Mono.just(ResponseEntity.ok("회원가입 성공")));
     }
 
     @PostMapping("activate/{code}")
     public Mono<ResponseEntity<String>> activate(@PathVariable("code") int code, @RequestBody VerificationRequest req) {
         return userFacade.verifyCode(code, req)
-                .then(Mono.just(ResponseEntity.ok("계정 활성화가 완료되었습니다.")));
+            .then(Mono.just(ResponseEntity.ok("계정 활성화가 완료되었습니다.")));
     }
 
     @GetMapping("/test")
@@ -57,5 +61,4 @@ public class UserController {
         return userFacade.changePassword(userPrincipal.getUser().getId(), req)
             .then(Mono.just(ResponseEntity.ok(UserSuccessCode.PASSWORD_CHANGE_SUCCESS.getMsg())));
     }
-
 }

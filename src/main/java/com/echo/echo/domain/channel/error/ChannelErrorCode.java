@@ -13,7 +13,9 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum ChannelErrorCode implements BaseCode {
 
-    CHANNEL_NOT_FOUND(HttpStatus.NOT_FOUND, 404, "채널 데이터를 찾을 수 없습니다.", "채널 데이터가 존재하지 않습니다.");
+    CHANNEL_NOT_FOUND(HttpStatus.NOT_FOUND, 404, "채널 데이터를 찾을 수 없습니다.", "채널 데이터가 존재하지 않습니다."),
+    INVALID_CHANNEL_NAME(HttpStatus.BAD_REQUEST, 5003, "채널 이름은 50자 미만이어야 합니다.", "채널 이름이 유효하지 않습니다."),
+    INVALID_CHANNEL_TYPE(HttpStatus.BAD_REQUEST, 5004, "채널 타입은 T 또는 V이어야 합니다.", "채널 타입이 유효하지 않습니다.");
 
     private final HttpStatus status;
     private final int code;

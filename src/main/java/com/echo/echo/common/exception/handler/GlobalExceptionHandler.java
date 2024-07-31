@@ -3,10 +3,11 @@ package com.echo.echo.common.exception.handler;
 import com.echo.echo.common.exception.CommonReason;
 import com.echo.echo.common.exception.CustomException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.bind.support.WebExchangeBindException;
 import reactor.core.publisher.Mono;
 
 /**
@@ -18,8 +19,35 @@ import reactor.core.publisher.Mono;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
-    protected ResponseEntity<Mono<CommonReason>> handleCustomException(ServerWebExchange exchange, CustomException e) {
-        return ResponseEntity.status(e.getBaseCode().getCommonReason().getStatus())
-                        .body(Mono.just(e.getBaseCode().getCommonReason()));
+    protected Mono<ResponseEntity<CommonReason>> handleCustomException(CustomException e) {
+        log.error("CustomException: {}", e.getMessage());
+        CommonReason reason = e.getBaseCode().getCommonReason();
+        return Mono.just(ResponseEntity
+            .status(reason.getStatus())
+            .body(reason));
+    }
+
+    @ExceptionHandler(WebExchangeBindException.class)
+    protected Mono<ResponseEntity<CommonReason>> handleValidationException(WebExchangeBindException e) {
+        String defaultMessage = e.getAllErrors().get(0).getDefaultMessage();
+        CommonReason reason = CommonReason.builder()
+            .status(HttpStatus.BAD_REQUEST)
+            .code(400)
+            .msg(defaultMessage)
+            .build();
+        return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(reason));
+    }
+
+    @ExceptionHandler(Exception.class)
+    protected Mono<ResponseEntity<CommonReason>> handleGeneralException(Exception e) {
+        log.error("Exception: {}", e.getMessage());
+        CommonReason reason = CommonReason.builder()
+            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .code(-1)
+            .msg("서버에서 오류가 발생했습니다.")
+            .build();
+        return Mono.just(ResponseEntity
+            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(reason));
     }
 }
