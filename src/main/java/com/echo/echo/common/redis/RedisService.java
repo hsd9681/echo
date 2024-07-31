@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.function.Consumer;
 
 @Component
 @RequiredArgsConstructor
@@ -32,7 +33,14 @@ public class RedisService {
 
     public <T> Mono<T> getCacheValueGeneric(String key, Class<T> clazz) {
         return redisOps.opsForValue().get(key)
-                .switchIfEmpty(Mono.error(new CustomException(CommonErrorCode.NOT_FOUND_DATA)))
+                .switchIfEmpty(Mono.defer(() -> Mono.error(new CustomException(CommonErrorCode.NOT_FOUND_DATA))))
                 .flatMap(value -> Mono.just(objectMapper.convertValue(value, clazz)));
     }
+
+    public Mono<Void> deleteValue(String key) {
+        return redisOps.delete(key)
+                .doOnError(err -> Mono.error(new CustomException(CommonErrorCode.NOT_FOUND_DATA)))
+                .then();
+    }
+
 }

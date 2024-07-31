@@ -30,8 +30,7 @@ public class UserService {
                         .status(User.Status.TEMPORARY)
                         .build())
                 )
-                .flatMap(userRepository::save)
-                .doOnError(error -> System.err.println("Error: " + error.getMessage()));
+                .flatMap(userRepository::save);
     }
 
     protected Mono<User> save(User user) {
@@ -50,13 +49,13 @@ public class UserService {
     public Mono<Void> checkVerificationCodeAndActivateUser(int code, String email) {
         return findByEmail(email)
                 .filter(user -> user.checkVerificationCode(code))
-                .switchIfEmpty(Mono.error(new CustomException(UserErrorCode.INCORRECT_VERIFICATION_NUMBER)))
+                .switchIfEmpty(Mono.defer(() -> Mono.error(new CustomException(UserErrorCode.INCORRECT_VERIFICATION_NUMBER))))
                 .flatMap(this::activateUserStatus).then();
     }
 
-    protected Mono<User> findByEmail(String email) {
+    public Mono<User> findByEmail(String email) {
         return userRepository.findByEmail(email)
-                .switchIfEmpty(Mono.error(new CustomException(UserErrorCode.USER_NOT_FOUND)));
+                .switchIfEmpty(Mono.defer(() -> Mono.error(new CustomException(UserErrorCode.USER_NOT_FOUND))));
     }
 
     protected Mono<Boolean> existsByEmail(String email) {
@@ -66,13 +65,13 @@ public class UserService {
     protected Mono<Void> checkDuplicateEmail(String email) {
         return existsByEmail(email)
                 .filter(isDuplicated -> !isDuplicated)
-                .switchIfEmpty(Mono.error(new CustomException(UserErrorCode.ALREADY_EXIST_EMAIL)))
+                .switchIfEmpty(Mono.defer(() -> Mono.error(new CustomException(UserErrorCode.ALREADY_EXIST_EMAIL))))
                 .then();
     }
 
     public Mono<User> findById(Long id) {
         return userRepository.findById(id)
-            .switchIfEmpty(Mono.error(new CustomException(UserErrorCode.USER_NOT_FOUND)));
+            .switchIfEmpty(Mono.defer(() -> Mono.error(new CustomException(UserErrorCode.USER_NOT_FOUND))));
     }
 
     public Mono<User> updateProfile(Long userId, UpdateProfileRequestDto req) {
