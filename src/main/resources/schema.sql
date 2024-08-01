@@ -37,6 +37,7 @@ create table if not exists space_member (
 create table if not exists text (
     id bigint primary key auto_increment,
     contents text(1000) not null,
+    username varchar(50) not null,
     user_id bigint not null,
     channel_id bigint not null,
     created_at timestamp not null,

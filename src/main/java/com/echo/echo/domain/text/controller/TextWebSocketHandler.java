@@ -1,43 +1,102 @@
 package com.echo.echo.domain.text.controller;
 
+import com.echo.echo.domain.text.TextService;
+import com.echo.echo.domain.text.dto.TextRequest;
+import com.echo.echo.security.jwt.JwtProvider;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Claims;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
-@Slf4j
+import java.util.HashMap;
+import java.util.Map;
+
+@Slf4j(topic = "textHandler")
 @Component
+@RequiredArgsConstructor
 public class TextWebSocketHandler implements WebSocketHandler {
 
-    private final Sinks.Many<String> sink = Sinks.many().multicast().directBestEffort();
+    private final JwtProvider jwtProvider;
+    private final ObjectMapper mapper;
+    private final TextService textService;
 
     @Override
     public Mono<Void> handle(WebSocketSession session) {
-        var output = session.receive()
-                // 메시지를 JSON 객체로 변환
+        Map<String, String> uriQuery = getParamFromSession(session);
+        Long channelId = Long.valueOf(uriQuery.get("channel"));
+        String token = uriQuery.get("token");
+
+        Claims claims = jwtProvider.getClaims(token);
+        String username = claims.getSubject();
+        Long userId = Long.valueOf((Integer) claims.get("id"));
+
+        Sinks.Many<String> sink = textService.getSink(channelId);
+        Map<String, WebSocketSession> sessions = textService.getSessions(channelId);
+
+        boolean isNewSession = sessions.putIfAbsent(session.getId(), session) == null;
+
+        if (isNewSession) {
+            String joinMessage = String.format("%s님이 입장했습니다.", username);
+            sink.tryEmitNext(joinMessage);
+        }
+
+        Flux<String> input = session.receive()
                 .map(WebSocketMessage::getPayloadAsText)
-                .map(e -> {
+                .flatMap(payload -> {
                     try {
-                        // 메시지를 파싱
-                        JSONObject json = new JSONObject(e);
-                        String username = json.getString("username");
-                        if (username.equals("")) username = "익명";
-                        String message = json.getString("message");
-                        return username + ": " + message;
-                    } catch (JSONException ex) {
-                        ex.printStackTrace();
-                        return "메시지 처리 중 오류 발생";
+                        TextRequest request = mapper.readValue(payload, TextRequest.class);
+                        return textService.sendText(request, username, userId, channelId)
+                                .flatMap(response -> {
+                                    try {
+                                        String jsonResponse = mapper.writeValueAsString(response);
+                                        sink.tryEmitNext(jsonResponse);
+                                        return Mono.empty();
+                                    } catch (JsonProcessingException ex) {
+                                        return Mono.just("메세지 처리 중 오류 발생");
+                                    }
+                                });
+                    } catch (Exception e) {
+                        return Mono.just("메시지 처리 중 오류 발생");
                     }
                 });
 
-        output.subscribe(s -> sink.emitNext(s, Sinks.EmitFailureHandler.FAIL_FAST));
+        Mono<Void> output = session.send(sink.asFlux()
+                .map(session::textMessage)
+        ).doOnError(e -> {
+            sessions.remove(session.getId());
+            session.close();
+        });
 
-        return session.send(sink.asFlux().map(session::textMessage));
+        return Flux.zip(input.then(), output)
+                .then()
+                .doFinally(signal -> {
+                    sessions.remove(session.getId());
+                    sink.tryEmitNext(username + "님이 퇴장했습니다.");
+                    session.close();
+                });
     }
 
+    private Map<String, String> getParamFromSession(WebSocketSession session) {
+        String query = session.getHandshakeInfo().getUri().getQuery();
+        Map<String, String> queryParam = new HashMap<>();
+
+        String[] pairs = query.split("&");
+
+        for (String pair : pairs) {
+            String[] keyValue = pair.split("=");
+            String key = keyValue[0];
+            String value = keyValue.length > 1 ? keyValue[1] : "";
+            queryParam.put(key, value);
+        }
+
+        return queryParam;
+    }
 }
