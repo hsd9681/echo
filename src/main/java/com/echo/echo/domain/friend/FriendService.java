@@ -35,9 +35,9 @@ public class FriendService {
             .then(validateUserId(toUserId))
             .then(checkExistingRequests(fromUserId, toUserId))
             .flatMap(existingRequestStatus -> {
-                if (existingRequestStatus == RequestStatus.ALREADY_SENT) {
+                if (existingRequestStatus == RequestFriend.Status.PENDING) {
                     return Mono.error(new CustomException(FriendErrorCode.REQUEST_ALREADY_SENT));
-                } else if (existingRequestStatus == RequestStatus.ALREADY_FRIENDS) {
+                } else if (existingRequestStatus == RequestFriend.Status.ACCEPTED) {
                     return Mono.error(new CustomException(FriendErrorCode.ALREADY_FRIENDS));
                 }
                 return saveFriendRequest(fromUserId, toUserId);
@@ -56,27 +56,21 @@ public class FriendService {
             });
     }
 
-    private enum RequestStatus {
-        NONE,
-        ALREADY_SENT,
-        ALREADY_FRIENDS
-    }
-
-    private Mono<RequestStatus> checkExistingRequests(Long fromUserId, Long toUserId) {
+    private Mono<RequestFriend.Status> checkExistingRequests(Long fromUserId, Long toUserId) {
         return requestFriendRepository.findAllByToUserIdAndStatus(toUserId, RequestFriend.Status.PENDING)
             .filter(request -> request.getFromUserId().equals(fromUserId))
             .hasElements()
             .flatMap(hasPendingRequest -> {
                 if (hasPendingRequest) {
-                    return Mono.just(RequestStatus.ALREADY_SENT);
+                    return Mono.just(RequestFriend.Status.PENDING);
                 }
                 return friendshipRepository.existsByUserIdAndFriendId(fromUserId, toUserId)
                     .flatMap(hasFriendship -> {
                         if (hasFriendship) {
-                            return Mono.just(RequestStatus.ALREADY_FRIENDS);
+                            return Mono.just(RequestFriend.Status.ACCEPTED);
                         }
                         return friendshipRepository.existsByUserIdAndFriendId(toUserId, fromUserId)
-                            .map(reverseFriendship -> reverseFriendship ? RequestStatus.ALREADY_FRIENDS : RequestStatus.NONE);
+                            .map(reverseFriendship -> reverseFriendship ? RequestFriend.Status.ACCEPTED : RequestFriend.Status.REJECTED);
                     });
             });
     }
