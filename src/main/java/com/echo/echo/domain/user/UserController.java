@@ -4,15 +4,18 @@ import com.echo.echo.domain.auth.dto.VerificationRequest;
 import com.echo.echo.domain.user.dto.*;
 import com.echo.echo.domain.user.error.UserSuccessCode;
 import com.echo.echo.security.principal.UserPrincipal;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/users")
+@Validated
 public class UserController {
 
     private final UserFacade userFacade;
@@ -39,7 +42,7 @@ public class UserController {
      * 회원가입
      */
     @PostMapping("/signup")
-    public Mono<ResponseEntity<UserResponseDto>> signup(@RequestBody UserRequestDto req) {
+    public Mono<ResponseEntity<UserResponseDto>> signup(@Valid @RequestBody UserRequestDto req) {
         return userFacade.signup(req).map(ResponseEntity::ok);
     }
 

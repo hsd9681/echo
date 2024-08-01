@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 @RequiredArgsConstructor
 @Service
@@ -33,7 +32,7 @@ public class UserService {
                                 .email(req.getEmail())
                                 .password(passwordEncoder.encode(req.getPassword()))
                                 .intro(req.getIntro())
-                                .username(req.getUsername())
+                                .nickname(req.getNickname())
                                 .build())
                         )
                 )
@@ -106,7 +105,7 @@ public class UserService {
     public Mono<User> updateProfile(Long userId, UpdateProfileRequestDto req) {
         return findById(userId)
             .flatMap(user -> {
-                user.updateUsername(req.getUsername());
+                user.updateUsername(req.getNickname());
                 user.updateIntro(req.getIntro());
                 return userRepository.save(user);
             });

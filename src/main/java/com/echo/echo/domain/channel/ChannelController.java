@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import jakarta.validation.Valid;
 
 /**
  * ChannelController는 채널 관련 API 요청을 처리
@@ -20,7 +21,7 @@ public class ChannelController {
     private final ChannelFacade channelFacade;
 
     @PostMapping
-    public Mono<ResponseEntity<ChannelResponseDto>> createChannel(@PathVariable Long spaceId, @RequestBody ChannelRequestDto requestDto) {
+    public Mono<ResponseEntity<ChannelResponseDto>> createChannel(@PathVariable Long spaceId, @Valid @RequestBody ChannelRequestDto requestDto) {
         return channelFacade.createChannel(spaceId, requestDto)
             .map(ResponseEntity::ok);
     }
@@ -31,7 +32,7 @@ public class ChannelController {
     }
 
     @PutMapping("/{channelId}")
-    public Mono<ResponseEntity<ChannelResponseDto>> updateChannel(@PathVariable Long channelId, @RequestBody ChannelRequestDto requestDto) {
+    public Mono<ResponseEntity<ChannelResponseDto>> updateChannel(@PathVariable Long channelId, @Valid @RequestBody ChannelRequestDto requestDto) {
         return channelFacade.updateChannel(channelId, requestDto)
             .map(ResponseEntity::ok);
     }

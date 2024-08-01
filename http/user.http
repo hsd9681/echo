@@ -7,7 +7,7 @@ Content-Type: application/json
 }
 
 ### user activate
-POST localhost:8080/api/users/verify/792960
+POST localhost:8080/api/users/verify/252888
 Content-Type: application/json
 
 {
@@ -20,8 +20,8 @@ Content-Type: application/json
 
 {
   "email": "test@test12321.com",
-  "username":"이름",
-  "password": "password",
+  "nickname":"이름",
+  "password": "password123!@#A",
   "intro": "intro"
 }
 
@@ -36,7 +36,7 @@ Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
 {
-  "username": "newUsername",
+  "nickname": "newUsername",
   "intro": "newIntro"
 }
 
@@ -46,7 +46,7 @@ Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
 {
-  "password": "password",
+  "password": "password123!@#A",
   "newPassword": "newPassword"
 }
 
@@ -71,10 +71,10 @@ Content-Type: application/json
 %}
 
 ### verify verification code
-POST localhost:8080/api/users/verify/{{uuid}}/767512
+POST localhost:8080/api/users/verify/{{uuid}}/246285
 
 ### change password
-PUT localhost:8080/api/users/change/password/68205915-ea61-4901-afc8-ee195f159e0e
+PUT localhost:8080/api/users/change/password/{{uuid}}
 Content-Type: application/json
 
 {
