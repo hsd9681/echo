@@ -52,11 +52,6 @@ public class UserController {
         return userFacade.verifyCode(uuid, code).map(ResponseEntity::ok);
     }
 
-    @GetMapping("/test")
-    public Mono<?> test(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        return Mono.just(userPrincipal.getUser().getId());
-    }
-
     /**
      * 유저 정보 조회
      */

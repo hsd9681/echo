@@ -25,11 +25,6 @@ Content-Type: application/json
   "intro": "intro"
 }
 
-### Security Test
-GET localhost:8080/api/users/test
-Content-Type: application/json
-Authorization: Bearer
-
 ### get user profile
 GET localhost:8080/api/users/profile
 Content-Type: application/json
@@ -60,7 +55,7 @@ POST localhost:8080/api/users/find/id
 Content-Type: application/json
 
 {
-  "email": "test@test123.com"
+  "email": "test@test12321.com"
 }
 
 ### find password and send verification code to user
@@ -68,7 +63,7 @@ POST localhost:8080/api/users/find/password
 Content-Type: application/json
 
 {
-  "email": "dkssud0257@naver.com"
+  "email": "test@test12321.com"
 }
 
 > {%
@@ -83,6 +78,6 @@ PUT localhost:8080/api/users/change/password/68205915-ea61-4901-afc8-ee195f159e0
 Content-Type: application/json
 
 {
-  "email": "dkssud0257@naver.com",
+  "email": "test@test12321.com",
   "newPassword": "password123"
 }
