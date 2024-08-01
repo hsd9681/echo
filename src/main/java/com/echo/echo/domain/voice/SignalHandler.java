@@ -7,8 +7,10 @@ import org.springframework.web.reactive.socket.WebSocketMessage;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Flux;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Component
 public class SignalHandler implements WebSocketHandler {
@@ -17,25 +19,24 @@ public class SignalHandler implements WebSocketHandler {
 
     @Override
     public Mono<Void> handle(WebSocketSession session) {
-        sessions.put(session.getId(), session);
+        String sessionId = session.getId();
+        sessions.put(sessionId, session);
 
         Mono<Void> input = session.receive()
-                .map(WebSocketMessage::getPayloadAsText)
-                .flatMap(message -> {
-                    // Broadcast received message to all other sessions
-                    Flux<WebSocketMessage> outboundFlux = Flux.fromIterable(sessions.values())
-                            .filter(WebSocketSession::isOpen)
-                            .filter(s -> !s.getId().equals(session.getId()))
-                            .map(s -> s.textMessage(message));
-
-                    return Flux.fromIterable(sessions.values())
-                            .filter(WebSocketSession::isOpen)
-                            .filter(s -> !s.getId().equals(session.getId()))
-                            .flatMap(s -> s.send(outboundFlux))
-                            .then();
-                })
-                .doFinally(signalType -> sessions.remove(session.getId()))
-                .then();
+            .map(WebSocketMessage::getPayloadAsText)
+            .flatMap(message -> {
+                // Broadcast received message to all other sessions
+                return Flux.fromIterable(sessions.values())
+                    .filter(WebSocketSession::isOpen)
+                    .filter(s -> !s.getId().equals(sessionId))
+                    .flatMap(s -> {
+                        WebSocketMessage outboundMessage = s.textMessage(message);
+                        return s.send(Mono.just(outboundMessage)); // 개별 메시지 전송을 체인으로 엮음
+                    })
+                    .then();
+            })
+            .doFinally(signalType -> sessions.remove(sessionId))
+            .then();
 
         return input;
     }
