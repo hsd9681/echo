@@ -2,6 +2,7 @@ package com.echo.echo.common.exception.handler;
 
 import com.echo.echo.common.exception.CommonReason;
 import com.echo.echo.common.exception.CustomException;
+import com.echo.echo.common.exception.codes.CommonErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,8 +44,8 @@ public class GlobalExceptionHandler {
         log.error("Exception: {}", e.getMessage());
         CommonReason reason = CommonReason.builder()
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .code(-1)
-            .msg("서버에서 오류가 발생했습니다.")
+            .code(CommonErrorCode.FAIL.getCode())
+            .msg(CommonErrorCode.FAIL.getMsg())
             .build();
         return Mono.just(ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)

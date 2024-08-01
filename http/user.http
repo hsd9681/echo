@@ -25,7 +25,7 @@ Authorization: Bearer
 ### get user profile
 GET localhost:8080/api/users/profile
 Content-Type: application/json
-Authorization: Bearer
+Authorization: Bearer {{accessToken}}
 
 ### update user profile
 PUT localhost:8080/api/users/profile

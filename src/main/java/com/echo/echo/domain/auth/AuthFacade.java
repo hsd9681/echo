@@ -1,11 +1,8 @@
 package com.echo.echo.domain.auth;
 
 import com.echo.echo.domain.auth.dto.LoginRequestDto;
-import com.echo.echo.domain.auth.dto.LoginResponseDto;
-import com.echo.echo.domain.auth.dto.VerificationRequest;
-import com.echo.echo.domain.user.UserFacade;
-import com.echo.echo.domain.user.entity.User;
-import com.echo.echo.security.jwt.Token;
+import com.echo.echo.domain.auth.dto.TokenResponseDto;
+import com.echo.echo.domain.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -14,10 +11,14 @@ import reactor.core.publisher.Mono;
 @Component
 public class AuthFacade {
     private final AuthService authService;
-    private final UserFacade userFacade;
+    private final UserService userService;
 
-    public Mono<LoginResponseDto> login(LoginRequestDto req) {
-        return userFacade.findUserByEmail(req.getEmail())
+    public Mono<TokenResponseDto> login(LoginRequestDto req) {
+        return userService.findByEmail(req.getEmail())
                 .flatMap(user -> authService.login(req.getPassword(), user));
+    }
+
+    public Mono<TokenResponseDto> reissueToken(String inputRefreshToken) {
+        return authService.reissueToken(inputRefreshToken);
     }
 }

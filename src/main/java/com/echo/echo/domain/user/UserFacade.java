@@ -23,25 +23,24 @@ public class UserFacade {
 
     public Mono<UserResponseDto> signup(UserRequestDto req) {
         return userService.signup(req)
-                .publishOn(Schedulers.boundedElastic())
-                .doOnNext(user -> {
-                    Mail mail = Mail.builder()
-                            .to(req.getEmail())
-                            .subject("계정 확인 메일")
-                            .body(Mail.createSignupMailBody(String.valueOf(user.getVerificationCode())))
-                            .build();
-                    mailService.sendMail(mail).subscribe(data -> System.out.println("메일 전송 완료"));
-                })
-                .map(UserResponseDto::new)
-            .doOnError(error -> System.err.println("Error: " + error.getMessage()));
+                .map(user -> {
+                    Mono.fromRunnable(() -> {
+                        Mail mail = Mail.builder()
+                                .to(req.getEmail())
+                                .subject("계정 확인 메일")
+                                .body(Mail.createSignupMailBody(String.valueOf(user.getVerificationCode())))
+                                .build();
+                        mailService.sendMail(mail)
+                                .doOnError(error -> System.err.println("메일 전송 실패: " + error))
+                                .subscribe(data -> System.out.println("메일 전송 완료"));
+                    }).subscribeOn(Schedulers.boundedElastic()).subscribe();
+
+                    return new UserResponseDto(user);
+                });
     }
 
     public Mono<Void> verifyCode(int code, VerificationRequest req) {
         return userService.checkVerificationCodeAndActivateUser(code, req.getEmail());
-    }
-
-    public Mono<User> findUserByEmail(String email) {
-        return userService.findByEmail(email);
     }
 
     public Mono<User> findUserById(Long id) {

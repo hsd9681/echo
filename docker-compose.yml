@@ -1,5 +1,6 @@
 services:
   mariadb:
+    restart: always
     image: mariadb
     ports:
       - 13306:3306
@@ -9,3 +10,8 @@ services:
       MARIADB_USER: ${MARIADB_USER}
       MARIADB_PASSWORD: ${MARIADB_PASSWORD}
       MARIADB_DATABASE: ${MARIADB_DATABASE}
+  redis:
+    restart: always
+    image: redis
+    ports:
+      - 6379:6379
