@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.bind.support.WebExchangeBindException;
 import reactor.core.publisher.Mono;
 
 /**
@@ -19,20 +19,36 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(Exception.class)
-    protected ResponseEntity<Mono<CommonReason>> handleException(ServerWebExchange exchange, Exception e) {
-        log.info("exception", e);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Mono.just(CommonReason.builder()
-                                .code(CommonErrorCode.FAIL.getCode())
-                                .msg(CommonErrorCode.FAIL.getMsg())
-                                .build()));
+    @ExceptionHandler(CustomException.class)
+    protected Mono<ResponseEntity<CommonReason>> handleCustomException(CustomException e) {
+        log.error("CustomException: {}", e.getMessage());
+        CommonReason reason = e.getBaseCode().getCommonReason();
+        return Mono.just(ResponseEntity
+            .status(reason.getStatus())
+            .body(reason));
     }
 
-    @ExceptionHandler(CustomException.class)
-    protected ResponseEntity<Mono<CommonReason>> handleCustomException(ServerWebExchange exchange, CustomException e) {
-        log.info("custom exception", e);
-        return ResponseEntity.status(e.getBaseCode().getCommonReason().getStatus())
-                        .body(Mono.just(e.getBaseCode().getCommonReason()));
+    @ExceptionHandler(WebExchangeBindException.class)
+    protected Mono<ResponseEntity<CommonReason>> handleValidationException(WebExchangeBindException e) {
+        String defaultMessage = e.getAllErrors().get(0).getDefaultMessage();
+        CommonReason reason = CommonReason.builder()
+            .status(HttpStatus.BAD_REQUEST)
+            .code(400)
+            .msg(defaultMessage)
+            .build();
+        return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(reason));
+    }
+
+    @ExceptionHandler(Exception.class)
+    protected Mono<ResponseEntity<CommonReason>> handleGeneralException(Exception e) {
+        log.error("Exception: {}", e.getMessage());
+        CommonReason reason = CommonReason.builder()
+            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .code(CommonErrorCode.FAIL.getCode())
+            .msg(CommonErrorCode.FAIL.getMsg())
+            .build();
+        return Mono.just(ResponseEntity
+            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(reason));
     }
 }

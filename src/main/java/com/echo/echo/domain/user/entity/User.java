@@ -20,7 +20,7 @@ public class User {
     private String email;
     private String password;
     private String intro;
-    private String username;
+    private String nickname;
     private int status;
     private int verificationCode;
 
@@ -30,12 +30,12 @@ public class User {
     }
 
     @Builder
-    public User(Long id, String email, String password, String intro, String username, Status status, Integer verificationCode) {
+    public User(Long id, String email, String password, String intro, String nickname, Status status, Integer verificationCode) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.intro = intro;
-        this.username = username;
+        this.nickname = nickname;
         this.status = status == null ? Status.TEMPORARY.ordinal() : status.ordinal();
         this.verificationCode = verificationCode == null ? new Random(System.currentTimeMillis()).nextInt(900000) + 100000 : verificationCode;
     }
@@ -55,8 +55,8 @@ public class User {
         return this.getVerificationCode() == inputCode;
     }
 
-    public void updateUsername(String username) {
-        this.username = username;
+    public void updateUsername(String nickname) {
+        this.nickname = nickname;
     }
 
     public void updateIntro(String intro) {

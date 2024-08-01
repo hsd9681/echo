@@ -11,7 +11,7 @@ public class UserResponseDto {
     private Long id;
 
     @JsonProperty
-    private String username;
+    private String nickname;
 
     @JsonProperty
     private String email;
@@ -24,7 +24,7 @@ public class UserResponseDto {
 
     public UserResponseDto(User user) {
         this.id = user.getId();
-        this.username = user.getUsername();
+        this.nickname = user.getNickname();
         this.email = user.getEmail();
         this.intro = user.getIntro();
         this.status = User.Status.values()[user.getStatus()].name();

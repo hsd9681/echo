@@ -3,8 +3,8 @@ POST localhost:8080/api/users/signup
 Content-Type: application/json
 
 {
-  "email": "dkssud0257@naver.com",
-  "username":"이름",
+  "email": "{{email}}",
+  "nickname":"이름",
   "password": "password",
   "intro": "intro"
 }
@@ -33,7 +33,7 @@ Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
 {
-  "username": "newUsername",
+  "nickname": "newUsername",
   "intro": "newIntro"
 }
 

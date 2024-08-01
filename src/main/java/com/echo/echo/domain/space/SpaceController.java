@@ -4,6 +4,7 @@ import com.echo.echo.domain.space.error.SpaceSuccessCode;
 import com.echo.echo.domain.space.dto.SpaceRequestDto;
 import com.echo.echo.domain.space.dto.SpaceResponseDto;
 import com.echo.echo.security.principal.UserPrincipal;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,14 +24,15 @@ public class SpaceController {
     private final SpaceFacade spaceFacade;
 
     @PostMapping
-    public Mono<ResponseEntity<SpaceResponseDto>> createSpace(@RequestBody SpaceRequestDto requestDto) {
+    public Mono<ResponseEntity<SpaceResponseDto>> createSpace(
+        @Valid @RequestBody SpaceRequestDto requestDto) {
         return spaceFacade.createSpace(requestDto)
             .map(ResponseEntity::ok);
     }
 
     @PutMapping("/{spaceId}")
     public Mono<ResponseEntity<SpaceResponseDto>> updateSpace(@PathVariable Long spaceId,
-                                                              @RequestBody SpaceRequestDto requestDto) {
+        @Valid @RequestBody SpaceRequestDto requestDto) {
         return spaceFacade.updateSpace(spaceId, requestDto)
             .map(ResponseEntity::ok);
     }
@@ -43,7 +45,7 @@ public class SpaceController {
     @GetMapping("/{spaceId}")
     public Mono<ResponseEntity<Object>> getSpaceById(@PathVariable Long spaceId) {
         return spaceFacade.getSpaceById(spaceId)
-                .map(ResponseEntity::ok);
+            .map(ResponseEntity::ok);
     }
 
     @DeleteMapping("/{spaceId}")
@@ -53,8 +55,9 @@ public class SpaceController {
     }
 
     @PostMapping("/join/{uuid}")
-    public Mono<ResponseEntity<Object>> joinSpace(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                  @PathVariable String uuid) {
+    public Mono<ResponseEntity<Object>> joinSpace(
+        @AuthenticationPrincipal UserPrincipal userPrincipal,
+        @PathVariable String uuid) {
         return spaceFacade.joinSpace(uuid, userPrincipal.getUser().getId())
             .map(ResponseEntity::ok);
     }

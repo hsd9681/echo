@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 @RequiredArgsConstructor
 @Service
@@ -19,18 +18,18 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    protected Mono<User> signup(UserRequestDto req) {
+    public Mono<User> signup(UserRequestDto req) {
         return checkDuplicateEmail(req.getEmail())
-                .subscribeOn(Schedulers.boundedElastic())
-                .then(Mono.just(User.builder()
-                        .email(req.getEmail())
-                        .password(passwordEncoder.encode(req.getPassword()))
-                        .intro(req.getIntro())
-                        .username(req.getUsername())
-                        .status(User.Status.TEMPORARY)
-                        .build())
-                )
-                .flatMap(userRepository::save);
+            .then(Mono.just(User.builder()
+                .email(req.getEmail())
+                .password(passwordEncoder.encode(req.getPassword()))
+                .intro(req.getIntro())
+                .nickname(req.getNickname())
+                .status(User.Status.TEMPORARY)
+                .build())
+            )
+            .flatMap(userRepository::save)
+            .doOnError(error -> System.err.println("Error: " + error.getMessage()));
     }
 
     protected Mono<User> save(User user) {
@@ -77,7 +76,7 @@ public class UserService {
     public Mono<User> updateProfile(Long userId, UpdateProfileRequestDto req) {
         return findById(userId)
             .flatMap(user -> {
-                user.updateUsername(req.getUsername());
+                user.updateUsername(req.getNickname());
                 user.updateIntro(req.getIntro());
                 return save(user);
             });
