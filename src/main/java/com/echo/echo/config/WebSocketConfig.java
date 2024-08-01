@@ -1,28 +1,35 @@
 package com.echo.echo.config;
 
+import com.echo.echo.domain.text.controller.TextWebSocketHandler;
 import com.echo.echo.domain.voice.SignalHandler;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.HandlerMapping;
-import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping;
-import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter;
+import org.springframework.web.reactive.socket.WebSocketHandler;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @Configuration
-@EnableWebFlux
+@RequiredArgsConstructor
 public class WebSocketConfig {
 
+    private final TextWebSocketHandler textHandler;
+    private final SignalHandler signalHandler;
+
     @Bean
-    public HandlerMapping webSocketMapping(SignalHandler signalHandler) {
-        Map<String, Object> map = new HashMap<>();
+    public HandlerMapping handlerMapping() {
+        Map<String, WebSocketHandler> map = new HashMap<>();
         map.put("/signal", signalHandler);
+        map.put("/text", textHandler);
 
         SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();
-        mapping.setOrder(10);
         mapping.setUrlMap(map);
+        mapping.setOrder(1);
         return mapping;
     }
 }

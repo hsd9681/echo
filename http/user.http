@@ -1,0 +1,48 @@
+### user signup
+POST localhost:8080/api/users/signup
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "nickname":"이름",
+  "password": "password",
+  "intro": "intro"
+}
+
+### user activate
+POST localhost:8080/api/users/activate/{{Verification_code}}
+Content-Type: application/json
+
+{
+  "email": "{{email}}"
+}
+
+### Security Test
+GET localhost:8080/api/users/test
+Content-Type: application/json
+Authorization: Bearer
+
+### get user profile
+GET localhost:8080/api/users/profile
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+### update user profile
+PUT localhost:8080/api/users/profile
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "nickname": "newUsername",
+  "intro": "newIntro"
+}
+
+### change user password
+PUT localhost:8080/api/users/password
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "password": "password",
+  "newPassword": "newPassword"
+}

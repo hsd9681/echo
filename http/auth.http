@@ -1,0 +1,21 @@
+### login
+POST localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@test123.com",
+  "password": "password"
+}
+
+> {%
+    client.global.set("accessToken", response.body.accessToken)
+    client.global.set("refreshToken", response.body.refreshToken)
+%}
+
+### reissue token
+POST localhost:8080/api/auth/reissue
+Content-Type: application/json
+
+{
+  "token": "{{refreshToken}}"
+}
