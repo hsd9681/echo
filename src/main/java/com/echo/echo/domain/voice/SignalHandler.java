@@ -22,10 +22,14 @@ public class SignalHandler implements WebSocketHandler {
         String sessionId = session.getId();
         sessions.put(sessionId, session);
 
-        Mono<Void> input = session.receive()
+        // 클라이언트에게 세션 ID 전송
+        WebSocketMessage sessionIdMessage = session.textMessage("{\"sessionId\": \"" + sessionId + "\"}");
+        session.send(Mono.just(sessionIdMessage)).subscribe();
+
+        return session.receive()
             .map(WebSocketMessage::getPayloadAsText)
             .flatMap(message -> {
-                // Broadcast received message to all other sessions
+                // 받은 메시지를 다른 세션들에게 전파
                 return Flux.fromIterable(sessions.values())
                     .filter(WebSocketSession::isOpen)
                     .filter(s -> !s.getId().equals(sessionId))
@@ -37,7 +41,5 @@ public class SignalHandler implements WebSocketHandler {
             })
             .doFinally(signalType -> sessions.remove(sessionId))
             .then();
-
-        return input;
     }
 }

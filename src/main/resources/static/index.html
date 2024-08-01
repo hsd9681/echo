@@ -8,141 +8,179 @@
 </head>
 
 <body>
-<h1>WebRTC Test</h1>
-<button onclick="startCall()">Start Call</button>
-<button onclick="endCall()">End Call</button>
-<video id="localVideo" autoplay muted></video>
-<video id="remoteVideo" autoplay></video>
+    <h1>WebRTC Test</h1>
+    <button onclick="startCall()">Start Call</button>
+    <button onclick="endCall()">End Call</button>
+    <video id="localVideo" autoplay muted></video>
+    <video id="remoteVideo" autoplay></video>
+    <div id="videoContainer"></div>
 
-<script>
-    let socket;
-    let localStream;
-    let remoteStream;
-    let peerConnection;
-    const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
-    const localVideo = document.getElementById('localVideo');
-    const remoteVideo = document.getElementById('remoteVideo');
+    <script>
+        let socket;
+        let localStream;
+        const peerConnections = {};
+        const processedStreams = new Set();
+        const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+        const localVideo = document.getElementById('localVideo');
+        const videoContainer = document.getElementById('videoContainer');
+        let sessionId;
 
-    function startCall() {
-        socket = new WebSocket('ws://localhost:8080/signal');
-
-        socket.onopen = handleSocketOpen;
-        socket.onmessage = handleSocketMessage;
-        socket.onclose = handleSocketClose;
-        socket.onerror = handleSocketError;
-    }
-
-    function handleSocketOpen(event) {
-        console.log("WebSocket 연결");
-        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-            .then(stream => {
-                console.log("LocalStream 설정");
-                localStream = stream;
-                localVideo.srcObject = localStream;
-                makePeerConnection();
-                localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-                socket.send(JSON.stringify({ join: true }));
-            })
-            .catch(error => console.error("Media Device 연결 오류: ", error));
-    }
-
-    function handleSocketMessage(event) {
-        const message = JSON.parse(event.data);
-        if (message.join) {
-            console.log("message.join : ", message.join);
-            handleJoin();
-        } else if (message.offer) {
-            console.log("message.offer: ", message.offer);
-            handleOffer(message.offer);
-        } else if (message.answer) {
-            console.log("message.answer: ", message.answer);
-            handleAnswer(message.answer);
-        } else if (message.iceCandidate) {
-            console.log("message.iceCandidate: ", message.iceCandidate);
-            handleNewICECandidate(message.iceCandidate);
-        } else if (message.leave) {
-            console.log("message.leave: ", message.leave);
-            handleLeave();
+        function startCall() {
+            socket = new WebSocket('ws://localhost:8080/signal');
+            socket.onopen = handleSocketOpen;
+            socket.onmessage = handleSocketMessage;
+            socket.onclose = handleSocketClose;
+            socket.onerror = handleSocketError;
         }
-    }
 
-    function handleSocketClose(event) {
-        console.log("WebSocket 연결 끊김");
-    }
-
-    function handleSocketError(error) {
-        console.error("WebSocket 오류: ", error);
-    }
-
-    function endCall() {
-        if (peerConnection) {
-            peerConnection.close();
-            peerConnection = null;
+        function handleSocketOpen() {
+            console.log("WebSocket 연결");
+            navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+                .then(stream => {
+                    console.log("LocalStream 설정");
+                    localStream = stream;
+                    localVideo.srcObject = localStream;
+                    socket.send(JSON.stringify({ join: sessionId }));
+                })
+                .catch(error => console.error("Media Device 연결 오류: ", error));
         }
-        remoteVideo.srcObject = null;
-        if (socket) {
-            socket.send(JSON.stringify({ leave: true }));
-            socket.close();
-        }
-        localVideo.srcObject = null;
-    }
 
-    function makePeerConnection() {
-        console.log("PeerConnection 생성");
-        peerConnection = new RTCPeerConnection(configuration);
-
-        peerConnection.onicecandidate = event => {
-            if (event.candidate) {
-                console.log("ICE 후보 정보 전송");
-                socket.send(JSON.stringify({ iceCandidate: event.candidate }));
+        function handleSocketMessage(event) {
+            const message = JSON.parse(event.data);
+            if (message.sessionId) {
+                sessionId = message.sessionId;
+            } else if (message.join) {
+                handleJoin(message.join);
+            } else if (message.offer) {
+                handleOffer(message.offer, message.from, message.to);
+            } else if (message.answer) {
+                handleAnswer(message.answer, message.from, message.to);
+            } else if (message.iceCandidate) {
+                handleNewICECandidate(message.iceCandidate, message.from, message.to);
+            } else if (message.leave) {
+                handleLeave(message.leave);
             }
-        };
+        }
 
-        peerConnection.ontrack = event => {
-            console.log("RemoteStream 설정: ", event.streams);
-            remoteStream = event.streams[0];
-            remoteVideo.srcObject = remoteStream;
-        };
-    }
+        function handleSocketClose() {
+            console.log("WebSocket 연결 끊김");
+        }
 
-    function handleJoin() {
-        console.log("Offer 생성 및 LocalDescription 설정");
-        peerConnection.createOffer()
-            .then(offer => peerConnection.setLocalDescription(offer))
-            .then(() => socket.send(JSON.stringify({ offer: peerConnection.localDescription })))
-            .catch(error => console.error("Offer 생성 오류: ", error));
-        console.log("Offer 전송");
-    }
+        function handleSocketError(error) {
+            console.error("WebSocket 오류: ", error);
+        }
 
-    function handleOffer(offer) {
-        console.log("Offer 수신");
-        peerConnection.setRemoteDescription(new RTCSessionDescription(offer))
-        peerConnection.createAnswer()
-            .then(answer => peerConnection.setLocalDescription(answer))
-            .then(() => socket.send(JSON.stringify({ answer: peerConnection.localDescription })))
-            .catch(error => console.error("Offer 핸들링 오류: ", error));
-        console.log("Answer 전송");
-    }
+        function endCall() {
+            Object.values(peerConnections).forEach(pc => pc.close());
+            Object.keys(peerConnections).forEach(key => delete peerConnections[key]);
 
-    function handleAnswer(answer) {
-        console.log("Answer 수신");
-        peerConnection.setRemoteDescription(new RTCSessionDescription(answer))
-            .catch(error => console.error("RemoteDescription 오류: ", error));
-        console.log("RemoteDescription 설정");
-    }
+            const remoteVideos = videoContainer.querySelectorAll('video');
+            remoteVideos.forEach(video => video.remove());
 
-    function handleNewICECandidate(candidate) {
-        console.log("IceCandidate 수신");
-        peerConnection.addIceCandidate(new RTCIceCandidate(candidate))
-            .catch(error => console.error("ICE 후보 추가 오류: ", error));
-        console.log("새로운 ICE 후보 추가");
-    }
+            if (socket) {
+                socket.send(JSON.stringify({ leave: sessionId }));
+                socket.close();
+            }
 
-    function handleLeave() {
-        console.log("RemoteVideo 종료");
-        remoteVideo.srcObject = null;
-    }
-</script>
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+
+            localVideo.srcObject = null;
+
+            sessionId = null;
+
+            processedStreams.clear();
+        }
+
+        function makePeerConnection(id) {
+            console.log("PeerConnection 생성. from:", id);
+            const peerConnection = new RTCPeerConnection(configuration);
+
+            peerConnection.onicecandidate = event => {
+                if (event.candidate) {
+                    console.log("ICE 후보 정보 전송");
+                    socket.send(JSON.stringify({ iceCandidate: event.candidate, from: sessionId, to: id }));
+                }
+            };
+
+            peerConnection.ontrack = event => {
+                if (processedStreams.has(event.streams[0].id)) return;
+                processedStreams.add(event.streams[0].id);
+                const remoteVideo = document.createElement('video');
+                remoteVideo.id = `remoteVideo_${id}`;
+                remoteVideo.autoplay = true;
+                videoContainer.append(remoteVideo);
+                remoteVideo.srcObject = event.streams[0];
+            };
+
+            peerConnection.onconnectionstatechange = () => {
+                if (peerConnection.connectionState === 'connected') {
+                    console.log(`PeerConnection ${id} 연결`);
+                }
+            };
+
+            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+            peerConnections[id] = peerConnection;
+            return peerConnection;
+        }
+
+        function handleJoin(id) {
+            console.log("Offer 생성 및 LocalDescription 설정:", id);
+            const peerConnection = makePeerConnection(id);
+            peerConnection.createOffer()
+                .then(offer => peerConnection.setLocalDescription(offer))
+                .then(() => socket.send(JSON.stringify({ offer: peerConnection.localDescription, from: sessionId, to: id })))
+                .catch(error => console.error("Offer 생성 오류: ", error));
+        }
+
+        function handleOffer(offer, from, to) {
+            if (to !== sessionId) return;
+            console.log("Offer 수신. from :", from, " to:", to);
+            const peerConnection = makePeerConnection(from);
+            peerConnection.setRemoteDescription(new RTCSessionDescription(offer))
+                .then(() => peerConnection.createAnswer())
+                .then(answer => peerConnection.setLocalDescription(answer))
+                .then(() => socket.send(JSON.stringify({ answer: peerConnection.localDescription, from: sessionId, to: from })))
+                .catch(error => console.error("Offer 핸들링 오류: ", error));
+        }
+
+        function handleAnswer(answer, from, to) {
+            if (to !== sessionId) return;
+            console.log("Answer 수신. from :", from, " to:", to);
+            const peerConnection = peerConnections[from];
+            peerConnection.setRemoteDescription(new RTCSessionDescription(answer))
+                .catch(error => console.error("RemoteDescription 오류: ", error));
+        }
+
+        function handleNewICECandidate(candidate, from, to) {
+            if (to !== sessionId) return;
+            console.log("IceCandidate 수신. from :", from, " to:", to);
+            const peerConnection = peerConnections[from];
+            peerConnection.addIceCandidate(new RTCIceCandidate(candidate))
+                .catch(error => console.error("ICE 후보 추가 오류: ", error));
+        }
+
+        function handleLeave(id) {
+            const peerConnection = peerConnections[id];
+            if (peerConnection) {
+                console.log("RemoteVideo 종료: ", id);
+                peerConnection.close();
+                delete peerConnections[id];
+
+                const remoteVideo = document.getElementById(`remoteVideo_${id}`);
+                if (remoteVideo) {
+                    remoteVideo.srcObject = null;
+                    remoteVideo.parentNode.removeChild(remoteVideo);
+                }
+
+                processedStreams.delete(id);
+            }
+        }
+
+    </script>
 </body>
 
-</html>Ï
+</html>
