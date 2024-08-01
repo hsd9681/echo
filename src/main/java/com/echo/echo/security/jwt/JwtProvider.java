@@ -115,4 +115,8 @@ public class JwtProvider {
     private Claims getClaims(String token) {
         return Jwts.parser().verifyWith((SecretKey) key).build().parseSignedClaims(token).getPayload();
     }
+
+    public Long getRefreshTokenTime() {
+        return REFRESH_TOKEN_TIME;
+    }
 }
