@@ -25,9 +25,4 @@ public class WebSocketConfig {
         mapping.setUrlMap(map);
         return mapping;
     }
-
-    @Bean
-    public WebSocketHandlerAdapter handlerAdapter() {
-        return new WebSocketHandlerAdapter();
-    }
 }

@@ -4,28 +4,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebRTC Test</title>
+    <title>Echo Video Call</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .video-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .video-wrapper {
+            position: relative;
+            margin: 10px;
+            text-align: center;
+            width: 440px;
+            height: 320px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        video {
+            width: 400px;
+            height: 240px;
+        }
+
+        .video-wrapper label {
+            position: relative;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 2px 5px;
+            margin-top: 5px;
+        }
+
+        .volume-control {
+            margin-top: 5px;
+            width: 100%;
+        }
+
+        .control-buttons {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>WebRTC Test</h1>
-    <button onclick="startCall()">Start Call</button>
-    <button onclick="endCall()">End Call</button>
-    <video id="localVideo" autoplay muted></video>
-    <video id="remoteVideo" autoplay></video>
-    <div id="videoContainer"></div>
+    <h1 class="mb-4">Echo Video Call</h1>
+    <div class="button-container mb-4">
+        <button id="startCallBtn" class="btn btn-primary" onclick="startCall()">Start Call</button>
+        <button id="endCallBtn" class="btn btn-danger" onclick="endCall()" disabled>End Call</button>
+    </div>
+    <div id="localContainer" class="video-wrapper">
+        <video id="localVideo" autoplay muted></video>
+        <label id="localLabel">Local</label>
+        <div class="control-buttons">
+            <button id="muteBtn" class="btn btn-secondary" onclick="handleMuteClick()" disabled>Mute</button>
+            <button id="cameraBtn" class="btn btn-secondary" onclick="handleCameraClick()" disabled>Turn Camera
+                Off</button>
+        </div>
+    </div>
+    <div id="videoContainer" class="video-container"></div>
 
     <script>
         let socket;
+        let sessionId;
         let localStream;
+        let muted = false;
+        let cameraOff = false;
         const peerConnections = {};
         const processedStreams = new Set();
         const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
         const localVideo = document.getElementById('localVideo');
         const videoContainer = document.getElementById('videoContainer');
-        let sessionId;
+        const startCallBtn = document.getElementById('startCallBtn');
+        const endCallBtn = document.getElementById('endCallBtn');
+        const muteBtn = document.getElementById("muteBtn");
+        const cameraBtn = document.getElementById("cameraBtn");
 
         function startCall() {
+            startCallBtn.disabled = true;
+            endCallBtn.disabled = false;
+
             socket = new WebSocket('ws://localhost:8080/signal');
             socket.onopen = handleSocketOpen;
             socket.onmessage = handleSocketMessage;
@@ -40,6 +109,8 @@
                     console.log("LocalStream 설정");
                     localStream = stream;
                     localVideo.srcObject = localStream;
+                    muteBtn.disabled = false;
+                    cameraBtn.disabled = false;
                     socket.send(JSON.stringify({ join: sessionId }));
                 })
                 .catch(error => console.error("Media Device 연결 오류: ", error));
@@ -49,6 +120,7 @@
             const message = JSON.parse(event.data);
             if (message.sessionId) {
                 sessionId = message.sessionId;
+                document.getElementById('localLabel').innerText = `Local: ${sessionId}`;
             } else if (message.join) {
                 handleJoin(message.join);
             } else if (message.offer) {
@@ -71,11 +143,16 @@
         }
 
         function endCall() {
+            startCallBtn.disabled = false;
+            endCallBtn.disabled = true;
+            muteBtn.disabled = true;
+            cameraBtn.disabled = true;
+
             Object.values(peerConnections).forEach(pc => pc.close());
             Object.keys(peerConnections).forEach(key => delete peerConnections[key]);
 
-            const remoteVideos = videoContainer.querySelectorAll('video');
-            remoteVideos.forEach(video => video.remove());
+            const remoteVideos = videoContainer.querySelectorAll('.video-wrapper');
+            remoteVideos.forEach(videoWrapper => videoWrapper.remove());
 
             if (socket) {
                 socket.send(JSON.stringify({ leave: sessionId }));
@@ -94,6 +171,28 @@
             processedStreams.clear();
         }
 
+        function handleMuteClick() {
+            localStream.getAudioTracks().forEach((track) => (track.enabled = !track.enabled));
+            if (!muted) {
+                muteBtn.innerText = "Unmute";
+                muted = true;
+            } else {
+                muteBtn.innerText = "Mute";
+                muted = false;
+            }
+        }
+
+        function handleCameraClick() {
+            localStream.getVideoTracks().forEach((track) => (track.enabled = !track.enabled));
+            if (cameraOff) {
+                cameraBtn.innerText = "Turn Camera Off";
+                cameraOff = false;
+            } else {
+                cameraBtn.innerText = "Turn Camera On";
+                cameraOff = true;
+            }
+        }
+
         function makePeerConnection(id) {
             console.log("PeerConnection 생성. from:", id);
             const peerConnection = new RTCPeerConnection(configuration);
@@ -108,10 +207,27 @@
             peerConnection.ontrack = event => {
                 if (processedStreams.has(event.streams[0].id)) return;
                 processedStreams.add(event.streams[0].id);
+
+                const remoteVideoWrapper = document.createElement('div');
+                remoteVideoWrapper.className = 'video-wrapper';
                 const remoteVideo = document.createElement('video');
                 remoteVideo.id = `remoteVideo_${id}`;
                 remoteVideo.autoplay = true;
-                videoContainer.append(remoteVideo);
+                remoteVideoWrapper.append(remoteVideo);
+                const label = document.createElement('label');
+                label.innerText = `Remote: ${id}`;
+                remoteVideoWrapper.append(label);
+                const volumeControl = document.createElement('input');
+                volumeControl.type = 'range';
+                volumeControl.className = 'volume-control';
+                volumeControl.min = '0';
+                volumeControl.max = '1';
+                volumeControl.step = '0.01';
+                volumeControl.value = '1';
+                volumeControl.onchange = () => setVolume(volumeControl, remoteVideo.id);
+                remoteVideoWrapper.append(volumeControl);
+
+                videoContainer.append(remoteVideoWrapper);
                 remoteVideo.srcObject = event.streams[0];
             };
 
@@ -170,16 +286,19 @@
                 peerConnection.close();
                 delete peerConnections[id];
 
-                const remoteVideo = document.getElementById(`remoteVideo_${id}`);
-                if (remoteVideo) {
-                    remoteVideo.srcObject = null;
-                    remoteVideo.parentNode.removeChild(remoteVideo);
+                const remoteVideoWrapper = document.querySelector(`.video-wrapper #remoteVideo_${id}`).parentNode;
+                if (remoteVideoWrapper) {
+                    remoteVideoWrapper.remove();
                 }
 
                 processedStreams.delete(id);
             }
         }
 
+        function setVolume(control, videoId) {
+            const video = document.getElementById(videoId);
+            video.volume = control.value;
+        }
     </script>
 </body>
 
