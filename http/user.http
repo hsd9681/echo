@@ -1,20 +1,28 @@
+### create verification code
+POST localhost:8080/api/users/verify/email
+Content-Type: application/json
+
+{
+  "email": "test@test12321.com"
+}
+
+### user activate
+POST localhost:8080/api/users/verify/792960
+Content-Type: application/json
+
+{
+  "email": "test@test12321.com"
+}
+
 ### user signup
 POST localhost:8080/api/users/signup
 Content-Type: application/json
 
 {
-  "email": "dkssud0257@naver.com",
+  "email": "test@test12321.com",
   "username":"이름",
   "password": "password",
   "intro": "intro"
-}
-
-### user activate
-POST localhost:8080/api/users/activate/{{Verification_code}}
-Content-Type: application/json
-
-{
-  "email": "{{email}}"
 }
 
 ### Security Test
@@ -45,4 +53,36 @@ Authorization: Bearer {{accessToken}}
 {
   "password": "password",
   "newPassword": "newPassword"
+}
+
+### find user id
+POST localhost:8080/api/users/find/id
+Content-Type: application/json
+
+{
+  "email": "test@test123.com"
+}
+
+### find password and send verification code to user
+POST localhost:8080/api/users/find/password
+Content-Type: application/json
+
+{
+  "email": "dkssud0257@naver.com"
+}
+
+> {%
+    client.global.set("uuid", response.body)
+%}
+
+### verify verification code
+POST localhost:8080/api/users/verify/{{uuid}}/767512
+
+### change password
+PUT localhost:8080/api/users/change/password/68205915-ea61-4901-afc8-ee195f159e0e
+Content-Type: application/json
+
+{
+  "email": "dkssud0257@naver.com",
+  "newPassword": "password123"
 }

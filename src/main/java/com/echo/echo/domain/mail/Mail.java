@@ -21,6 +21,7 @@ public class Mail {
                 <!DOCTYPE html>
                 <body>
                     인증번호는 ${code}입니다.
+                    10분 내로 입력해주세요.
                 </body>
                 </html>""".replace("${code}", verificationCode);
     }

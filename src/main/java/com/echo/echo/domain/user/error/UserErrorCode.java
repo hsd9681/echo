@@ -15,6 +15,9 @@ public enum UserErrorCode implements BaseCode {
     ALREADY_EXIST_EMAIL(HttpStatus.BAD_REQUEST, 102, "이미 존재하는 이메일입니다.", "이미 존재하는 이메일입니다."),
     ALREADY_ACCOUNT_ACTIVATED(HttpStatus.BAD_REQUEST, 103, "이미 인증 완료된 계정입니다.", "이미 활성화 완료된 계정입니다."),
     PASSWORD_NOT_MATCH(HttpStatus.BAD_REQUEST, 104, "패스워드가 일치하지 않습니다.", "패스워드가 일치하지 않습니다."),
+    VERIFICATION_ID_NOT_MATCH(HttpStatus.BAD_REQUEST, 105, "해당 인증번호를 찾을 수 없습니다.", "인증코드 uuid가 일치하지 않습니다."),
+    VERIFY_BEFORE(HttpStatus.BAD_REQUEST, 106, "인증 완료되지 않은 이메일입니다. 인증 후 다시 시도해주세요.", "아직 인증이 완료되지 않았습니다."),
+    VERIFICATION_ALREADY_COMPLETED(HttpStatus.BAD_REQUEST, 107, "이미 인증 완료된 이메일입니다.", "이미 인증 완료된 이메일입니다.")
     ;
 
     private final HttpStatus httpStatus;
