@@ -40,13 +40,25 @@ public class TextWebSocketHandler implements WebSocketHandler {
 
         Sinks.Many<String> sink = textService.getSink(channelId);
         Map<String, WebSocketSession> sessions = textService.getSessions(channelId);
-
         boolean isNewSession = sessions.putIfAbsent(session.getId(), session) == null;
+
+        Flux<WebSocketMessage> outputMsg = sink.asFlux()
+                .map(session::textMessage);
 
         if (isNewSession) {
             String joinMessage = String.format("%s님이 입장했습니다.", username);
             sink.tryEmitNext(joinMessage);
+            outputMsg = Flux.concat(Flux.just(joinMessage).map(session::textMessage),
+                    sink.asFlux().map(session::textMessage));
         }
+
+        Mono<Void> output = session.send(outputMsg)
+                .doOnError(e -> {
+                    sessions.remove(session.getId());
+                    session.close();
+                });
+
+        outputMsg.subscribe();
 
         Flux<String> input = session.receive()
                 .map(WebSocketMessage::getPayloadAsText)
@@ -64,24 +76,20 @@ public class TextWebSocketHandler implements WebSocketHandler {
                                     }
                                 });
                     } catch (Exception e) {
-                        return Mono.just("메시지 처리 중 오류 발생");
+                        return Mono.just("메세지 처리 중 오류 발생");
                     }
-                });
-
-        Mono<Void> output = session.send(sink.asFlux()
-                .map(session::textMessage)
-        ).doOnError(e -> {
-            sessions.remove(session.getId());
-            session.close();
-        });
-
-        return Flux.zip(input.then(), output)
-                .then()
+                })
+                .doOnError(e -> {
+                    sessions.remove(session.getId());
+                    session.close();
+                })
                 .doFinally(signal -> {
                     sessions.remove(session.getId());
-                    sink.tryEmitNext(username + "님이 퇴장했습니다.");
+                    sink.tryEmitNext(String.format("%s님이 퇴장했습니다.", username));
                     session.close();
                 });
+
+        return Mono.when(input, output);
     }
 
     private Map<String, String> getParamFromSession(WebSocketSession session) {
