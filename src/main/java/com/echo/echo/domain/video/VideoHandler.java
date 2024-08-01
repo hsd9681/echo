@@ -1,4 +1,4 @@
-package com.echo.echo.domain.voice;
+package com.echo.echo.domain.video;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketHandler;
@@ -7,13 +7,11 @@ import org.springframework.web.reactive.socket.WebSocketMessage;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Flux;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 @Component
-public class SignalHandler implements WebSocketHandler {
+public class VideoHandler implements WebSocketHandler {
 
     private final Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
 

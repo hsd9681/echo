@@ -95,7 +95,7 @@
             startCallBtn.disabled = true;
             endCallBtn.disabled = false;
 
-            socket = new WebSocket('ws://localhost:8080/signal');
+            socket = new WebSocket('ws://localhost:8080/api/video');
             socket.onopen = handleSocketOpen;
             socket.onmessage = handleSocketMessage;
             socket.onclose = handleSocketClose;
