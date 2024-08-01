@@ -10,6 +10,10 @@ import lombok.Getter;
 @Getter
 @Builder
 public class FriendshipResponseDto {
+
     private Long userId;
     private Long friendId;
+    private String friendNickname;
+    private String friendEmail;
+    private String friendIntro;
 }

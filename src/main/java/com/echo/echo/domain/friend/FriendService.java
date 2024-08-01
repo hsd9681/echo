@@ -8,6 +8,7 @@ import com.echo.echo.domain.friend.entity.RequestFriend;
 import com.echo.echo.domain.friend.error.FriendErrorCode;
 import com.echo.echo.domain.friend.repository.FriendshipRepository;
 import com.echo.echo.domain.friend.repository.RequestFriendRepository;
+import com.echo.echo.domain.user.entity.User;
 import com.echo.echo.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -54,7 +55,6 @@ public class FriendService {
                     .then();
             });
     }
-
 
     private enum RequestStatus {
         NONE,
@@ -146,8 +146,24 @@ public class FriendService {
 
     public Flux<FriendshipResponseDto> getFriends(Long userId) {
         return friendshipRepository.findAllByUserId(userId)
-            .map(this::toFriendshipResponseDto)
+            .flatMap(this::fetchFriendDetails)
             .switchIfEmpty(Mono.error(new CustomException(FriendErrorCode.NO_FRIENDS_FOUND)));
+    }
+
+    private Mono<FriendshipResponseDto> fetchFriendDetails(Friendship friendship) {
+        return userRepository.findById(friendship.getFriendId())
+            .switchIfEmpty(Mono.error(new CustomException(FriendErrorCode.USER_NOT_FOUND)))
+            .map(user -> buildFriendshipResponseDto(friendship, user));
+    }
+
+    private FriendshipResponseDto buildFriendshipResponseDto(Friendship friendship, User user) {
+        return FriendshipResponseDto.builder()
+            .userId(friendship.getUserId())
+            .friendId(friendship.getFriendId())
+            .friendNickname(user.getNickname())
+            .friendEmail(user.getEmail())
+            .friendIntro(user.getIntro())
+            .build();
     }
 
     private Mono<Void> validateUserId(Long userId) {
@@ -157,12 +173,5 @@ public class FriendService {
         return userRepository.findById(userId)
             .switchIfEmpty(Mono.error(new CustomException(FriendErrorCode.USER_NOT_FOUND)))
             .then();
-    }
-
-    private FriendshipResponseDto toFriendshipResponseDto(Friendship friendship) {
-        return FriendshipResponseDto.builder()
-            .userId(friendship.getUserId())
-            .friendId(friendship.getFriendId())
-            .build();
     }
 }
