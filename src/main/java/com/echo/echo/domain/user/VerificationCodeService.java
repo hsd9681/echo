@@ -5,6 +5,7 @@ import com.echo.echo.common.redis.RedisService;
 import com.echo.echo.domain.user.entity.VerificationCode;
 import com.echo.echo.domain.user.error.UserErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -12,6 +13,7 @@ import java.time.Duration;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class VerificationCodeService {
     private final RedisService redisService;
 
@@ -22,6 +24,7 @@ public class VerificationCodeService {
      */
     public Mono<VerificationCode> createVerificationCode(String userId, VerificationCode.Type type) {
         VerificationCode verificationCode = VerificationCode.createVerificationCode(userId, type);
+        log.info("verificationCode 생성: {}", verificationCode.getCode());
         return redisService.setValue(verificationCode.getUuid(),
                         verificationCode,
                         Duration.ofMinutes(VerificationCode.TIME_LIMIT))
