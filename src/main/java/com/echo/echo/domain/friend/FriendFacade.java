@@ -1,7 +1,10 @@
 package com.echo.echo.domain.friend;
 
+import com.echo.echo.common.exception.CustomException;
 import com.echo.echo.domain.friend.dto.FriendshipResponseDto;
 import com.echo.echo.domain.friend.dto.RequestFriendResponseDto;
+import com.echo.echo.domain.friend.error.FriendErrorCode;
+import com.echo.echo.domain.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -16,9 +19,12 @@ import reactor.core.publisher.Mono;
 public class FriendFacade {
 
     private final FriendService friendService;
+    private final UserService userService;
 
     public Mono<Void> sendFriendRequest(Long fromUserId, Long toUserId) {
-        return friendService.sendFriendRequest(fromUserId, toUserId).then();
+        return validateUserIds(fromUserId, toUserId)
+            .flatMap(valid -> friendService.sendFriendRequest(fromUserId, toUserId))
+            .then();
     }
 
     public Mono<Void> acceptFriendRequest(Long requestId) {
@@ -30,14 +36,29 @@ public class FriendFacade {
     }
 
     public Mono<Void> deleteFriend(Long userId, Long friendId) {
-        return friendService.deleteFriend(userId, friendId).then();
+        return validateUserIds(userId, friendId)
+            .flatMap(valid -> friendService.deleteFriend(userId, friendId))
+            .then();
     }
 
     public Flux<RequestFriendResponseDto> getFriendRequests(Long userId) {
-        return friendService.getFriendRequests(userId);
+        return validateUserIds(userId)
+            .flatMapMany(valid -> friendService.getFriendRequests(userId));
     }
 
     public Flux<FriendshipResponseDto> getFriends(Long userId) {
-        return friendService.getFriends(userId);
+        return validateUserIds(userId)
+            .flatMapMany(valid -> friendService.getFriends(userId));
     }
+
+    private Mono<Boolean> validateUserIds(Long... userIds) {
+        return Flux.fromArray(userIds)
+            .flatMap(userId -> userService.findById(userId)
+                .hasElement()
+                .flatMap(exists -> exists ? Mono.just(true) : Mono.error(new CustomException(FriendErrorCode.USER_NOT_FOUND)))
+            )
+            .reduce(Boolean::logicalAnd)
+            .switchIfEmpty(Mono.just(true));
+    }
+
 }

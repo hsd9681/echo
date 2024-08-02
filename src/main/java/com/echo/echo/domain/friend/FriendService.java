@@ -8,7 +8,6 @@ import com.echo.echo.domain.friend.entity.RequestFriend;
 import com.echo.echo.domain.friend.error.FriendErrorCode;
 import com.echo.echo.domain.friend.repository.FriendshipRepository;
 import com.echo.echo.domain.friend.repository.RequestFriendRepository;
-import com.echo.echo.domain.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -24,14 +23,12 @@ public class FriendService {
 
     private final RequestFriendRepository requestFriendRepository;
     private final FriendshipRepository friendshipRepository;
-    private final UserService userService;
 
     public Mono<RequestFriendResponseDto> sendFriendRequest(Long fromUserId, Long toUserId) {
         if (fromUserId.equals(toUserId)) {
             return Mono.error(new CustomException(FriendErrorCode.INVALID_USER_ID));
         }
-        return validateUserId(fromUserId, toUserId)
-            .then(checkExistingRequests(fromUserId, toUserId))
+        return checkExistingRequests(fromUserId, toUserId)
             .flatMap(existingRequestStatus -> {
                 if (existingRequestStatus == RequestFriend.Status.PENDING) {
                     return Mono.error(new CustomException(FriendErrorCode.REQUEST_ALREADY_SENT));
@@ -43,8 +40,7 @@ public class FriendService {
     }
 
     public Mono<Void> deleteFriend(Long userId, Long friendId) {
-        return validateUserId(userId, friendId)
-            .then(friendshipRepository.existsByUserIdAndFriendId(userId, friendId))
+        return friendshipRepository.existsByUserIdAndFriendId(userId, friendId)
             .flatMap(exists -> {
                 if (!exists) {
                     return Mono.error(new CustomException(FriendErrorCode.NOT_FRIENDS));
@@ -149,12 +145,5 @@ public class FriendService {
                 .userId(friend.getUserId())
                 .friendId(friend.getFriendId())
                 .build());
-    }
-
-    private Mono<Void> validateUserId(Long... userIds) {
-        return Flux.fromArray(userIds)
-            .flatMap(userId -> userService.findById(userId)
-                .switchIfEmpty(Mono.error(new CustomException(FriendErrorCode.USER_NOT_FOUND)))
-            ).then();
     }
 }
