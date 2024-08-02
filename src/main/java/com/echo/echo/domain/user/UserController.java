@@ -24,7 +24,7 @@ public class UserController {
      * 회원가입 시 이메일 인증번호 전송
      */
     @PostMapping("/verify/email")
-    public Mono<ResponseEntity<String>> createEmailVerificationCode(@RequestBody VerificationRequest req) {
+    public Mono<ResponseEntity<String>> createEmailVerificationCode(@Valid @RequestBody VerificationRequest req) {
         return userFacade.createEmailVerificationCode(req.getEmail()).map(ResponseEntity::ok);
     }
 
@@ -34,7 +34,7 @@ public class UserController {
      */
     @PostMapping("verify/{code}")
     public Mono<ResponseEntity<String>> verify(@PathVariable("code") int code,
-                                               @RequestBody VerificationRequest req) {
+                                               @Valid @RequestBody VerificationRequest req) {
         return userFacade.verifyCode(req.getEmail(), code).map(ResponseEntity::ok);
     }
 
@@ -88,7 +88,7 @@ public class UserController {
      * 유저 아이디 찾기
      */
     @PostMapping("find/id")
-    public Mono<ResponseEntity<FindUserResponseDto>> findId(@RequestBody FindUserDto req) {
+    public Mono<ResponseEntity<FindUserResponseDto>> findId(@Valid @RequestBody FindUserDto req) {
         return userFacade.findUserId(req.getEmail()).map(ResponseEntity::ok);
     }
 
@@ -105,7 +105,7 @@ public class UserController {
      */
     @PutMapping("change/password/{uuid}")
     public Mono<ResponseEntity<String>> changePassword(@PathVariable("uuid") String uuid,
-                                                       @RequestBody FindUserDto.Password req) {
+                                                       @Valid @RequestBody FindUserDto.Password req) {
         return userFacade.checkVerificationCodeAndChangePassword(uuid, req)
                 .then(Mono.just(ResponseEntity.ok(UserSuccessCode.PASSWORD_CHANGE_SUCCESS.getMsg())));
     }
