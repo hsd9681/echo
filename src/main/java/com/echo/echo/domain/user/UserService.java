@@ -26,7 +26,7 @@ public class UserService {
      */
     protected Mono<UserResponseDto> signup(UserRequestDto req) {
 
-        return verificationCodeService.isVerificationCodeValid(req.getEmail())
+        return isVerificationCodeValid(req.getEmail())
                 .then(Mono.defer(() -> checkDuplicateEmail(req.getEmail()))
                         .then(Mono.just(User.builder()
                                 .email(req.getEmail())
