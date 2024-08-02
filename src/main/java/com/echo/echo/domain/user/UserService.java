@@ -10,7 +10,10 @@ import com.echo.echo.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -152,6 +155,14 @@ public class UserService {
                     return userRepository.save(user);
                 })
                 .then();
+    }
+
+    /**
+     * 여러 id의 유저 정보를 가져온다.
+     * @param ids 조회할 id List
+     */
+    public Flux<User> findByIdIn(List<Long> ids) {
+        return userRepository.findByIdIn(ids);
     }
 
     /**
