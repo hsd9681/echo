@@ -3,6 +3,7 @@ package com.echo.echo.domain.friend;
 import com.echo.echo.common.exception.CustomException;
 import com.echo.echo.domain.friend.dto.FriendshipResponseDto;
 import com.echo.echo.domain.friend.dto.RequestFriendResponseDto;
+import com.echo.echo.domain.friend.entity.Friendship;
 import com.echo.echo.domain.friend.error.FriendErrorCode;
 import com.echo.echo.domain.user.UserService;
 import lombok.RequiredArgsConstructor;
@@ -48,7 +49,9 @@ public class FriendFacade {
 
     public Flux<FriendshipResponseDto> getFriends(Long userId) {
         return validateUserIds(userId)
-            .flatMapMany(valid -> friendService.getFriends(userId));
+            .flatMapMany(valid -> friendService.getFriends(userId)
+                .flatMap(this::fetchFriendDetails)
+            );
     }
 
     private Mono<Boolean> validateUserIds(Long... userIds) {
@@ -61,4 +64,14 @@ public class FriendFacade {
             .switchIfEmpty(Mono.just(true));
     }
 
+    private Mono<FriendshipResponseDto> fetchFriendDetails(Friendship friendship) {
+        return userService.findById(friendship.getFriendId())
+            .map(user -> FriendshipResponseDto.builder()
+                .userId(friendship.getUserId())
+                .friendId(friendship.getFriendId())
+                .friendNickname(user.getNickname())
+                .friendEmail(user.getEmail())
+                .friendIntro(user.getIntro())
+                .build());
+    }
 }

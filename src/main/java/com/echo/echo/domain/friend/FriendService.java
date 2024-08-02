@@ -133,17 +133,8 @@ public class FriendService {
                 .build());
     }
 
-    public Flux<FriendshipResponseDto> getFriends(Long userId) {
+    public Flux<Friendship> getFriends(Long userId) {
         return friendshipRepository.findAllByUserId(userId)
-            .flatMap(this::fetchFriendDetails)
             .switchIfEmpty(Mono.error(new CustomException(FriendErrorCode.NO_FRIENDS_FOUND)));
-    }
-
-    private Mono<FriendshipResponseDto> fetchFriendDetails(Friendship friendship) {
-        return Mono.just(friendship)
-            .map(friend -> FriendshipResponseDto.builder()
-                .userId(friend.getUserId())
-                .friendId(friend.getFriendId())
-                .build());
     }
 }
