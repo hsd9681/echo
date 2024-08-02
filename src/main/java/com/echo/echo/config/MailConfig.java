@@ -33,7 +33,7 @@ public class MailConfig {
         properties.setProperty("mail.transport.protocol", "smtp"); // 프로토콜 설정
         properties.setProperty("mail.smtp.auth", String.valueOf(true)); // smtp 인증
         properties.setProperty("mail.smtp.starttls.enable", String.valueOf(true)); // smtp strattles 사용
-        properties.setProperty("mail.debug", String.valueOf(true)); // 디버그 사용
+        properties.setProperty("mail.debug", String.valueOf(false)); // 디버그
         return properties;
     }
 

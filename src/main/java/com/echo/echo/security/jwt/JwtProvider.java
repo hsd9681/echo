@@ -26,6 +26,7 @@ public class JwtProvider {
     public static final String HEADER_PREFIX = "Bearer ";
     private final String AUTHORITIES_KEY = "auth";
     private final String ID_KEY = "id";
+    private final String NICKNAME_KEY = "nickname";
     @Value("${jwt.time.access}")
     private Long ACCESS_TOKEN_TIME;
     @Value("${jwt.time.refresh}")
@@ -36,13 +37,14 @@ public class JwtProvider {
         this.key = Keys.hmacShaKeyFor(byteKey);
     }
 
-    public String createAccessToken(Long id, String username) {
+    public String createAccessToken(Long id, String email, String nickname) {
         Date now = new Date();
         return Jwts.builder()
-                .subject(username)
+                .subject(email)
                 .claims()
                 .add(AUTHORITIES_KEY, AuthorityUtils.NO_AUTHORITIES)
                 .add(ID_KEY, id)
+                .add(NICKNAME_KEY, nickname)
                 .expiration(new Date(now.getTime() + ACCESS_TOKEN_TIME))
                 .issuedAt(now)
                 .and()
@@ -61,8 +63,8 @@ public class JwtProvider {
                 .compact();
     }
 
-    public Mono<Token> createToken(Long id, String username) {
-        return Mono.fromCallable(() -> createAccessToken(id, username))
+    public Mono<Token> createToken(Long id, String email, String nickname) {
+        return Mono.fromCallable(() -> createAccessToken(id, email, nickname))
                 .zipWith(Mono.fromCallable(this::createRefreshToken))
                 .map(tuple -> Token.builder()
                         .accessToken(tuple.getT1())
@@ -112,11 +114,19 @@ public class JwtProvider {
                 });
     }
 
-    private Claims getClaims(String token) {
+    public Claims getClaims(String token) {
         return Jwts.parser().verifyWith((SecretKey) key).build().parseSignedClaims(token).getPayload();
     }
 
     public Long getRefreshTokenTime() {
         return REFRESH_TOKEN_TIME;
+    }
+
+    public String getNickName(String token){
+        return getClaims(token).get(NICKNAME_KEY).toString();
+    }
+
+    public Long getUserId(String token){
+        return Long.valueOf((Integer) getClaims(token).get(ID_KEY));
     }
 }
