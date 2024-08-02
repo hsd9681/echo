@@ -14,7 +14,8 @@ class JwtProviderTest {
     void createAccessToken() {
         Long id = 1L;
         String email = "test@test.com";
-        String token = jwtProvider.createAccessToken(id, email);
+        String nickname = "asdf";
+        String token = jwtProvider.createAccessToken(id, email, nickname);
         System.out.println(token);
     }
 }

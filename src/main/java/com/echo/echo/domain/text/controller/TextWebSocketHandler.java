@@ -34,9 +34,8 @@ public class TextWebSocketHandler implements WebSocketHandler {
         Long channelId = Long.valueOf(uriQuery.get("channel"));
         String token = uriQuery.get("token");
 
-        Claims claims = jwtProvider.getClaims(token);
-        String username = claims.getSubject();
-        Long userId = Long.valueOf((Integer) claims.get("id"));
+        String username = jwtProvider.getNickName(token);
+        Long userId = jwtProvider.getUserId(token);
 
         Sinks.Many<String> sink = textService.getSink(channelId);
         Map<String, WebSocketSession> sessions = textService.getSessions(channelId);

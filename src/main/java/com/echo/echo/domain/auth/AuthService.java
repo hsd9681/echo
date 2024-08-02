@@ -31,7 +31,7 @@ public class AuthService {
                 .then(Mono.just(user))
                 .filter(User::checkActivate)
                 .switchIfEmpty(Mono.defer(() -> Mono.error(new CustomException(AuthErrorCode.NOT_ACTIVATED_ACCOUNT))))
-                .flatMap(u -> createToken(u.getId(), u.getEmail()));
+                .flatMap(u -> createToken(u.getId(), u.getEmail(), u.getNickname()));
     }
 
     private Mono<Void> checkPassword(String inputPassword, String password) {
@@ -42,15 +42,19 @@ public class AuthService {
     }
 
     // 토큰 생성 후, redis에 refresh 토큰 저장
-    private Mono<TokenResponseDto> createToken(Long id, String email) {
-        return jwtProvider.createToken(id, email)
-                .flatMap(token -> saveRefreshToken(id, token.getRefreshToken())
+    private Mono<TokenResponseDto> createToken(Long id, String email, String nickname) {
+        return jwtProvider.createToken(id, email, nickname)
+                .flatMap(token -> saveRefreshToken(id, email, nickname,token.getRefreshToken())
                         .thenReturn(new TokenResponseDto(token)));
     }
 
     // 동일한 refresh 토큰이 있다면 삭제 후 저장
-    private Mono<Void> saveRefreshToken(Long id, String refreshToken) {
-        return redisService.setValue(refreshToken, RefreshToken.builder().id(id).build(),
+    private Mono<Void> saveRefreshToken(Long id, String email, String nickname, String refreshToken) {
+        return redisService.setValue(refreshToken, RefreshToken.builder()
+                                .id(id)
+                                .email(email)
+                                .nickname(nickname)
+                                .build(),
                         Duration.ofMillis(jwtProvider.getRefreshTokenTime()))
                 .then();
     }
@@ -63,7 +67,7 @@ public class AuthService {
     public Mono<TokenResponseDto> reissueToken(String inputRefreshToken) {
         return redisService.getCacheValueGeneric(inputRefreshToken, RefreshToken.class)
                 .switchIfEmpty(Mono.defer(() -> Mono.error(new CustomException(AuthErrorCode.NOT_FOUND_REFRESH_TOKEN))))
-                .flatMap(token -> createToken(token.getId(), token.getEmail()))
+                .flatMap(token -> createToken(token.getId(), token.getEmail(), token.getNickname()))
                 .flatMap(newToken -> deleteRefreshToken(inputRefreshToken).then(Mono.just(newToken)));
     }
 }
