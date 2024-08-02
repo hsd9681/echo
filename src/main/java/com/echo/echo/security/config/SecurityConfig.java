@@ -60,6 +60,8 @@ public class SecurityConfig {
                 .authorizeExchange(authorizeExchangeSpec -> authorizeExchangeSpec
                         .pathMatchers(HttpMethod.GET,"/auth").permitAll()
                         .pathMatchers(HttpMethod.POST, "/users/signup", "/users/activate/**", "/auth/**").permitAll()
+                        .pathMatchers(HttpMethod.POST, "/users/find/id", "/users/find/password", "/users/verify/**").permitAll()
+                        .pathMatchers("/users/change/password/**").permitAll()
                         .pathMatchers(HttpMethod.GET, "/signal").permitAll()
                         .pathMatchers(HttpMethod.GET, "/text/**").permitAll()
                         .anyExchange().authenticated()
