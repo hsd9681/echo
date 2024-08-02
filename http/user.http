@@ -63,7 +63,7 @@ POST localhost:8080/api/users/find/password
 Content-Type: application/json
 
 {
-  "email": "test@test12321.com"
+  "email": "test@test.com"
 }
 
 > {%
@@ -71,13 +71,13 @@ Content-Type: application/json
 %}
 
 ### verify verification code
-POST localhost:8080/api/users/verify/{{uuid}}/246285
+POST localhost:8080/api/users/verify/{{uuid}}/843274
 
 ### change password
 PUT localhost:8080/api/users/change/password/{{uuid}}
 Content-Type: application/json
 
 {
-  "email": "test@test12321.com",
-  "newPassword": "password123"
+  "email": "test@test.com",
+  "newPassword": "Aasdfghjkl1!"
 }
