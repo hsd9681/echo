@@ -92,10 +92,17 @@
         const cameraBtn = document.getElementById("cameraBtn");
 
         function startCall() {
+            const channelId = prompt("채널 ID를 입력하세요:", "1");
+
+            if (!channelId) {
+                alert("화상 통화를 시작하려면 채널 ID를 입력하세요.");
+                return;
+            }
+
             startCallBtn.disabled = true;
             endCallBtn.disabled = false;
 
-            socket = new WebSocket('ws://localhost:8080/api/video');
+            socket = new WebSocket(`ws://localhost:8080/api/video/${channelId}`);
             socket.onopen = handleSocketOpen;
             socket.onmessage = handleSocketMessage;
             socket.onclose = handleSocketClose;

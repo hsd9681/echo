@@ -24,7 +24,7 @@ public class WebSocketConfig {
     @Bean
     public HandlerMapping handlerMapping() {
         Map<String, WebSocketHandler> map = new HashMap<>();
-        map.put("/video", videoHandler);
+        map.put("/video/**", videoHandler);
         map.put("/text", textHandler);
 
         SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();

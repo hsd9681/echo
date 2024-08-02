@@ -60,7 +60,7 @@ public class SecurityConfig {
                 .authorizeExchange(authorizeExchangeSpec -> authorizeExchangeSpec
                         .pathMatchers(HttpMethod.GET,"/auth").permitAll()
                         .pathMatchers(HttpMethod.POST, "/users/signup", "/users/activate/**", "/auth/**").permitAll()
-                        .pathMatchers(HttpMethod.GET, "/video").permitAll()
+                        .pathMatchers(HttpMethod.GET, "/video/**").permitAll()
                         .pathMatchers(HttpMethod.GET, "/text/**").permitAll()
                         .anyExchange().authenticated()
                 )
