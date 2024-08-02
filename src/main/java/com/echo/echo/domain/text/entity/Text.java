@@ -9,8 +9,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(value = "text")
 @Getter
 public class Text extends TimeStamp {
     @Id
