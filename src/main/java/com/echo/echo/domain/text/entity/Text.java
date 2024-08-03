@@ -12,7 +12,7 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(value = "text")
+@Table(name = "text")
 @Getter
 public class Text extends TimeStamp {
     @Id
