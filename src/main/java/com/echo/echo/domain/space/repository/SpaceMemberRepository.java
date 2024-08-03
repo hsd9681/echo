@@ -13,4 +13,6 @@ public interface SpaceMemberRepository extends ReactiveCrudRepository<SpaceMembe
     Mono<SpaceMember> findByUserIdAndSpaceId(Long userId, Long spaceId);
     Flux<SpaceMember> findAllByUserId(Long userId);
     Mono<Void> deleteBySpaceId(Long spaceId);
+    Flux<SpaceMember> findAllBySpaceId(Long spaceId);
+
 }

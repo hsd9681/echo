@@ -3,6 +3,7 @@ package com.echo.echo.domain.space;
 import com.echo.echo.domain.space.error.SpaceSuccessCode;
 import com.echo.echo.domain.space.dto.SpaceRequestDto;
 import com.echo.echo.domain.space.dto.SpaceResponseDto;
+import com.echo.echo.domain.user.dto.UserResponseDto;
 import com.echo.echo.security.principal.UserPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -69,6 +70,11 @@ public class SpaceController {
         @AuthenticationPrincipal UserPrincipal userPrincipal) {
         Long userId = userPrincipal.getUser().getId();
         return spaceFacade.getUserSpaces(userId);
+    }
+
+    @GetMapping("/{spaceId}/members")
+    public Flux<UserResponseDto> getSpaceMembers(@PathVariable Long spaceId) {
+        return spaceFacade.getSpaceMembers(spaceId);
     }
 
 }

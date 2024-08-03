@@ -80,6 +80,12 @@ public class SpaceService {
             );
     }
 
+    public Flux<SpaceMember> getSpaceMembers(Long spaceId) {
+        return spaceRepository.findById(spaceId)
+            .switchIfEmpty(Mono.error(new CustomException(SpaceErrorCode.SPACE_NOT_FOUND)))
+            .flatMapMany(existingSpace -> spaceMemberRepository.findAllBySpaceId(spaceId));
+    }
+
     private Mono<Space> findSpaceById(Long spaceId) {
         return spaceRepository.findById(spaceId)
             .switchIfEmpty(Mono.error(new CustomException(SpaceErrorCode.SPACE_NOT_FOUND)));
