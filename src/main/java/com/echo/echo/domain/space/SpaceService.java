@@ -24,14 +24,15 @@ public class SpaceService {
     private final SpaceRepository spaceRepository;
     private final SpaceMemberRepository spaceMemberRepository;
 
-    public Mono<SpaceResponseDto> createSpace(SpaceRequestDto requestDto) {
+    public Mono<SpaceResponseDto> createSpace(SpaceRequestDto requestDto, Long userId) {
         Space space = Space.builder()
             .spaceName(requestDto.getSpaceName())
             .isPublic(requestDto.getIsPublic())
             .thumbnail(requestDto.getThumbnail())
             .build();
         return spaceRepository.save(space)
-            .map(SpaceResponseDto::new);
+            .flatMap(savedSpace -> addUserToSpace(userId, savedSpace.getId())
+                .thenReturn(new SpaceResponseDto(savedSpace)));
     }
 
     public Mono<SpaceResponseDto> updateSpace(Long spaceId, SpaceRequestDto requestDto) {
@@ -83,4 +84,19 @@ public class SpaceService {
         return spaceRepository.findById(spaceId)
             .switchIfEmpty(Mono.error(new CustomException(SpaceErrorCode.SPACE_NOT_FOUND)));
     }
+
+    public Flux<SpaceResponseDto> getUserSpaces(Long userId) {
+        return spaceMemberRepository.findAllByUserId(userId)
+            .flatMap(spaceMember -> spaceRepository.findById(spaceMember.getSpaceId())
+                .map(SpaceResponseDto::new))
+            .switchIfEmpty(Flux.error(new CustomException(SpaceErrorCode.NO_SPACES_JOINED)));
+    }
+
+    private Mono<SpaceMember> addUserToSpace(Long userId, Long spaceId) {
+        return spaceMemberRepository.save(SpaceMember.builder()
+            .userId(userId)
+            .spaceId(spaceId)
+            .build());
+    }
+
 }

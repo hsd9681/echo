@@ -17,8 +17,8 @@ public class SpaceFacade {
 
     private final SpaceService spaceService;
 
-    public Mono<SpaceResponseDto> createSpace(SpaceRequestDto requestDto) {
-        return spaceService.createSpace(requestDto);
+    public Mono<SpaceResponseDto> createSpace(SpaceRequestDto requestDto, Long userId) {
+        return spaceService.createSpace(requestDto, userId);
     }
 
     public Mono<SpaceResponseDto> updateSpace(Long spaceId, SpaceRequestDto requestDto) {
@@ -39,5 +39,9 @@ public class SpaceFacade {
 
     public Mono<SpaceResponseDto> joinSpace(String uuid, Long userId) {
         return spaceService.joinSpace(uuid, userId);
+    }
+
+    public Flux<SpaceResponseDto> getUserSpaces(Long userId) {
+        return spaceService.getUserSpaces(userId);
     }
 }
