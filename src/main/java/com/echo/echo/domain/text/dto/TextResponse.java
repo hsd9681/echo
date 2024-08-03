@@ -1,10 +1,7 @@
 package com.echo.echo.domain.text.dto;
 
 import com.echo.echo.domain.text.entity.Text;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 

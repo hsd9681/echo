@@ -1,11 +1,13 @@
 package com.echo.echo.domain.text.controller;
 
+import com.echo.echo.common.exception.CustomException;
+import com.echo.echo.common.exception.codes.CommonErrorCode;
 import com.echo.echo.domain.text.TextService;
 import com.echo.echo.domain.text.dto.TextRequest;
+import com.echo.echo.domain.text.dto.TextResponse;
 import com.echo.echo.security.jwt.JwtProvider;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -39,44 +41,23 @@ public class TextWebSocketHandler implements WebSocketHandler {
 
         Sinks.Many<String> sink = textService.getSink(channelId);
         Map<String, WebSocketSession> sessions = textService.getSessions(channelId);
-        boolean isNewSession = sessions.putIfAbsent(session.getId(), session) == null;
-
-        Flux<WebSocketMessage> outputMsg = sink.asFlux()
-                .map(session::textMessage);
-
-        if (isNewSession) {
-            String joinMessage = String.format("%s님이 입장했습니다.", username);
-            sink.tryEmitNext(joinMessage);
-            outputMsg = Flux.concat(Flux.just(joinMessage).map(session::textMessage),
-                    sink.asFlux().map(session::textMessage));
-        }
-
-        Mono<Void> output = session.send(outputMsg)
-                .doOnError(e -> {
-                    sessions.remove(session.getId());
-                    session.close();
-                });
-
-        outputMsg.subscribe();
 
         Flux<String> input = session.receive()
+                .doOnSubscribe(subscription -> {
+                    textService.loadTextByChannelId(channelId)
+                            .map(this::objectToString)
+                            .map(session::textMessage)
+                            .subscribe(messages -> session.send(Mono.just(messages)).subscribe());
+                })
                 .map(WebSocketMessage::getPayloadAsText)
                 .flatMap(payload -> {
-                    try {
-                        TextRequest request = mapper.readValue(payload, TextRequest.class);
-                        return textService.sendText(request, username, userId, channelId)
-                                .flatMap(response -> {
-                                    try {
-                                        String jsonResponse = mapper.writeValueAsString(response);
-                                        sink.tryEmitNext(jsonResponse);
-                                        return Mono.empty();
-                                    } catch (JsonProcessingException ex) {
-                                        return Mono.just("메세지 처리 중 오류 발생");
-                                    }
-                                });
-                    } catch (Exception e) {
-                        return Mono.just("메세지 처리 중 오류 발생");
-                    }
+                    TextRequest request = this.payloadToObject(payload, TextRequest.class);
+                    return textService.sendText(request, username, userId, channelId)
+                            .flatMap(response -> {
+                                String responseString = this.objectToString(response);
+                                sink.tryEmitNext(responseString);
+                                return Mono.just(responseString);
+                            });
                 })
                 .doOnError(e -> {
                     sessions.remove(session.getId());
@@ -84,9 +65,10 @@ public class TextWebSocketHandler implements WebSocketHandler {
                 })
                 .doFinally(signal -> {
                     sessions.remove(session.getId());
-                    sink.tryEmitNext(String.format("%s님이 퇴장했습니다.", username));
                     session.close();
                 });
+
+        Mono<Void> output = session.send(sink.asFlux().map(session::textMessage));
 
         return Mono.when(input, output);
     }
@@ -105,5 +87,22 @@ public class TextWebSocketHandler implements WebSocketHandler {
         }
 
         return queryParam;
+    }
+
+    private String objectToString(TextResponse response) {
+        try {
+            System.out.println(mapper.writeValueAsString(response));
+            return mapper.writeValueAsString(response);
+        } catch (JsonProcessingException e) {
+            throw new CustomException(CommonErrorCode.FAIL);
+        }
+    }
+
+    private <T> T payloadToObject(String payload, Class<T> readClass) {
+        try {
+            return mapper.readValue(payload, readClass);
+        } catch (JsonProcessingException e) {
+            throw new CustomException(CommonErrorCode.FAIL);
+        }
     }
 }

@@ -5,14 +5,17 @@ import com.echo.echo.domain.text.dto.TextResponse;
 import com.echo.echo.domain.text.entity.Text;
 import com.echo.echo.domain.text.repository.TextRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.socket.WebSocketSession;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TextService {
@@ -38,5 +41,10 @@ public class TextService {
         Text text = new Text(request, username, userId, channelId);
         return repository.save(text)
                 .map(TextResponse::new);
+    }
+
+    public Flux<TextResponse> loadTextByChannelId(Long channelId) {
+        Flux<Text> textFlux = repository.findAllByChannelId(channelId).log();
+        return textFlux.map(TextResponse::new);
     }
 }
