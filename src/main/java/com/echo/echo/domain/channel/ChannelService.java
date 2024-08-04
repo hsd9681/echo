@@ -2,13 +2,10 @@ package com.echo.echo.domain.channel;
 
 import com.echo.echo.common.exception.CustomException;
 import com.echo.echo.domain.channel.error.ChannelErrorCode;
-import com.echo.echo.domain.space.error.SpaceErrorCode;
 import com.echo.echo.domain.channel.dto.ChannelRequestDto;
 import com.echo.echo.domain.channel.dto.ChannelResponseDto;
 import com.echo.echo.domain.channel.entity.Channel;
 import com.echo.echo.domain.channel.repository.ChannelRepository;
-import com.echo.echo.domain.space.entity.Space;
-import com.echo.echo.domain.space.repository.SpaceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -23,14 +20,10 @@ import reactor.core.publisher.Mono;
 public class ChannelService {
 
     private final ChannelRepository channelRepository;
-    private final SpaceRepository spaceRepository;
 
     public Mono<ChannelResponseDto> createChannel(Long spaceId, ChannelRequestDto requestDto) {
-        return findSpaceById(spaceId)
-            .flatMap(space -> {
-                Channel channel = buildChannel(null, spaceId, requestDto);
-                return channelRepository.save(channel);
-            })
+        Channel channel = buildChannel(null, spaceId, requestDto);
+        return channelRepository.save(channel)
             .map(this::toChannelResponseDto);
     }
 
@@ -51,11 +44,6 @@ public class ChannelService {
     public Mono<Void> deleteChannel(Long channelId) {
         return findChannelById(channelId)
             .flatMap(channelRepository::delete);
-    }
-
-    private Mono<Space> findSpaceById(Long spaceId) {
-        return spaceRepository.findById(spaceId)
-            .switchIfEmpty(Mono.error(new CustomException(SpaceErrorCode.SPACE_NOT_FOUND)));
     }
 
     private Mono<Channel> findChannelById(Long channelId) {
