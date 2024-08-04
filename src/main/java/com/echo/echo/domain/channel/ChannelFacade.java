@@ -2,6 +2,7 @@ package com.echo.echo.domain.channel;
 
 import com.echo.echo.domain.channel.dto.ChannelRequestDto;
 import com.echo.echo.domain.channel.dto.ChannelResponseDto;
+import com.echo.echo.domain.space.SpaceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -15,9 +16,11 @@ import reactor.core.publisher.Mono;
 public class ChannelFacade {
 
     private final ChannelService channelService;
+    private final SpaceService spaceService;
 
     public Mono<ChannelResponseDto> createChannel(Long spaceId, ChannelRequestDto requestDto) {
-        return channelService.createChannel(spaceId, requestDto);
+        return spaceService.findSpaceById(spaceId)
+            .flatMap(space -> channelService.createChannel(spaceId, requestDto));
     }
 
     public Flux<ChannelResponseDto> getChannels(Long spaceId) {
@@ -31,4 +34,5 @@ public class ChannelFacade {
     public Mono<Void> deleteChannel(Long channelId) {
         return channelService.deleteChannel(channelId);
     }
+
 }

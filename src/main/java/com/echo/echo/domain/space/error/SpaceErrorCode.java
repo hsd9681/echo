@@ -18,6 +18,7 @@ public enum SpaceErrorCode implements BaseCode {
     SPACE_NOT_FOUND(HttpStatus.NOT_FOUND, 404, "스페이스 데이터를 찾을 수 없습니다.", "스페이스 데이터가 존재하지 않습니다."),
     INVALID_SPACE_NAME(HttpStatus.BAD_REQUEST, 5001, "스페이스 이름은 20자 미만이어야 합니다.", "스페이스 이름이 유효하지 않습니다."),
     INVALID_IS_PUBLIC(HttpStatus.BAD_REQUEST, 5002, "공개 여부는 Y 또는 N이어야 합니다.", "공개 여부 값이 유효하지 않습니다."),
+    NO_SPACES_JOINED(HttpStatus.NOT_FOUND, 5003, "가입된 스페이스가 없습니다.", "사용자가 가입한 스페이스가 없습니다."),
     
     ;
 

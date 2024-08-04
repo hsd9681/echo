@@ -3,6 +3,7 @@ package com.echo.echo.domain.space;
 import com.echo.echo.domain.space.error.SpaceSuccessCode;
 import com.echo.echo.domain.space.dto.SpaceRequestDto;
 import com.echo.echo.domain.space.dto.SpaceResponseDto;
+import com.echo.echo.domain.user.dto.UserResponseDto;
 import com.echo.echo.security.principal.UserPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +26,10 @@ public class SpaceController {
 
     @PostMapping
     public Mono<ResponseEntity<SpaceResponseDto>> createSpace(
+        @AuthenticationPrincipal UserPrincipal userPrincipal,
         @Valid @RequestBody SpaceRequestDto requestDto) {
-        return spaceFacade.createSpace(requestDto)
+        Long userId = userPrincipal.getUser().getId();
+        return spaceFacade.createSpace(requestDto, userId)
             .map(ResponseEntity::ok);
     }
 
@@ -43,7 +46,7 @@ public class SpaceController {
     }
 
     @GetMapping("/{spaceId}")
-    public Mono<ResponseEntity<Object>> getSpaceById(@PathVariable Long spaceId) {
+    public Mono<ResponseEntity<SpaceResponseDto>> getSpaceById(@PathVariable Long spaceId) {
         return spaceFacade.getSpaceById(spaceId)
             .map(ResponseEntity::ok);
     }
@@ -55,11 +58,23 @@ public class SpaceController {
     }
 
     @PostMapping("/join/{uuid}")
-    public Mono<ResponseEntity<Object>> joinSpace(
+    public Mono<ResponseEntity<SpaceResponseDto>> joinSpace(
         @AuthenticationPrincipal UserPrincipal userPrincipal,
         @PathVariable String uuid) {
         return spaceFacade.joinSpace(uuid, userPrincipal.getUser().getId())
             .map(ResponseEntity::ok);
+    }
+
+    @GetMapping("/my")
+    public Flux<SpaceResponseDto> getMySpaces(
+        @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        Long userId = userPrincipal.getUser().getId();
+        return spaceFacade.getUserSpaces(userId);
+    }
+
+    @GetMapping("/{spaceId}/members")
+    public Flux<UserResponseDto> getSpaceMembers(@PathVariable Long spaceId) {
+        return spaceFacade.getSpaceMembers(spaceId);
     }
 
 }
