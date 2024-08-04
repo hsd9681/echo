@@ -2,7 +2,7 @@ package com.echo.echo.domain.space;
 
 import com.echo.echo.domain.space.dto.SpaceRequestDto;
 import com.echo.echo.domain.space.dto.SpaceResponseDto;
-import com.echo.echo.domain.user.UserFacade;
+import com.echo.echo.domain.user.UserService;
 import com.echo.echo.domain.user.dto.UserResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -18,7 +18,7 @@ import reactor.core.publisher.Mono;
 public class SpaceFacade {
 
     private final SpaceService spaceService;
-    private final UserFacade userFacade;
+    private final UserService userService;
 
     public Mono<SpaceResponseDto> createSpace(SpaceRequestDto requestDto, Long userId) {
         return spaceService.createSpace(requestDto, userId);
@@ -50,8 +50,8 @@ public class SpaceFacade {
 
     public Flux<UserResponseDto> getSpaceMembers(Long spaceId) {
         return spaceService.getSpaceMembers(spaceId)
-            .flatMap(spaceMember -> userFacade.findUserById(spaceMember.getUserId()));
+            .flatMap(spaceMember -> userService.findById(spaceMember.getUserId())
+                .map(UserResponseDto::new));
     }
-
 
 }

@@ -46,7 +46,7 @@ public class SpaceController {
     }
 
     @GetMapping("/{spaceId}")
-    public Mono<ResponseEntity<Object>> getSpaceById(@PathVariable Long spaceId) {
+    public Mono<ResponseEntity<SpaceResponseDto>> getSpaceById(@PathVariable Long spaceId) {
         return spaceFacade.getSpaceById(spaceId)
             .map(ResponseEntity::ok);
     }
@@ -58,7 +58,7 @@ public class SpaceController {
     }
 
     @PostMapping("/join/{uuid}")
-    public Mono<ResponseEntity<Object>> joinSpace(
+    public Mono<ResponseEntity<SpaceResponseDto>> joinSpace(
         @AuthenticationPrincipal UserPrincipal userPrincipal,
         @PathVariable String uuid) {
         return spaceFacade.joinSpace(uuid, userPrincipal.getUser().getId())
