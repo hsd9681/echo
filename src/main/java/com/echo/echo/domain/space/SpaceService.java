@@ -86,7 +86,7 @@ public class SpaceService {
             .flatMapMany(existingSpace -> spaceMemberRepository.findAllBySpaceId(spaceId));
     }
 
-    private Mono<Space> findSpaceById(Long spaceId) {
+    public Mono<Space> findSpaceById(Long spaceId) {
         return spaceRepository.findById(spaceId)
             .switchIfEmpty(Mono.error(new CustomException(SpaceErrorCode.SPACE_NOT_FOUND)));
     }
