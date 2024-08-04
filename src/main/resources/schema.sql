@@ -42,6 +42,7 @@ create table if not exists text
 (
     id          bigint primary key auto_increment,
     contents    text(1000) not null,
+    username varchar(50) not null,
     user_id     bigint     not null,
     channel_id  bigint     not null,
     created_at  timestamp  not null,
@@ -73,6 +74,22 @@ CREATE TABLE IF NOT EXISTS request_friend
     FOREIGN KEY (to_user_id) REFERENCES user (id)
 );
 
+INSERT INTO user (nickname, email, password, intro, status)
+SELECT '정현경', 'gusrud@test.com', '$2a$10$6UXZchkxO93nMUKrt.kXTeHx6o1/6Dij8eDfp5UBMWFJQAT2xG.GW', '', 0
+WHERE NOT EXISTS (SELECT 1 FROM user WHERE email = 'gusrud@test.com');
 
+INSERT INTO user (nickname, email, password, intro, status)
+SELECT '홍성도', 'tjdeh@test.com', '$2a$10$6UXZchkxO93nMUKrt.kXTeHx6o1/6Dij8eDfp5UBMWFJQAT2xG.GW', '', 0
+WHERE NOT EXISTS (SELECT 1 FROM user WHERE email = 'tjdeh@test.com');
 
+INSERT INTO user (nickname, email, password, intro, status)
+SELECT '김기석', 'rltjr@test.com', '$2a$10$6UXZchkxO93nMUKrt.kXTeHx6o1/6Dij8eDfp5UBMWFJQAT2xG.GW', '', 0
+WHERE NOT EXISTS (SELECT 1 FROM user WHERE email = 'rltjr@test.com');
 
+INSERT INTO user (nickname, email, password, intro, status)
+SELECT '이유환', 'dbghks@test.com', '$2a$10$6UXZchkxO93nMUKrt.kXTeHx6o1/6Dij8eDfp5UBMWFJQAT2xG.GW', '', 0
+WHERE NOT EXISTS (SELECT 1 FROM user WHERE email = 'dbghks@test.com');
+
+INSERT INTO user (nickname, email, password, intro, status)
+SELECT '최현진', 'guswls@test.com', '$2a$10$6UXZchkxO93nMUKrt.kXTeHx6o1/6Dij8eDfp5UBMWFJQAT2xG.GW', '', 0
+WHERE NOT EXISTS (SELECT 1 FROM user WHERE email = 'guswls@test.com');
