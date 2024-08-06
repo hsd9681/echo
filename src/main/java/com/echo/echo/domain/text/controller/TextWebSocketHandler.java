@@ -41,14 +41,13 @@ public class TextWebSocketHandler implements WebSocketHandler {
 
         Sinks.Many<String> sink = textService.getSink(channelId);
         Map<String, WebSocketSession> sessions = textService.getSessions(channelId);
+        sessions.putIfAbsent(session.getId(), session);
 
         Flux<String> input = session.receive()
-                .doOnSubscribe(subscription -> {
-                    textService.loadTextByChannelId(channelId)
-                            .map(this::objectToString)
-                            .map(session::textMessage)
-                            .subscribe(messages -> session.send(Mono.just(messages)).subscribe());
-                })
+                .doOnSubscribe(subscription -> textService.loadTextByChannelId(channelId)
+                        .map(this::objectToString)
+                        .map(session::textMessage)
+                        .subscribe(messages -> session.send(Mono.just(messages)).subscribe()))
                 .map(WebSocketMessage::getPayloadAsText)
                 .flatMap(payload -> {
                     TextRequest request = this.payloadToObject(payload, TextRequest.class);

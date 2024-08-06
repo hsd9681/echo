@@ -1,7 +1,10 @@
 package com.echo.echo.domain.text.dto;
 
 import com.echo.echo.domain.text.entity.Text;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -11,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class TextResponse {
 
-    private Long id;
+    private String id;
     private Long channelId;
     private String contents;
     private String username;
