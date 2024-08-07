@@ -44,7 +44,7 @@ public class TextService {
     }
 
     public Flux<TextResponse> loadTextByChannelId(Long channelId) {
-        Flux<Text> textFlux = repository.findAllByChannelId(channelId).log();
-        return textFlux.map(TextResponse::new);
+        return repository.findAllByChannelId(channelId)
+                        .map(TextResponse::new);
     }
 }
