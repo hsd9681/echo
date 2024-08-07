@@ -1,5 +1,6 @@
 package com.echo.echo.domain.notification;
 
+import com.echo.echo.domain.notification.dto.NotificationDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
@@ -8,24 +9,35 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Service
 public class NotificationService {
-    private final Map<Long, Sinks.Many<ServerSentEvent<String>>> sinks = new ConcurrentHashMap<>();
+    private final Map<Long, Sinks.Many<ServerSentEvent<NotificationDto>>> sinks = new ConcurrentHashMap<>();
 
-    public Mono<Void> personalSend(Long id, String message) {
+    /**
+     * 메시지 발행
+     * @param id 발행할 유저 아이디
+     * @param dto 메시지 정보
+     */
+    public Mono<Void> messageSend(Long id, NotificationDto dto) {
         if(sinks.containsKey(id)) {
-            sinks.get(id).tryEmitNext(ServerSentEvent.<String>builder()
-                    .data(message)
+            sinks.get(id).tryEmitNext(ServerSentEvent.<NotificationDto>builder()
+                    .data(dto)
                     .build());
         }
         return Mono.empty();
     }
 
-    public Flux<ServerSentEvent<String>> connect(Long id) {
+    /**
+     * 입장 시 실행
+     * 메시지 발행이 일어나면 유저에게 전달한다.
+     * @param id 입장한 유저의 아이디 (고유값)
+     */
+    protected Flux<ServerSentEvent<NotificationDto>> connect(Long id) {
         log.info("Connecting to {}", id);
 
         if (sinks.containsKey(id)) {
