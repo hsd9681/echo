@@ -1,16 +1,15 @@
 package com.echo.echo.domain.text.controller;
 
-import com.echo.echo.common.exception.CustomException;
-import com.echo.echo.common.exception.codes.CommonErrorCode;
+import com.echo.echo.common.redis.RedisConst;
+import com.echo.echo.common.redis.RedisPublisher;
+import com.echo.echo.common.util.ObjectStringConverter;
 import com.echo.echo.domain.text.TextService;
 import com.echo.echo.domain.text.dto.TextRequest;
 import com.echo.echo.domain.text.dto.TextResponse;
 import com.echo.echo.security.jwt.JwtProvider;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
@@ -22,13 +21,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j(topic = "textHandler")
-@Component
 @RequiredArgsConstructor
 public class TextWebSocketHandler implements WebSocketHandler {
 
     private final JwtProvider jwtProvider;
-    private final ObjectMapper mapper;
     private final TextService textService;
+    private final ObjectStringConverter objectStringConverter;
+    private final RedisPublisher redisPublisher;
+    private Sinks.Many<TextResponse> textResponseSink;
+    Map<String, WebSocketSession> channelSessions;
 
     @Override
     public Mono<Void> handle(WebSocketSession session) {
@@ -39,35 +40,45 @@ public class TextWebSocketHandler implements WebSocketHandler {
         String username = jwtProvider.getNickName(token);
         Long userId = jwtProvider.getUserId(token);
 
-        Sinks.Many<String> sink = textService.getSink(channelId);
-        Map<String, WebSocketSession> sessions = textService.getSessions(channelId);
-        sessions.putIfAbsent(session.getId(), session);
+        textResponseSink = textService.getSink(channelId);
+        channelSessions = textService.getSessions(channelId);
+        channelSessions.putIfAbsent(session.getId(), session);
 
-        Flux<String> input = session.receive()
-                .doOnSubscribe(subscription -> textService.loadTextByChannelId(channelId)
-                        .map(this::objectToString)
-                        .map(session::textMessage)
-                        .subscribe(messages -> session.send(Mono.just(messages)).subscribe()))
+        Flux<TextResponse> textResponseFlux = textResponseSink.asFlux();
+
+        Flux<WebSocketMessage> sendMessagesFlux = textResponseFlux
+                .flatMap(objectStringConverter::objectToString)
+                .map(session::textMessage)
+                .doOnError(throwable -> log.error("웹소켓 메시지 변환 간 오류 발생", throwable));
+
+        Mono<Void> output = session.send(sendMessagesFlux);
+
+        Mono<Void> input = session.receive()
                 .map(WebSocketMessage::getPayloadAsText)
                 .flatMap(payload -> {
-                    TextRequest request = this.payloadToObject(payload, TextRequest.class);
+                    Mono<TextRequest> request = objectStringConverter.stringToObject(payload, TextRequest.class);
                     return textService.sendText(request, username, userId, channelId)
                             .flatMap(response -> {
-                                String responseString = this.objectToString(response);
-                                sink.tryEmitNext(responseString);
-                                return Mono.just(responseString);
+                                ChannelTopic topic = new ChannelTopic(RedisConst.TEXT_CHANNEL_PREFIX);
+                                return redisPublisher.publish(topic, response);
                             });
                 })
+                .doOnSubscribe(subscription -> {
+                    textService.loadTextByChannelId(channelId)
+                            .flatMap(objectStringConverter::objectToString)
+                            .map(session::textMessage)
+                            .flatMap(messages -> session.send(Mono.just(messages)))
+                            .then()
+                            .subscribe();
+                }).then()
                 .doOnError(e -> {
-                    sessions.remove(session.getId());
+                    channelSessions.remove(session.getId());
                     session.close();
                 })
                 .doFinally(signal -> {
-                    sessions.remove(session.getId());
+                    channelSessions.remove(session.getId());
                     session.close();
                 });
-
-        Mono<Void> output = session.send(sink.asFlux().map(session::textMessage));
 
         return Mono.when(input, output);
     }
@@ -88,20 +99,13 @@ public class TextWebSocketHandler implements WebSocketHandler {
         return queryParam;
     }
 
-    private String objectToString(TextResponse response) {
-        try {
-            System.out.println(mapper.writeValueAsString(response));
-            return mapper.writeValueAsString(response);
-        } catch (JsonProcessingException e) {
-            throw new CustomException(CommonErrorCode.FAIL);
-        }
-    }
-
-    private <T> T payloadToObject(String payload, Class<T> readClass) {
-        try {
-            return mapper.readValue(payload, readClass);
-        } catch (JsonProcessingException e) {
-            throw new CustomException(CommonErrorCode.FAIL);
-        }
+    public Mono<Sinks.EmitResult> sendText(String body) {
+        return Mono.fromSupplier(() -> objectStringConverter.stringToObject(body, TextResponse.class))
+                .flatMap(response -> response.map(textResponseSink::tryEmitNext))
+                .doOnSuccess(emitResult -> {
+                    if (emitResult.isFailure()) {
+                        log.error("Redis Sub 메시지 전송 실패: {}", body);
+                    }
+                });
     }
 }

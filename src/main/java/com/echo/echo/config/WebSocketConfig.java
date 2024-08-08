@@ -1,7 +1,11 @@
 package com.echo.echo.config;
 
+import com.echo.echo.common.redis.RedisPublisher;
+import com.echo.echo.common.util.ObjectStringConverter;
+import com.echo.echo.domain.text.TextService;
 import com.echo.echo.domain.text.controller.TextWebSocketHandler;
 import com.echo.echo.domain.video.VideoHandler;
+import com.echo.echo.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -18,11 +22,16 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class WebSocketConfig {
 
-    private final TextWebSocketHandler textHandler;
-    private final VideoHandler videoHandler;
+    @Bean
+    public TextWebSocketHandler textWebSocketHandler(JwtProvider jwtProvider,
+                                                     TextService textService,
+                                                     ObjectStringConverter objectStringConverter,
+                                                     RedisPublisher redisPublisher) {
+        return new TextWebSocketHandler(jwtProvider, textService, objectStringConverter, redisPublisher);
+    }
 
     @Bean
-    public HandlerMapping handlerMapping() {
+    public HandlerMapping handlerMapping(TextWebSocketHandler textHandler, VideoHandler videoHandler) {
         Map<String, WebSocketHandler> map = new HashMap<>();
         map.put("/video/**", videoHandler);
         map.put("/text", textHandler);
