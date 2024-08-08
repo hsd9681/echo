@@ -25,9 +25,9 @@ repositories {
 
 dependencies {
     // R2DBC
+    runtimeOnly 'org.mariadb:r2dbc-mariadb'
     implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
-    runtimeOnly 'org.mariadb:r2dbc-mariadb'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
 
     // WebFlux
@@ -43,6 +43,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     implementation 'org.json:json:20240303'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
     compileOnly group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.12.6'
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.12.6'
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.12.6'
