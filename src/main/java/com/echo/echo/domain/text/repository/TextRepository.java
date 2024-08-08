@@ -1,10 +1,13 @@
 package com.echo.echo.domain.text.repository;
 
 import com.echo.echo.domain.text.entity.Text;
-import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import org.springframework.data.mongodb.repository.Query;
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 
-public interface TextRepository extends ReactiveCrudRepository<Text, Long> {
+@Repository
+public interface TextRepository extends ReactiveMongoRepository<Text, String> {
 
     Flux<Text> findAllByChannelId(Long channelId);
 }
