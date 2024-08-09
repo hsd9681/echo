@@ -37,7 +37,6 @@ public class TextService {
                 .map(textRequest -> new Text(textRequest, username, userId, channelId))
                 .flatMap(repository::save)
                 .map(TextResponse::new);
-
     }
 
     public Flux<TextResponse> loadTextByChannelId(Long channelId) {
