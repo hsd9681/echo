@@ -1,5 +1,5 @@
 // OAuthController.java
-package com.echo.echo.domain.OAuth;
+package com.echo.echo.domain.auth;
 
 import com.echo.echo.domain.auth.dto.TokenResponseDto;
 import lombok.RequiredArgsConstructor;

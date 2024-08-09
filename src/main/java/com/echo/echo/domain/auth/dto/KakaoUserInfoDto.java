@@ -1,4 +1,4 @@
-package com.echo.echo.domain.OAuth.dto;
+package com.echo.echo.domain.auth.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

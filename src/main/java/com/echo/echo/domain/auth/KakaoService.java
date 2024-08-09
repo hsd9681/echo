@@ -1,7 +1,7 @@
-package com.echo.echo.domain.OAuth;
+package com.echo.echo.domain.auth;
 
 import com.echo.echo.common.redis.RedisService;
-import com.echo.echo.domain.OAuth.dto.KakaoUserInfoDto;
+import com.echo.echo.domain.auth.dto.KakaoUserInfoDto;
 import com.echo.echo.domain.auth.dto.TokenResponseDto;
 import com.echo.echo.domain.user.entity.RefreshToken;
 import com.echo.echo.domain.user.entity.User;
