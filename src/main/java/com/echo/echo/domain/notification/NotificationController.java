@@ -15,16 +15,16 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/notice")
 public class NotificationController {
 
-    private final NotificationService notificationService;
+    private final SseProcessor sseProcessor;
 
     @GetMapping(value = "/sse/connect", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent<NotificationDto>> sseConnect(@AuthenticationPrincipal UserPrincipal user) {
-        return notificationService.connect(user.getId());
+        return sseProcessor.connect(user.getId());
     }
 
     @PostMapping("/sse")
     public Mono<Void> sendMessage(@AuthenticationPrincipal UserPrincipal user,
                                   @RequestBody NotificationDto dto) {
-        return notificationService.messageSend(user.getId(), dto);
+        return sseProcessor.messageSend(user.getId(), dto);
     }
 }

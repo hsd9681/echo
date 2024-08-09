@@ -1,17 +1,25 @@
 package com.echo.echo.domain.notification.dto;
 
+import com.echo.echo.domain.notification.entity.Notification;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @Getter
-public class NotificationDto {
+public class NotificationDto<T> {
     @JsonProperty
-    private String message;
+    private String eventType;
+    @JsonProperty
+    private String notificationType;
+    @JsonProperty
+    private T data;
 
-    public NotificationDto(String message) {
-        this.message = message;
+    @Builder
+    public NotificationDto(Notification.EventType eventType, Notification.NotificationType notificationType, T data) {
+        this.eventType = eventType.name();
+        this.notificationType = notificationType.name();
+        this.data = data;
     }
 }
