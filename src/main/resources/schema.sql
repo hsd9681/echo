@@ -6,7 +6,7 @@ create table if not exists user
     password          varchar(255),
     intro             varchar(100),
     status            int(1),
-    verification_code int(6)
+    kakao_id bigint(20)
 );
 
 create table if not exists space

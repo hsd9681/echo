@@ -65,6 +65,7 @@ public class SecurityConfig {
                         .pathMatchers(HttpMethod.GET, "/video/**").permitAll()
                         .pathMatchers(HttpMethod.GET, "/text/**").permitAll()
                         .pathMatchers("/actuator/health").permitAll()
+                        .pathMatchers("/user/kakao/callback").permitAll()
                         .anyExchange().authenticated()
                 )
                 .addFilterAt(authenticationWebFilter(), SecurityWebFiltersOrder.AUTHENTICATION)

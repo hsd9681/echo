@@ -10,6 +10,7 @@ import com.echo.echo.domain.user.entity.RefreshToken;
 import com.echo.echo.domain.user.entity.User;
 import com.echo.echo.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -33,7 +34,6 @@ public class AuthService {
                 .switchIfEmpty(Mono.defer(() -> Mono.error(new CustomException(AuthErrorCode.NOT_ACTIVATED_ACCOUNT))))
                 .flatMap(u -> createToken(u.getId(), u.getEmail(), u.getNickname()));
     }
-
     private Mono<Void> checkPassword(String inputPassword, String password) {
         return Mono.just(passwordEncoder.matches(inputPassword, password))
                 .filter(isMatch -> isMatch)
