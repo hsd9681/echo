@@ -21,10 +21,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TextService {
 
     private final TextRepository repository;
-    private final Map<Long, Sinks.Many<String>> channelSinks = new ConcurrentHashMap<>();
-    private final Map<Long, Map<String, WebSocketSession>> channelSessions = new ConcurrentHashMap<>();
+    private final Map<Long, Sinks.Many<TextResponse>> channelSinks = new ConcurrentHashMap<>();
 
-    public Sinks.Many<String> getSink(Long channelId) {
+    public Sinks.Many<TextResponse> getSink(Long channelId) {
         return channelSinks.compute(channelId, (id, existingSink) -> {
             if (existingSink == null || existingSink.currentSubscriberCount() == 0) {
                 return Sinks.many().multicast().onBackpressureBuffer();
@@ -33,13 +32,10 @@ public class TextService {
         });
     }
 
-    public Map<String, WebSocketSession> getSessions(Long channelId) {
-        return channelSessions.computeIfAbsent(channelId, id -> new ConcurrentHashMap<>());
-    }
-
-    public Mono<TextResponse> sendText(TextRequest request, String username, Long userId, Long channelId) {
-        Text text = new Text(request, username, userId, channelId);
-        return repository.save(text)
+    public Mono<TextResponse> sendText(Mono<TextRequest> request, String username, Long userId, Long channelId) {
+        return request
+                .map(textRequest -> new Text(textRequest, username, userId, channelId))
+                .flatMap(repository::save)
                 .map(TextResponse::new);
     }
 
