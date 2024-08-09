@@ -22,7 +22,6 @@ public class TextService {
 
     private final TextRepository repository;
     private final Map<Long, Sinks.Many<TextResponse>> channelSinks = new ConcurrentHashMap<>();
-    private final Map<Long, Map<String, WebSocketSession>> channelSessions = new ConcurrentHashMap<>();
 
     public Sinks.Many<TextResponse> getSink(Long channelId) {
         return channelSinks.compute(channelId, (id, existingSink) -> {
@@ -31,10 +30,6 @@ public class TextService {
             }
             return existingSink;
         });
-    }
-
-    public Map<String, WebSocketSession> getSessions(Long channelId) {
-        return channelSessions.computeIfAbsent(channelId, id -> new ConcurrentHashMap<>());
     }
 
     public Mono<TextResponse> sendText(Mono<TextRequest> request, String username, Long userId, Long channelId) {

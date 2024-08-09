@@ -1,7 +1,10 @@
 package com.echo.echo.common.redis;
 
-public class RedisConst {
+import lombok.Getter;
 
-    public static final String TEXT_CHANNEL_PREFIX = "text";
+@Getter
+public enum RedisConst {
+
+    TEXT
 
 }

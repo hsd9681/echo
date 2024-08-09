@@ -28,8 +28,6 @@ public class TextWebSocketHandler implements WebSocketHandler {
     private final TextService textService;
     private final ObjectStringConverter objectStringConverter;
     private final RedisPublisher redisPublisher;
-    private Sinks.Many<TextResponse> textResponseSink;
-    Map<String, WebSocketSession> channelSessions;
 
     @Override
     public Mono<Void> handle(WebSocketSession session) {
@@ -40,10 +38,7 @@ public class TextWebSocketHandler implements WebSocketHandler {
         String username = jwtProvider.getNickName(token);
         Long userId = jwtProvider.getUserId(token);
 
-        textResponseSink = textService.getSink(channelId);
-        channelSessions = textService.getSessions(channelId);
-        channelSessions.putIfAbsent(session.getId(), session);
-
+        Sinks.Many<TextResponse> textResponseSink = textService.getSink(channelId);
         Flux<TextResponse> textResponseFlux = textResponseSink.asFlux();
 
         Flux<WebSocketMessage> sendMessagesFlux = textResponseFlux
@@ -59,7 +54,7 @@ public class TextWebSocketHandler implements WebSocketHandler {
                     Mono<TextRequest> request = objectStringConverter.stringToObject(payload, TextRequest.class);
                     return textService.sendText(request, username, userId, channelId)
                             .flatMap(response -> {
-                                ChannelTopic topic = new ChannelTopic(RedisConst.TEXT_CHANNEL_PREFIX);
+                                ChannelTopic topic = new ChannelTopic(RedisConst.TEXT.name());
                                 return redisPublisher.publish(topic, response);
                             });
                 })
@@ -72,11 +67,9 @@ public class TextWebSocketHandler implements WebSocketHandler {
                             .subscribe();
                 }).then()
                 .doOnError(e -> {
-                    channelSessions.remove(session.getId());
                     session.close();
                 })
                 .doFinally(signal -> {
-                    channelSessions.remove(session.getId());
                     session.close();
                 });
 
@@ -101,7 +94,8 @@ public class TextWebSocketHandler implements WebSocketHandler {
 
     public Mono<Sinks.EmitResult> sendText(String body) {
         return Mono.fromSupplier(() -> objectStringConverter.stringToObject(body, TextResponse.class))
-                .flatMap(response -> response.map(textResponseSink::tryEmitNext))
+                .flatMap(response -> response.map(res ->
+                                textService.getSink(res.getChannelId()).tryEmitNext(res)))
                 .doOnSuccess(emitResult -> {
                     if (emitResult.isFailure()) {
                         log.error("Redis Sub 메시지 전송 실패: {}", body);
