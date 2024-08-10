@@ -3,6 +3,8 @@ package com.echo.echo.domain.channel;
 import com.echo.echo.domain.channel.dto.ChannelRequestDto;
 import com.echo.echo.domain.channel.dto.ChannelResponseDto;
 import com.echo.echo.domain.space.SpaceService;
+import com.echo.echo.domain.space.dto.SpaceMemberDto;
+import com.echo.echo.domain.space.dto.SpaceResponseDto;
 import com.echo.echo.domain.space.entity.SpaceMember;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -37,10 +39,17 @@ public class ChannelFacade {
     }
 
     // 여기에 채널 아이디로 스페이스 아이디를 가져오고 해당하는 스페이스 멤버를 가져오는 메서드를 작성합니다.
-    public Flux<Long> getSpaceMembersByChannelId(Long channelId) {
+    public Flux<Long> getSpaceMembersIdByChannelId(Long channelId) {
         return channelService.findChannelById(channelId)
                 .flatMapMany(channel -> spaceService.getSpaceMembers(channel.getSpaceId()))
                 .map(SpaceMember::getUserId);
+    }
+
+    // 여기에 채널 아이디로 스페이스 아이디를 가져오고 해당하는 스페이스 멤버를 가져오는 메서드를 작성합니다.
+    public Flux<SpaceMemberDto> getSpaceMembersByChannelId(Long channelId) {
+        return channelService.findChannelById(channelId)
+                .flatMapMany(channel -> spaceService.getSpaceMembers(channel.getSpaceId()))
+                .map(SpaceMemberDto::new);
     }
 
 }
