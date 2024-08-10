@@ -1,6 +1,6 @@
 package com.echo.echo.domain.notification;
 
-import com.echo.echo.domain.notification.dto.NotificationDto;
+import com.echo.echo.domain.notification.dto.NotificationResponseDto;
 import com.echo.echo.security.principal.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -18,13 +18,13 @@ public class NotificationController {
     private final SseProcessor sseProcessor;
 
     @GetMapping(value = "/sse/connect", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<ServerSentEvent<NotificationDto>> sseConnect(@AuthenticationPrincipal UserPrincipal user) {
+    public Flux<ServerSentEvent<NotificationResponseDto>> sseConnect(@AuthenticationPrincipal UserPrincipal user) {
         return sseProcessor.connect(user.getId());
     }
 
     @PostMapping("/sse")
     public Mono<Void> sendMessage(@AuthenticationPrincipal UserPrincipal user,
-                                  @RequestBody NotificationDto dto) {
+                                  @RequestBody NotificationResponseDto dto) {
         return sseProcessor.messageSend(user.getId(), dto);
     }
 }

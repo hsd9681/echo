@@ -1,54 +1,43 @@
 package com.echo.echo.domain.notification;
 
+import com.echo.echo.common.exception.CustomException;
+import com.echo.echo.common.exception.codes.CommonErrorCode;
 import com.echo.echo.domain.notification.dto.NotificationDto;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.codec.ServerSentEvent;
+import com.echo.echo.domain.notification.entity.Notification;
+import com.echo.echo.domain.notification.repository.NotificationRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.Sinks;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-@Slf4j
+@RequiredArgsConstructor
 @Service
 public class NotificationService {
-    private final Map<Long, Sinks.Many<ServerSentEvent<NotificationDto>>> sinks = new ConcurrentHashMap<>();
 
-    /**
-     * 메시지 발행
-     * @param id 발행할 유저 아이디
-     * @param dto 메시지 정보
-     */
-    public Mono<Void> messageSend(Long id, NotificationDto dto) {
-        if(sinks.containsKey(id)) {
-            sinks.get(id).tryEmitNext(ServerSentEvent.<NotificationDto>builder()
-                    .data(dto)
-                    .build());
-        }
-        return Mono.empty();
+    private final NotificationRepository notificationRepository;
+
+    // crud부터 만들자 ,  업데이트는 만들 이유가 없다...?
+
+    public Mono<Notification> createNotification(NotificationDto dto) {
+        return notificationRepository.save(
+                Notification.builder()
+                        .userId(dto.getUserId())
+                        .spaceId(dto.getSpaceId())
+                        .channelId(dto.getChannelId())
+                        .eventType(dto.getEventType())
+                        .notificationType(dto.getNotificationType())
+                        .data(dto.getData())
+                        .build()
+                );
     }
 
-    /**
-     * 입장 시 실행
-     * 메시지 발행이 일어나면 유저에게 전달한다.
-     * @param id 입장한 유저의 아이디 (고유값)
-     */
-    protected Flux<ServerSentEvent<NotificationDto>> connect(Long id) {
-        log.info("Connecting to {}", id);
+    public Flux<Notification> getNotifications(Long id) {
+        return Flux.empty();
+    }
 
-        if (sinks.containsKey(id)) {
-            return sinks.get(id).asFlux();
-        }
-
-        sinks.put(id, Sinks.many().multicast().onBackpressureBuffer());
-        return sinks.get(id).asFlux()
-                .doOnCancel(() -> {
-                    log.info("Notification service canceled" + id);
-                    sinks.remove(id);
-                });
+    public Mono<Notification> deleteNotification(Long id) {
+        return Mono.empty();
     }
 }
