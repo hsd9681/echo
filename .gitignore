@@ -37,4 +37,3 @@ out/
 .vscode/
 .env
 docker-compose-prod.yml
-Dockerfile
