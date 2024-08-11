@@ -51,6 +51,7 @@ public class SpaceController {
             .map(ResponseEntity::ok);
     }
 
+
     @DeleteMapping("/{spaceId}")
     public Mono<ResponseEntity<String>> deleteSpace(@PathVariable Long spaceId) {
         return spaceFacade.deleteSpace(spaceId)
