@@ -10,7 +10,9 @@ import com.echo.echo.domain.notification.entity.Notification;
 import com.echo.echo.domain.space.dto.SpaceMemberDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
@@ -24,7 +26,6 @@ import reactor.core.publisher.Mono;
 @Component
 public class ChannelEventAspect {
 
-    private final NotificationService notificationService;
     private final ChannelFacade channelFacade;
     private final SseProcessor sseProcessor;
 
@@ -41,15 +42,33 @@ public class ChannelEventAspect {
     public Object aroundChannelCreated(ProceedingJoinPoint joinPoint) throws Throwable {
         Mono<ChannelResponseDto> result = (Mono<ChannelResponseDto>) joinPoint.proceed();
 
-        return result.flatMap(response -> getSpaceMembers(response.getId())
-                .flatMap(notification -> sseProcessor.messageSend(notification.getUserId(),
-                        toNotificationResponseDto(Notification.EventType.CREATED, response)))
-                .then(Mono.just(response))
-        );
+        return messageSend(result, Notification.EventType.CREATED);
     }
 
-    private Flux<Long> getSpaceMembersId(Long channelId) {
-        return channelFacade.getSpaceMembersIdByChannelId(channelId);
+    @Around("updateChannelPointcut()")
+    public Object aroundChannelUpdated(ProceedingJoinPoint joinPoint) throws Throwable {
+        Mono<ChannelResponseDto> result = (Mono<ChannelResponseDto>) joinPoint.proceed();
+
+        return messageSend(result, Notification.EventType.UPDATED);
+    }
+
+    @AfterReturning(value = "deleteChannelPointcut()", returning = "result")
+    public void aroundChannelDeleted(JoinPoint joinPoint, Mono<Void> result) throws Throwable {
+        Long channelId = ((Long) (joinPoint.getArgs()[0]));
+        ChannelResponseDto dto = ChannelResponseDto.builder()
+                .id(channelId)
+                .build();
+
+        messageSend(Mono.just(dto), Notification.EventType.DELETED)
+                .subscribe();
+    }
+
+    private Mono<ChannelResponseDto> messageSend(Mono<ChannelResponseDto> result, Notification.EventType eventType) {
+        return result.flatMap(response -> getSpaceMembers(response.getId())
+                .flatMap(notification -> sseProcessor.messageSend(notification.getUserId(),
+                        toNotificationResponseDto(eventType, response)))
+                .then(Mono.just(response))
+        );
     }
 
     private Flux<SpaceMemberDto> getSpaceMembers(Long channelId) {
@@ -60,17 +79,6 @@ public class ChannelEventAspect {
         return NotificationResponseDto.builder()
                 .eventType(eventType)
                 .notificationType(Notification.NotificationType.CHANNEL)
-                .data(data)
-                .build();
-    }
-
-    private NotificationDto toNotificationDto(Long userId, Long spaceId, Long channelId, Notification.EventType eventType, Object data) {
-        return NotificationDto.builder()
-                .userId(userId)
-                .spaceId(spaceId)
-                .channelId(channelId)
-                .notificationType(Notification.NotificationType.CHANNEL)
-                .eventType(eventType)
                 .data(data)
                 .build();
     }
