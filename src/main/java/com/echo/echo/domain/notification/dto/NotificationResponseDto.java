@@ -22,4 +22,8 @@ public class NotificationResponseDto {
         this.notificationType = notificationType.name();
         this.data = data;
     }
+
+    public NotificationResponseDto(String eventType) {
+        this.eventType = eventType;
+    }
 }
