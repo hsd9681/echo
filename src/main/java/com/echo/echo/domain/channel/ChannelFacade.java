@@ -38,14 +38,6 @@ public class ChannelFacade {
         return channelService.deleteChannel(channelId);
     }
 
-    // 여기에 채널 아이디로 스페이스 아이디를 가져오고 해당하는 스페이스 멤버를 가져오는 메서드를 작성합니다.
-    public Flux<Long> getSpaceMembersIdByChannelId(Long channelId) {
-        return channelService.findChannelById(channelId)
-                .flatMapMany(channel -> spaceService.getSpaceMembers(channel.getSpaceId()))
-                .map(SpaceMember::getUserId);
-    }
-
-    // 여기에 채널 아이디로 스페이스 아이디를 가져오고 해당하는 스페이스 멤버를 가져오는 메서드를 작성합니다.
     public Flux<SpaceMemberDto> getSpaceMembersByChannelId(Long channelId) {
         return channelService.findChannelById(channelId)
                 .flatMapMany(channel -> spaceService.getSpaceMembers(channel.getSpaceId()))
