@@ -18,8 +18,6 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
 
-    // crud부터 만들자 ,  업데이트는 만들 이유가 없다...?
-
     public Mono<Notification> createNotification(NotificationDto dto) {
         return notificationRepository.save(
                 Notification.builder()
@@ -33,11 +31,11 @@ public class NotificationService {
                 );
     }
 
-    public Flux<Notification> getNotifications(Long id) {
-        return Flux.empty();
+    public Flux<Notification> getNotifications(Long userId, Notification.EventType eventType) {
+        return notificationRepository.findAllByUserIdAndEventType(userId, eventType.name());
     }
 
-    public Mono<Notification> deleteNotification(Long id) {
-        return Mono.empty();
+    public Mono<Void> deleteNotification(String id) {
+        return notificationRepository.deleteById(id);
     }
 }

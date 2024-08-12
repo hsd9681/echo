@@ -1,10 +1,13 @@
 package com.echo.echo.domain.notification.entity;
 
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Document(collection = "notification")
 public class Notification {
@@ -22,7 +25,7 @@ public class Notification {
     }
 
     public enum NotificationType {
-        SPACE, CHANNEL, TEXT
+        CHANNEL, TEXT
     }
 
     @Builder
@@ -33,6 +36,16 @@ public class Notification {
         this.channelId = channelId;
         this.eventType = eventType.name();
         this.notificationType = notificationType.name();
+        this.data = data;
+    }
+
+    public Notification(String id, Long userId, Long spaceId, Long channelId, String eventType, String notificationType, Object data) {
+        this.id = id;
+        this.userId = userId;
+        this.spaceId = spaceId;
+        this.channelId = channelId;
+        this.eventType = eventType;
+        this.notificationType = notificationType;
         this.data = data;
     }
 }
