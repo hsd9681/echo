@@ -1,0 +1,60 @@
+# CD: Docker 이미지를 빌드하고 AWS ECR에 푸시 및 ECS에 배포
+name: Java CD with Docker and ECS
+
+on:
+  push:
+    branches: [ "dev" ]  # dev 브랜치에 푸시될 때마다 트리거
+
+env:
+  ECR_REPOSITORY_NAME: my-java-app-repo  # ECR에 저장될 Docker 이미지의 이름
+  ECS_CLUSTER_NAME: MyEchoCluster  # AWS ECS 클러스터 이름
+  ECS_SERVICE_NAME: EchoBackService  # AWS ECS 서비스 이름
+  AWS_REGION: ap-northeast-2  # AWS 리전 설정
+
+jobs:
+  build-and-push:
+    name: Build and Push Docker Image to ECR
+    runs-on: ubuntu-latest  # 최신 Ubuntu 가상 머신에서 실행
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4  # GitHub 리포지토리에서 코드를 체크아웃
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4  # JDK 21
+        with:
+          java-version: '21'
+          distribution: 'temurin'  # Temurin JDK 배포판을 사용
+
+      # 1. Amazon ECR에 로그인
+      - name: Log in to Amazon ECR
+        run: aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+
+      # 2. Docker 이미지를 빌드
+      - name: Build Docker image
+        run: docker build -t ${{ env.ECR_REPOSITORY_NAME }} .
+
+      # 3. 빌드된 Docker 이미지를 태그
+      - name: Tag Docker image
+        run: docker tag ${{ env.ECR_REPOSITORY_NAME }}:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY_NAME }}:latest
+
+      # 4. Docker 이미지를 ECR에 푸시
+      - name: Push Docker image to ECR
+        run: docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY_NAME }}:latest
+
+  deploy:
+    name: Deploy to ECS
+    runs-on: ubuntu-latest  # 최신 Ubuntu 가상 머신에서 실행
+    needs: build-and-push  # Docker 이미지를 ECR에 푸시한 후에 실행
+
+    steps:
+      # 1. ECS 서비스 업데이트: 새로운 Docker 이미지를 사용하도록 ECS 서비스를 업데이트
+      - name: Deploy Service to ECS
+        run: |
+          aws ecs update-service --cluster ${{ env.ECS_CLUSTER_NAME }} --service ${{ env.ECS_SERVICE_NAME }} --force-new-deployment
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}

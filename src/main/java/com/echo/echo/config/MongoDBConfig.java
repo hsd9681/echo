@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
 
 @Configuration
-@EnableReactiveMongoRepositories(basePackages = "com.echo.echo.domain.text.repository")
+@EnableReactiveMongoRepositories(basePackages = {"com.echo.echo.domain.text.repository", "com.echo.echo.domain.notification.repository"})
 @RequiredArgsConstructor
 public class MongoDBConfig {
 
