@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SseProcessor {
     private final Map<Long, Sinks.Many<ServerSentEvent<NotificationResponseDto>>> sinks = new ConcurrentHashMap<>();
     private final static String PING_TYPE = "ping";
-    private final static int PING_SEC = 45;
+    private final static int PING_SEC = 40;
 
     /**
      * 메시지 발행
