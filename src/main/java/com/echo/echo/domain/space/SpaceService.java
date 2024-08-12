@@ -49,6 +49,7 @@ public class SpaceService {
             });
     }
 
+
     public Flux<SpaceResponseDto> getAllPublicSpaces() {
         return spaceRepository.findAll()
             .filter(space -> "Y".equals(space.getIsPublic()))
