@@ -3,6 +3,9 @@ package com.echo.echo.domain.channel;
 import com.echo.echo.domain.channel.dto.ChannelRequestDto;
 import com.echo.echo.domain.channel.dto.ChannelResponseDto;
 import com.echo.echo.domain.space.SpaceService;
+import com.echo.echo.domain.space.dto.SpaceMemberDto;
+import com.echo.echo.domain.space.dto.SpaceResponseDto;
+import com.echo.echo.domain.space.entity.SpaceMember;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -33,6 +36,12 @@ public class ChannelFacade {
 
     public Mono<Void> deleteChannel(Long channelId) {
         return channelService.deleteChannel(channelId);
+    }
+
+    public Flux<SpaceMemberDto> getSpaceMembersByChannelId(Long channelId) {
+        return channelService.findChannelById(channelId)
+                .flatMapMany(channel -> spaceService.getSpaceMembers(channel.getSpaceId()))
+                .map(SpaceMemberDto::new);
     }
 
 }

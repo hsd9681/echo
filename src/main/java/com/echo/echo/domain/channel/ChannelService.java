@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 /**
  * ChannelService는 채널 관련 비즈니스 로직을 처리.
  */
@@ -46,7 +48,7 @@ public class ChannelService {
             .flatMap(channelRepository::delete);
     }
 
-    private Mono<Channel> findChannelById(Long channelId) {
+    protected Mono<Channel> findChannelById(Long channelId) {
         return channelRepository.findById(channelId)
             .switchIfEmpty(Mono.error(new CustomException(ChannelErrorCode.CHANNEL_NOT_FOUND)));
     }
@@ -67,4 +69,5 @@ public class ChannelService {
             .channelType(channel.getChannelType())
             .build();
     }
+
 }
