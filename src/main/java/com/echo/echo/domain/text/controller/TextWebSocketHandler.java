@@ -16,6 +16,7 @@ import com.echo.echo.domain.text.dto.TextRequest;
 import com.echo.echo.domain.text.dto.TextResponse;
 import com.echo.echo.domain.text.dto.TypingRequest;
 import com.echo.echo.domain.text.dto.TypingResponse;
+import com.echo.echo.domain.text.entity.Text;
 import com.echo.echo.security.jwt.JwtProvider;
 
 import lombok.RequiredArgsConstructor;
@@ -64,7 +65,7 @@ public class TextWebSocketHandler implements WebSocketHandler {
                             });
                     } else {
                         Mono<TextRequest> request = objectStringConverter.stringToObject(payload, TextRequest.class);
-                        return textService.sendText(request, username, userId, channelId)
+                        return textService.sendText(request, username, userId, channelId, Text.TextType.TEXT)
                             .flatMap(response -> {
                                 ChannelTopic topic = new ChannelTopic(RedisConst.TEXT.name());
                                 return redisPublisher.publish(topic, response);
