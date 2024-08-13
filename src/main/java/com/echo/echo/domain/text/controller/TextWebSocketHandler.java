@@ -1,24 +1,28 @@
 package com.echo.echo.domain.text.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.web.reactive.socket.WebSocketHandler;
+import org.springframework.web.reactive.socket.WebSocketMessage;
+import org.springframework.web.reactive.socket.WebSocketSession;
+
 import com.echo.echo.common.redis.RedisConst;
 import com.echo.echo.common.redis.RedisPublisher;
 import com.echo.echo.common.util.ObjectStringConverter;
 import com.echo.echo.domain.text.TextService;
 import com.echo.echo.domain.text.dto.TextRequest;
 import com.echo.echo.domain.text.dto.TextResponse;
+import com.echo.echo.domain.text.dto.TypingRequest;
+import com.echo.echo.domain.text.dto.TypingResponse;
 import com.echo.echo.security.jwt.JwtProvider;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.listener.ChannelTopic;
-import org.springframework.web.reactive.socket.WebSocketHandler;
-import org.springframework.web.reactive.socket.WebSocketMessage;
-import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j(topic = "textHandler")
 @RequiredArgsConstructor
@@ -51,12 +55,21 @@ public class TextWebSocketHandler implements WebSocketHandler {
         Mono<Void> input = session.receive()
                 .map(WebSocketMessage::getPayloadAsText)
                 .flatMap(payload -> {
-                    Mono<TextRequest> request = objectStringConverter.stringToObject(payload, TextRequest.class);
-                    return textService.sendText(request, username, userId, channelId)
+                    if (payload.contains("typing")) {
+                        Mono<TypingRequest> request = objectStringConverter.stringToObject(payload, TypingRequest.class);
+                        return textService.sendTyping(request, username, channelId)
+                            .flatMap(response -> {
+                                ChannelTopic topic = new ChannelTopic(RedisConst.TYPING.name());
+                                return redisPublisher.publish(topic, response);
+                            });
+                    } else {
+                        Mono<TextRequest> request = objectStringConverter.stringToObject(payload, TextRequest.class);
+                        return textService.sendText(request, username, userId, channelId)
                             .flatMap(response -> {
                                 ChannelTopic topic = new ChannelTopic(RedisConst.TEXT.name());
                                 return redisPublisher.publish(topic, response);
                             });
+                    }
                 })
                 .doOnSubscribe(subscription -> {
                     textService.loadTextByChannelId(channelId)
@@ -90,6 +103,17 @@ public class TextWebSocketHandler implements WebSocketHandler {
         }
 
         return queryParam;
+    }
+
+    public Mono<Sinks.EmitResult> sendTyping(String body) {
+        return Mono.fromSupplier(() -> objectStringConverter.stringToObject(body, TypingResponse.class))
+            .flatMap(response -> response.map(res ->
+                    textService.getSink(res.getChannelId()).tryEmitNext(res)))
+            .doOnSuccess(emitResult -> {
+                if (emitResult.isFailure()) {
+                    log.error("타이핑 상태 전송 실패: {}", body);
+                }
+            });
     }
 
     public Mono<Sinks.EmitResult> sendText(String body) {
