@@ -18,6 +18,8 @@ public class RedisListener {
         switch (topic) {
             case TEXT:
                 return textWebSocketHandler.sendText(body).then();
+            case TYPING:
+                return textWebSocketHandler.sendTyping(body).then();
             default:
                 return Mono.empty();
         }

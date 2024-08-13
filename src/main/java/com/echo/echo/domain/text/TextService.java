@@ -2,6 +2,8 @@ package com.echo.echo.domain.text;
 
 import com.echo.echo.domain.text.dto.TextRequest;
 import com.echo.echo.domain.text.dto.TextResponse;
+import com.echo.echo.domain.text.dto.TypingRequest;
+import com.echo.echo.domain.text.dto.TypingResponse;
 import com.echo.echo.domain.text.entity.Text;
 import com.echo.echo.domain.text.repository.TextRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,11 @@ public class TextService {
             }
             return existingSink;
         });
+    }
+
+    public Mono<TypingResponse> sendTyping(Mono<TypingRequest> request, String username, Long channelId) {
+        return request
+            .map(req -> new TypingResponse(req, username, channelId));
     }
 
     public Mono<TextResponse> sendText(Mono<TextRequest> request, String username, Long userId, Long channelId) {
