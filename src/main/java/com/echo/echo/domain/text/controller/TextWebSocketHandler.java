@@ -2,6 +2,7 @@ package com.echo.echo.domain.text.controller;
 
 import java.util.*;
 
+import com.echo.echo.domain.dm.DmService;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketMessage;
@@ -37,6 +38,7 @@ public class TextWebSocketHandler implements WebSocketHandler {
 
     private final JwtProvider jwtProvider;
     private final TextService textService;
+    private final DmService dmService;
     private final ObjectStringConverter objectStringConverter;
     private final RedisPublisher redisPublisher;
 
@@ -52,7 +54,7 @@ public class TextWebSocketHandler implements WebSocketHandler {
 
         // Determine which Sinks to use based on presence of dmId
         Sinks.Many<TextResponse> textResponseSink = dmId != null ?
-                textService.getDmSink(dmId) : textService.getSink(Long.valueOf(channelId));
+                dmService.getDmSink(dmId) : textService.getSink(Long.valueOf(channelId));
 
         Flux<TextResponse> textResponseFlux = textResponseSink.asFlux();
 
@@ -66,9 +68,12 @@ public class TextWebSocketHandler implements WebSocketHandler {
         Mono<Void> input = session.receive()
                 .map(WebSocketMessage::getPayloadAsText)
                 .flatMap(payload -> {
-                    if (payload.contains("typing")) {
+                    if (payload.contains("$p&ing")) {
+                        return Mono.empty();
+                    }
+                    if (payload.contains("typing") && channelId != null) {
                         Mono<TypingRequest> request = objectStringConverter.stringToObject(payload, TypingRequest.class);
-                        return textService.sendTyping(request, username, Long.valueOf(Objects.requireNonNullElse(channelId, dmId)))
+                        return textService.sendTyping(request, username, Long.valueOf(channelId))
                             .flatMap(response -> {
                                 ChannelTopic topic = new ChannelTopic(RedisConst.TYPING.name());
                                 return redisPublisher.publish(topic, response);
@@ -76,7 +81,7 @@ public class TextWebSocketHandler implements WebSocketHandler {
                     } else {
                         Mono<TextRequest> request = objectStringConverter.stringToObject(payload, TextRequest.class);
                         return (dmId != null ?
-                                textService.sendTextToDm(request, username, userId, dmId, Text.TextType.TEXT) :
+                                dmService.sendTextToDm(request, username, userId, dmId, Text.TextType.TEXT) :
                                 textService.sendText(request, username, userId, Long.valueOf(channelId), Text.TextType.TEXT))
                             .flatMap(response -> {
                                 ChannelTopic topic = new ChannelTopic(RedisConst.TEXT.name());
@@ -86,7 +91,7 @@ public class TextWebSocketHandler implements WebSocketHandler {
                 })
                 .doOnSubscribe(subscription -> {
                     (dmId != null ?
-                            textService.loadTextByDmId(dmId) :
+                            dmService.loadTextByDmId(dmId) :
                             textService.loadTextByChannelId(Long.valueOf(channelId)))
                             .flatMap(objectStringConverter::objectToString)
                             .map(session::textMessage)
@@ -135,7 +140,7 @@ public class TextWebSocketHandler implements WebSocketHandler {
         return Mono.fromSupplier(() -> objectStringConverter.stringToObject(body, TextResponse.class))
                 .flatMap(response -> response.map(res ->
                         (res.getDmId() != null ?
-                                textService.getDmSink(res.getDmId()) :
+                                dmService.getDmSink(res.getDmId()) :
                                 textService.getSink(res.getChannelId())).tryEmitNext(res))) // DM ID 또는 채널 ID 사용
                 .doOnSuccess(emitResult -> {
                     if (emitResult.isFailure()) {

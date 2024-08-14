@@ -23,7 +23,6 @@ public class TextService {
 
     private final TextRepository repository;
     private final Map<Long, Sinks.Many<TextResponse>> channelSinks = new ConcurrentHashMap<>();
-    private final Map<String, Sinks.Many<TextResponse>> dmSinks = new ConcurrentHashMap<>(); // DM 용
 
     public Sinks.Many<TextResponse> getSink(Long channelId) {
         return channelSinks.compute(channelId, (id, existingSink) -> {
@@ -33,16 +32,6 @@ public class TextService {
             return existingSink;
         });
     }
-
-    public Sinks.Many<TextResponse> getDmSink(String dmId) {
-        return dmSinks.compute(dmId, (id, existingSink) -> {
-            if (existingSink == null || existingSink.currentSubscriberCount() == 0) {
-                return Sinks.many().multicast().onBackpressureBuffer();
-            }
-            return existingSink;
-        });
-    }
-
     public Mono<TypingResponse> sendTyping(Mono<TypingRequest> request, String username, Long channelId) {
         return request
             .map(req -> new TypingResponse(req, username, channelId));
@@ -54,21 +43,8 @@ public class TextService {
                 .flatMap(repository::save)
                 .map(TextResponse::new);
     }
-
-    public Mono<TextResponse> sendTextToDm(Mono<TextRequest> request, String username, Long userId, String dmId, Text.TextType type) {
-        return request
-                .map(textRequest -> new Text(textRequest, username, userId, dmId, type))
-                .flatMap(repository::save)
-                .map(TextResponse::new);
-    }
-
     public Flux<TextResponse> loadTextByChannelId(Long channelId) {
         return repository.findAllByChannelId(channelId)
-                .map(TextResponse::new);
-    }
-
-    public Flux<TextResponse> loadTextByDmId(String dmId) {
-        return repository.findAllByDmId(dmId)
                 .map(TextResponse::new);
     }
 }

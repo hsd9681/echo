@@ -8,11 +8,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class DmResponse {
 
-    private int id;
-    private String nickname;
+    private String id;
+    private Long senderId;
+    private String sender;
+    private Long receiverId;
+    private String receiver;
 
     public DmResponse(Dm dm) {
         this.id = dm.getId();
-        this.nickname = dm.getNickname();
+        this.senderId = dm.getSenderId();
+        this.sender = dm.getSender();
+        this.receiverId = dm.getReceiverId();
+        this.receiver = dm.getReceiver();
     }
 }
