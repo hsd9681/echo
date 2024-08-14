@@ -13,6 +13,11 @@ Authorization: Bearer {{accessToken}}
  %}
 
 ### 2. get thread list by channelId
+GET localhost:8080/api/spaces/{{spaceId}}/channels/{{channelId}}/texts/{{textId}}/threads/list
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+### 2.1 get thread by textId
 GET localhost:8080/api/spaces/{{spaceId}}/channels/{{channelId}}/texts/{{textId}}/threads
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
@@ -30,6 +35,7 @@ Authorization: Bearer {{accessToken}}
 GET localhost:8080/api/spaces/{{spaceId}}/channels/{{channelId}}/texts/{{textId}}/threads/{{threadId}}
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
+
 
 ### 5. update thread status (open)
 PUT localhost:8080/api/spaces/{{spaceId}}/channels/{{channelId}}/texts/{{textId}}/threads/{{threadId}}/open

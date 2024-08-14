@@ -31,13 +31,24 @@ public class ThreadController {
     }
 
     /**
-     * Thread 목록 출력 API
+     * Thread 목록 출력 API (채널 아이디 기준)
      */
-    @GetMapping
+    @GetMapping("/list")
     public Flux<ThreadResponseDto> getThreads(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                               @PathVariable("spaceId") Long spaceId,
                                               @PathVariable("channelId") Long channelId) {
         return threadFacade.getThreads(spaceId, userPrincipal.getUser(), channelId);
+    }
+
+    /**
+     * Thread 출력 API (텍스트 아이디 기준)
+     */
+    @GetMapping
+    public Mono<ResponseEntity<ThreadResponseDto>> getThread(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                              @PathVariable("spaceId") Long spaceId,
+                                              @PathVariable("textId") String textId) {
+        return threadFacade.getThread(spaceId, userPrincipal.getUser(), textId)
+                .map(ResponseEntity::ok);
     }
 
     /**

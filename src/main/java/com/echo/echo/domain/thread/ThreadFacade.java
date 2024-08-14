@@ -34,9 +34,14 @@ public class ThreadFacade {
                 .then(threadService.updateThreadStatus(threadId, status));
     }
 
+    public Mono<ThreadResponseDto> getThread(Long spaceId, User user, String textId) {
+        return spaceService.checkSpaceMember(spaceId, user.getId())
+                .then(threadService.getThreadByTextId(textId));
+    }
+
     public Flux<ThreadResponseDto> getThreads(Long spaceId, User user, Long channelId) {
         return spaceService.checkSpaceMember(spaceId, user.getId())
-                .thenMany(threadService.getThreadsByTextId(channelId));
+                .thenMany(threadService.getThreadsByChannelId(channelId));
     }
 
     public Flux<ThreadMessageResponseDto> getThreadMessages(Long spaceId, User user, Long threadId) {

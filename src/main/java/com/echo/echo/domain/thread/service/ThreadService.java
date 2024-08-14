@@ -89,9 +89,18 @@ public class ThreadService {
 
     /**
      * 해당 채팅 메시지에 대한 모든 스레드 정보를 가져온다.
-     * @param channelId 채팅 메시지 고유 아이디
+     * @param textId 채팅 메시지 고유 아이디
      */
-    public Flux<ThreadResponseDto> getThreadsByTextId(Long channelId) {
+    public Mono<ThreadResponseDto> getThreadByTextId(String textId) {
+        return threadRepository.findByTextIdWithUser(textId)
+                .map(ThreadResponseDto::new);
+    }
+
+    /**
+     * 해당 채널에 대한 모든 스레드 정보를 가져온다.
+     * @param channelId 채널 고유 아이디
+     */
+    public Flux<ThreadResponseDto> getThreadsByChannelId(Long channelId) {
         return threadRepository.findAllByChannelIdWithUser(channelId)
                 .map(ThreadResponseDto::new);
     }

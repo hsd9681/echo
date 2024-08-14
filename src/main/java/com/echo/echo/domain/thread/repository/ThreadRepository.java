@@ -12,6 +12,10 @@ public interface ThreadRepository extends ReactiveCrudRepository<Thread, Long> {
             "where t.id = :id")
     Mono<Thread> findByIdWithUser(Long id);
 
+    @Query("select t.*, u.email, u.nickname from thread t " +
+            "left join user u on t.creator_id = u.id " +
+            "where t.text_id = :textId")
+    Mono<Thread> findByTextIdWithUser(String textId);
 
     @Query("select t.*, u.email, u.nickname from thread t " +
             "left join user u on t.creator_id = u.id " +
