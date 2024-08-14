@@ -66,9 +66,12 @@ public class TextWebSocketHandler implements WebSocketHandler {
         Mono<Void> input = session.receive()
                 .map(WebSocketMessage::getPayloadAsText)
                 .flatMap(payload -> {
-                    if (payload.contains("typing")) {
+                    if (payload.contains("$p&ing")) {
+                        return Mono.empty();
+                    }
+                    if (payload.contains("typing") && channelId != null) {
                         Mono<TypingRequest> request = objectStringConverter.stringToObject(payload, TypingRequest.class);
-                        return textService.sendTyping(request, username, Long.valueOf(Objects.requireNonNullElse(channelId, dmId)))
+                        return textService.sendTyping(request, username, Long.valueOf(channelId))
                             .flatMap(response -> {
                                 ChannelTopic topic = new ChannelTopic(RedisConst.TYPING.name());
                                 return redisPublisher.publish(topic, response);
