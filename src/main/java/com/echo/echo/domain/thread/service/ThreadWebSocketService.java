@@ -3,9 +3,8 @@ package com.echo.echo.domain.thread.service;
 import com.echo.echo.common.redis.RedisConst;
 import com.echo.echo.common.redis.RedisPublisher;
 import com.echo.echo.common.util.ObjectStringConverter;
-import com.echo.echo.domain.thread.dto.ThreadMessageRequestDto;
 import com.echo.echo.domain.thread.dto.ThreadMessageResponseDto;
-import com.echo.echo.domain.thread.repository.ThreadWebsocketRepository;
+import com.echo.echo.domain.thread.repository.ThreadWebSocketRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.socket.WebSocketSession;
@@ -16,7 +15,7 @@ import reactor.core.publisher.Sinks;
 @Service
 public class ThreadWebSocketService {
 
-    private final ThreadWebsocketRepository threadWebsocketRepository;
+    private final ThreadWebSocketRepository threadWebsocketRepository;
     private final ObjectStringConverter objectStringConverter;
     private final RedisPublisher redisPublisher;
 

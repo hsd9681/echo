@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Thread에 대한 Sink를 관리합니다.
  */
 @Component
-public class ThreadWebsocketRepository {
+public class ThreadWebSocketRepository {
     private final Map<Long, Sinks.Many<ThreadMessageResponseDto>> sinkByThread = new ConcurrentHashMap<>();
 
     /**
