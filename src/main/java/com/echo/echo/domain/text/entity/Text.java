@@ -1,5 +1,6 @@
 package com.echo.echo.domain.text.entity;
 
+import com.echo.echo.domain.text.dto.TextRequest;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,7 @@ public class Text {
     private String username;
     private Long channelId;
     private Long userId;
+    private String dmId; // 추가된 필드
     private LocalDateTime createdAt;
 
     public Text(String contents, String username, Long userId, Long channelId, TextType type) {
@@ -33,5 +35,14 @@ public class Text {
     public enum TextType {
         TEXT,
         FILE
+    }
+
+    public Text(TextRequest request, String username, Long userId, String dmId, TextType type ) {
+        this.contents = request.getContents();
+        this.dmId = dmId;
+        this.username = username;
+        this.type = type;
+        this.userId = userId;
+        this.createdAt = LocalDateTime.now();
     }
 }
