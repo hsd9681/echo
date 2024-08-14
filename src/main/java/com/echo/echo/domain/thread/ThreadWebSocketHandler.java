@@ -2,14 +2,12 @@ package com.echo.echo.domain.thread;
 
 import com.echo.echo.common.util.ObjectStringConverter;
 import com.echo.echo.domain.thread.dto.ThreadMessageRequestDto;
-import com.echo.echo.domain.thread.service.ThreadWebsocketService;
+import com.echo.echo.domain.thread.service.ThreadWebSocketService;
 import com.echo.echo.domain.user.entity.User;
 import com.echo.echo.security.jwt.JwtProvider;
 import com.echo.echo.security.principal.UserPrincipal;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketMessage;
@@ -22,7 +20,7 @@ public class ThreadWebSocketHandler implements WebSocketHandler {
 
     private final JwtProvider jwtProvider;
     private final ThreadFacade threadFacade;
-    private final ThreadWebsocketService threadWebsocketService;
+    private final ThreadWebSocketService threadWebsocketService;
     private final ObjectStringConverter objectStringConverter;
 
     @Override
@@ -44,7 +42,7 @@ public class ThreadWebSocketHandler implements WebSocketHandler {
                 .map(WebSocketMessage::getPayloadAsText)
                 .flatMap(message -> objectStringConverter.stringToObject(message, ThreadMessageRequestDto.class))
                 .flatMap(req -> threadFacade.saveThreadMessage(spaceId, user, threadId, req))
-                .doOnNext(threadWebsocketService::emitMessage)
+                .flatMap(threadWebsocketService::publishMessage)
                 .then()
                 .doFinally(s -> closeSession(session))
                 .doOnError(s -> closeSession(session));

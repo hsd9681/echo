@@ -3,10 +3,10 @@ package com.echo.echo.domain.thread.service;
 import com.echo.echo.common.redis.RedisConst;
 import com.echo.echo.common.redis.RedisPublisher;
 import com.echo.echo.common.util.ObjectStringConverter;
+import com.echo.echo.domain.thread.dto.ThreadMessageRequestDto;
 import com.echo.echo.domain.thread.dto.ThreadMessageResponseDto;
 import com.echo.echo.domain.thread.repository.ThreadWebsocketRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.Mono;
@@ -14,7 +14,7 @@ import reactor.core.publisher.Sinks;
 
 @RequiredArgsConstructor
 @Service
-public class ThreadWebsocketService {
+public class ThreadWebSocketService {
 
     private final ThreadWebsocketRepository threadWebsocketRepository;
     private final ObjectStringConverter objectStringConverter;
@@ -27,6 +27,25 @@ public class ThreadWebsocketService {
     public void emitMessage(ThreadMessageResponseDto threadMessage) {
         threadWebsocketRepository.getSinks(threadMessage.getThreadId())
                 .tryEmitNext(threadMessage);
+    }
+
+    /**
+     * redis에 메시지 발행
+     * @param threadMessage 전송할 메시지 내용
+     */
+    public Mono<Void> publishMessage(ThreadMessageResponseDto threadMessage) {
+        return redisPublisher.publish(RedisConst.THREAD.getChannelTopic(), threadMessage);
+    }
+
+    /**
+     * redis에서 발행된 메시지에 대한 메시지를 내보냅니다.
+     * @param threadMessageStr String 형식의 전송할 메시지 내용
+     */
+    public Mono<Void> emitMessage(String threadMessageStr) {
+        return objectStringConverter.stringToObject(threadMessageStr, ThreadMessageResponseDto.class)
+                .doOnNext(threadMessage -> threadWebsocketRepository.getSinks(threadMessage.getThreadId())
+                        .tryEmitNext(threadMessage))
+                .then();
     }
 
     /**
