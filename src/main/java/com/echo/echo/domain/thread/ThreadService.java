@@ -29,12 +29,13 @@ public class ThreadService {
      * @param user 생성한 유저 정보
      * @param textId 채팅 메시지 고유 아이디
      */
-    public Mono<ThreadResponseDto> createThread(User user, String textId) {
+    public Mono<ThreadResponseDto> createThread(User user, Long channelId, String textId) {
         return threadRepository.existsByTextId(textId)
                 .filter(exists -> !exists)
                 .switchIfEmpty(Mono.defer(() -> Mono.error(new CustomException(ThreadErrorCode.ALREADY_EXISTS_THREAD))))
                 .flatMap(unused -> threadRepository.save(
                         Thread.builder()
+                                .channelId(channelId)
                                 .textId(textId)
                                 .creatorId(user.getId())
                                 .build()
@@ -88,10 +89,10 @@ public class ThreadService {
 
     /**
      * 해당 채팅 메시지에 대한 모든 스레드 정보를 가져온다.
-     * @param textId 채팅 메시지 고유 아이디
+     * @param channelId 채팅 메시지 고유 아이디
      */
-    public Flux<ThreadResponseDto> getThreadsByTextId(String textId) {
-        return threadRepository.findAllByTextIdWithUser(textId)
+    public Flux<ThreadResponseDto> getThreadsByTextId(Long channelId) {
+        return threadRepository.findAllByChannelIdWithUser(channelId)
                 .map(ThreadResponseDto::new);
     }
 

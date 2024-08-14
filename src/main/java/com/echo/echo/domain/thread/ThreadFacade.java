@@ -18,9 +18,9 @@ public class ThreadFacade {
     private final SpaceService spaceService;
     private final ThreadService threadService;
 
-    public Mono<ThreadResponseDto> createThread(Long spaceId, User user, String textId) {
+    public Mono<ThreadResponseDto> createThread(Long spaceId, User user, Long channelId, String textId) {
         return spaceService.checkSpaceMember(spaceId, user.getId())
-                .then(threadService.createThread(user, textId));
+                .then(threadService.createThread(user, channelId, textId));
     }
 
     public Mono<ThreadMessageResponseDto> saveThreadMessage(Long spaceId, User user, Long threadId, ThreadMessageRequestDto req) {
@@ -33,9 +33,9 @@ public class ThreadFacade {
                 .then(threadService.updateThreadStatus(threadId, status));
     }
 
-    public Flux<ThreadResponseDto> getThreads(Long spaceId, User user, String textId) {
+    public Flux<ThreadResponseDto> getThreads(Long spaceId, User user, Long channelId) {
         return spaceService.checkSpaceMember(spaceId, user.getId())
-                .thenMany(threadService.getThreadsByTextId(textId));
+                .thenMany(threadService.getThreadsByTextId(channelId));
     }
 
     public Flux<ThreadMessageResponseDto> getThreadMessages(Long spaceId, User user, Long threadId) {

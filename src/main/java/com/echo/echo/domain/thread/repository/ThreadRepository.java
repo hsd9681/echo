@@ -15,8 +15,8 @@ public interface ThreadRepository extends ReactiveCrudRepository<Thread, Long> {
 
     @Query("select t.*, u.email, u.nickname from thread t " +
             "left join user u on t.creator_id = u.id " +
-            "where t.text_id = :textId")
-    Flux<Thread> findAllByTextIdWithUser(String textId);
+            "where t.channel_id = :channelId")
+    Flux<Thread> findAllByChannelIdWithUser(Long channelId);
 
     Mono<Boolean> existsByTextId(String textId);
 }

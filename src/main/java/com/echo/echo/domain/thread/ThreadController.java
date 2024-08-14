@@ -24,8 +24,9 @@ public class ThreadController {
     @PostMapping
     public Mono<ResponseEntity<ThreadResponseDto>> createThread(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                                 @PathVariable("spaceId") Long spaceId,
+                                                                @PathVariable("channelId") Long channelId,
                                                                 @PathVariable("textId") String textId) {
-        return threadFacade.createThread(spaceId, userPrincipal.getUser(), textId)
+        return threadFacade.createThread(spaceId, userPrincipal.getUser(), channelId, textId)
                 .map(ResponseEntity::ok);
     }
 
@@ -35,8 +36,8 @@ public class ThreadController {
     @GetMapping
     public Flux<ThreadResponseDto> getThreads(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                               @PathVariable("spaceId") Long spaceId,
-                                              @PathVariable("channelId") String textId) {
-        return threadFacade.getThreads(spaceId, userPrincipal.getUser(), textId);
+                                              @PathVariable("channelId") Long channelId) {
+        return threadFacade.getThreads(spaceId, userPrincipal.getUser(), channelId);
     }
 
     /**

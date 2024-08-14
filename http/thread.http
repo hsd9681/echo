@@ -1,6 +1,6 @@
 @spaceId = 1
 @channelId = 1
-@textId = 66b5ee6a944045267f8ac60f0
+@textId = 66b5ee6a944045267f8ac60f03
 @threadId = 6
 
 ### 1. create thread
@@ -12,7 +12,7 @@ Authorization: Bearer {{accessToken}}
     client.global.set("threadId", response.body.id)
  %}
 
-### 2. get thread list by textId
+### 2. get thread list by channelId
 GET localhost:8080/api/spaces/{{spaceId}}/channels/{{channelId}}/texts/{{textId}}/threads
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}

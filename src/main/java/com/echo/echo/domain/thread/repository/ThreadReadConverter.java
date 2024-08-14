@@ -20,6 +20,7 @@ public class ThreadReadConverter implements Converter<Row, Thread> {
 
         return Thread.builder()
                 .id(source.get("id", Long.class))
+                .channelId(source.get("channel_id", Long.class))
                 .textId(source.get("text_id", String.class))
                 .status(getStatus(source.get("status", int.class)))
                 .user(user)

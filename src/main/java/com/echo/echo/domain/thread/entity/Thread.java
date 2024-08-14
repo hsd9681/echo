@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 public class Thread extends TimeStamp {
     @Id
     private Long id;
+    private Long channelId;
     private String textId;
     private int status;
     private Long creatorId;
@@ -29,8 +30,9 @@ public class Thread extends TimeStamp {
     private User user;
 
     @Builder
-    public Thread(Long id, String textId, Status status, Long creatorId, User user, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+    public Thread(Long id, Long channelId, String textId, Status status, Long creatorId, User user, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.id = id;
+        this.channelId = channelId;
         this.textId = textId;
         this.status = status == null? Status.OPEN.ordinal() : status.ordinal();
         this.creatorId = creatorId;

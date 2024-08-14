@@ -78,10 +78,12 @@ CREATE TABLE IF NOT EXISTS thread
 (
     id          BIGINT PRIMARY KEY AUTO_INCREMENT,
     status      int(1),
+    channel_id   BIGINT,
     text_id     VARCHAR(30) UNIQUE,
     creator_id  BIGINT,
     created_at   TIMESTAMP   NOT NULL,
     modified_at  TIMESTAMP   NOT NULL,
+    FOREIGN KEY (channel_id) REFERENCES channel (id),
     FOREIGN KEY (creator_id) REFERENCES user (id)
 );
 
