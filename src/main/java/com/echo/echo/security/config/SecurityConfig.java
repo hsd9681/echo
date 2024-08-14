@@ -57,6 +57,7 @@ public class SecurityConfig {
                 )
 
                 .authorizeExchange(authorizeExchangeSpec -> authorizeExchangeSpec
+                        .pathMatchers(HttpMethod.OPTIONS).permitAll()
                         .pathMatchers(HttpMethod.GET,"/auth").permitAll()
                         .pathMatchers(HttpMethod.POST, "/users/signup", "/users/activate/**", "/auth/**").permitAll()
                         .pathMatchers(HttpMethod.POST, "/users/find/id", "/users/find/password", "/users/verify/**").permitAll()
@@ -95,7 +96,7 @@ public class SecurityConfig {
             "http://127.0.0.1:5500",
             "https://echo-web-theta.vercel.app",
             "http://echo-web-theta.vercel.app",
-            "https://www.echotalk.online/"
+            "https://www.echotalk.online"
         ));
 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
