@@ -20,7 +20,7 @@ public class ThreadWebsocketRepository {
      */
     public Sinks.Many<ThreadMessageResponseDto> getSinks(Long threadId) {
         return sinkByThread.computeIfAbsent(threadId,
-                unused -> Sinks.many().multicast().onBackpressureBuffer());
+                unused -> Sinks.many().multicast().directAllOrNothing());
     }
 
     /**

@@ -14,6 +14,8 @@ import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.Mono;
 
+import java.util.Objects;
+
 @Component
 @RequiredArgsConstructor
 public class ThreadWebSocketHandler implements WebSocketHandler {
@@ -40,6 +42,8 @@ public class ThreadWebSocketHandler implements WebSocketHandler {
 
         Mono<Void> receive = session.receive()
                 .map(WebSocketMessage::getPayloadAsText)
+                .filter(message -> !"$p&ing".equals(message))
+                .switchIfEmpty(Mono.empty())
                 .flatMap(message -> objectStringConverter.stringToObject(message, ThreadMessageRequestDto.class))
                 .flatMap(req -> threadFacade.saveThreadMessage(spaceId, user, threadId, req))
                 .flatMap(threadWebsocketService::publishMessage)
