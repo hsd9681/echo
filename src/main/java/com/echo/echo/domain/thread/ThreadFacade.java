@@ -1,6 +1,7 @@
 package com.echo.echo.domain.thread;
 
 import com.echo.echo.domain.space.SpaceService;
+import com.echo.echo.domain.thread.service.ThreadService;
 import com.echo.echo.domain.thread.dto.ThreadMessageRequestDto;
 import com.echo.echo.domain.thread.dto.ThreadMessageResponseDto;
 import com.echo.echo.domain.thread.dto.ThreadResponseDto;

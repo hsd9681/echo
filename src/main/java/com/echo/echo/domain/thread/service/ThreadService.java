@@ -1,4 +1,4 @@
-package com.echo.echo.domain.thread;
+package com.echo.echo.domain.thread.service;
 
 import com.echo.echo.common.exception.CustomException;
 import com.echo.echo.domain.thread.dto.ThreadMessageRequestDto;

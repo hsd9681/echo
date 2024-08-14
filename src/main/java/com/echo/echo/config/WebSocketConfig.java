@@ -4,6 +4,7 @@ import com.echo.echo.common.redis.RedisPublisher;
 import com.echo.echo.common.util.ObjectStringConverter;
 import com.echo.echo.domain.text.TextService;
 import com.echo.echo.domain.text.controller.TextWebSocketHandler;
+import com.echo.echo.domain.thread.ThreadWebSocketHandler;
 import com.echo.echo.domain.video.VideoHandler;
 import com.echo.echo.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
@@ -31,10 +32,11 @@ public class WebSocketConfig {
     }
 
     @Bean
-    public HandlerMapping handlerMapping(TextWebSocketHandler textHandler, VideoHandler videoHandler) {
+    public HandlerMapping handlerMapping(TextWebSocketHandler textHandler, VideoHandler videoHandler, ThreadWebSocketHandler threadWebSocketHandler) {
         Map<String, WebSocketHandler> map = new HashMap<>();
         map.put("/video/**", videoHandler);
         map.put("/text", textHandler);
+        map.put("/threads", threadWebSocketHandler);
 
         SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();
         mapping.setUrlMap(map);
