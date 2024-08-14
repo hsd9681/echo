@@ -99,6 +99,7 @@ public class JwtProvider {
         User user = User.builder()
                 .id(Long.valueOf((Integer) claims.get(ID_KEY)))
                 .email(claims.getSubject())
+                .nickname((String) claims.get(NICKNAME_KEY))
                 .build();
 
         return new UsernamePasswordAuthenticationToken(new UserPrincipal(user), null, authorities);

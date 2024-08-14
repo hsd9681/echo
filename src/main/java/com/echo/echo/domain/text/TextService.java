@@ -9,7 +9,6 @@ import com.echo.echo.domain.text.repository.TextRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
@@ -39,9 +38,9 @@ public class TextService {
             .map(req -> new TypingResponse(req, username, channelId));
     }
 
-    public Mono<TextResponse> sendText(Mono<TextRequest> request, String username, Long userId, Long channelId) {
+    public Mono<TextResponse> sendText(Mono<TextRequest> request, String username, Long userId, Long channelId, Text.TextType type) {
         return request
-                .map(textRequest -> new Text(textRequest, username, userId, channelId))
+                .map(textRequest -> new Text(textRequest.getContents(), username, userId, channelId, type))
                 .flatMap(repository::save)
                 .map(TextResponse::new);
     }
