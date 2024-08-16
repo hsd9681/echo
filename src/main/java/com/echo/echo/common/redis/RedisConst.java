@@ -8,6 +8,7 @@ import org.springframework.data.redis.listener.PatternTopic;
 public enum RedisConst {
     TEXT,
     TYPING,
+    SSE,
     THREAD,
     ;
 

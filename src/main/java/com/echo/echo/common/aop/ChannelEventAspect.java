@@ -1,10 +1,10 @@
 package com.echo.echo.common.aop;
 
+import com.echo.echo.common.redis.RedisConst;
+import com.echo.echo.common.redis.RedisPublisher;
 import com.echo.echo.domain.channel.ChannelFacade;
 import com.echo.echo.domain.channel.dto.ChannelResponseDto;
-import com.echo.echo.domain.notification.NotificationService;
 import com.echo.echo.domain.notification.SseProcessor;
-import com.echo.echo.domain.notification.dto.NotificationDto;
 import com.echo.echo.domain.notification.dto.NotificationResponseDto;
 import com.echo.echo.domain.notification.entity.Notification;
 import com.echo.echo.domain.space.dto.SpaceMemberDto;
@@ -16,6 +16,7 @@ import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -27,7 +28,7 @@ import reactor.core.publisher.Mono;
 public class ChannelEventAspect {
 
     private final ChannelFacade channelFacade;
-    private final SseProcessor sseProcessor;
+    private final RedisPublisher redisPublisher;
 
     @Pointcut("execution(* com.echo.echo.domain.channel.ChannelService.createChannel(..))")
     private void createChannelPointcut() {}
@@ -63,20 +64,25 @@ public class ChannelEventAspect {
                 .subscribe();
     }
 
+    /**
+     * redis로 메시지를 발행한다.
+     * @param result 메서드 반환 값
+     * @param eventType 이벤트 타입(업데이트, 삭제 등)
+     */
     private Mono<ChannelResponseDto> messageSend(Mono<ChannelResponseDto> result, Notification.EventType eventType) {
         return result.flatMap(response -> getSpaceMembers(response.getId())
-                .flatMap(notification -> sseProcessor.messageSend(notification.getUserId(),
-                        toNotificationResponseDto(eventType, response)))
-                .then(Mono.just(response))
-        );
+                .flatMap(notification -> redisPublisher.publish(new ChannelTopic(RedisConst.SSE.name()),
+                        toNotificationResponseDto(notification.getUserId(), eventType, response)))
+                .then(Mono.just(response)));
     }
 
     private Flux<SpaceMemberDto> getSpaceMembers(Long channelId) {
         return channelFacade.getSpaceMembersByChannelId(channelId);
     }
 
-    private NotificationResponseDto toNotificationResponseDto(Notification.EventType eventType, Object data) {
+    private NotificationResponseDto toNotificationResponseDto(Long userId, Notification.EventType eventType, Object data) {
         return NotificationResponseDto.builder()
+                .userId(userId)
                 .eventType(eventType)
                 .notificationType(Notification.NotificationType.CHANNEL)
                 .data(data)

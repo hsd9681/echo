@@ -21,10 +21,4 @@ public class NotificationController {
     public Flux<ServerSentEvent<NotificationResponseDto>> sseConnect(@AuthenticationPrincipal UserPrincipal user) {
         return sseProcessor.connect(user.getId());
     }
-
-    @PostMapping("/sse")
-    public Mono<Void> sendMessage(@AuthenticationPrincipal UserPrincipal user,
-                                  @RequestBody NotificationResponseDto dto) {
-        return sseProcessor.messageSend(user.getId(), dto);
-    }
 }
