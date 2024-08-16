@@ -87,7 +87,7 @@ public class SseAspect {
                        .filter(spaceMemberDto -> !Objects.equals(spaceMemberDto.getUserId(), response.getUserId()))
                        .flatMap(spaceMemberDto -> Flux.merge(
                                // redis publish
-                               redisPublisher.publish(new ChannelTopic(RedisConst.SSE.name()),
+                               redisPublisher.publish(RedisConst.SSE.getChannelTopic(),
                                        toNotificationResponseDto(spaceMemberDto.getUserId(), Notification.EventType.CREATED, Notification.NotificationType.TEXT, response)),
                                // message save
                                saveNotification(spaceMemberDto, response))
@@ -129,7 +129,7 @@ public class SseAspect {
      */
     private Mono<ChannelResponseDto> messageSend(Mono<ChannelResponseDto> result, Notification.EventType eventType) {
         return result.flatMap(response -> getSpaceMembers(response.getId())
-                .flatMap(notification -> redisPublisher.publish(new ChannelTopic(RedisConst.SSE.name()),
+                .flatMap(notification -> redisPublisher.publish(RedisConst.SSE.getChannelTopic(),
                         toNotificationResponseDto(notification.getUserId(), eventType, response)))
                 .then(Mono.just(response)));
     }
