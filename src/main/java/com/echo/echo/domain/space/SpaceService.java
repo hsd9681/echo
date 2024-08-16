@@ -81,6 +81,13 @@ public class SpaceService {
             );
     }
 
+    public Mono<Void> checkSpaceMember(Long spaceId, Long userId) {
+        return spaceMemberRepository.existsBySpaceIdAndUserId(spaceId, userId)
+                .filter(exists -> exists)
+                .switchIfEmpty(Mono.defer(() -> Mono.error(new CustomException(SpaceErrorCode.NOT_SPACE_MEMBER))))
+                .then();
+    }
+
     public Flux<SpaceMember> getSpaceMembers(Long spaceId) {
         return spaceRepository.findById(spaceId)
             .switchIfEmpty(Mono.error(new CustomException(SpaceErrorCode.SPACE_NOT_FOUND)))
