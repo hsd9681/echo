@@ -29,9 +29,14 @@ public class ChannelService {
             .map(this::toChannelResponseDto);
     }
 
-    public Flux<ChannelResponseDto> getChannels(Long spaceId) {
+    public Flux<ChannelResponseDto> getChannels(Long spaceId, List<Long> pushChannelIds) {
         return channelRepository.findBySpaceId(spaceId)
-            .map(this::toChannelResponseDto);
+                .map(channel -> {
+                    if (pushChannelIds.contains(channel.getId())) {
+                        return toChannelResponseDto(channel, true);
+                    }
+                    return toChannelResponseDto(channel, false);
+                });
     }
 
     public Mono<ChannelResponseDto> updateChannel(Long channelId, ChannelRequestDto requestDto) {
@@ -68,6 +73,15 @@ public class ChannelService {
             .channelName(channel.getChannelName())
             .channelType(channel.getChannelType())
             .build();
+    }
+
+    private ChannelResponseDto toChannelResponseDto(Channel channel, boolean isPush) {
+        return ChannelResponseDto.builder()
+                .id(channel.getId())
+                .channelName(channel.getChannelName())
+                .channelType(channel.getChannelType())
+                .push(isPush)
+                .build();
     }
 
 }

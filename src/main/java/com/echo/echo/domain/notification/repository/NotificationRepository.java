@@ -13,4 +13,6 @@ public interface NotificationRepository extends ReactiveMongoRepository<Notifica
     Flux<Notification> findAllByUserIdAndNotificationType(Long userId, String notificationType);
 
     Mono<Boolean> existsByUserIdAndChannelIdAndEventTypeAndNotificationType(Long userId, Long channelId, String eventType, String notificationType);
+
+    Mono<Void> deleteByUserIdAndChannelId(Long userId, Long channelId);
 }

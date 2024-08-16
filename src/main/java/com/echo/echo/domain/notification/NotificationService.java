@@ -46,6 +46,10 @@ public class NotificationService {
         return notificationRepository.deleteById(id);
     }
 
+    public Mono<Void> deleteNotification(Long userId, Long channelId) {
+        return notificationRepository.deleteByUserIdAndChannelId(userId, channelId);
+    }
+
     private Mono<Boolean> userAndChannelDataExists(Long userId, Long channelId) {
         return notificationRepository.existsByUserIdAndChannelIdAndEventTypeAndNotificationType(userId, channelId, Notification.EventType.CREATED.name(), Notification.NotificationType.TEXT.name());
     }

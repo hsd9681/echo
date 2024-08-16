@@ -16,9 +16,16 @@ import reactor.core.publisher.Mono;
 public class NotificationController {
 
     private final SseProcessor sseProcessor;
+    private final NotificationFacade notificationFacade;
 
     @GetMapping(value = "/sse/connect", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent<NotificationResponseDto>> sseConnect(@AuthenticationPrincipal UserPrincipal user) {
         return sseProcessor.connect(user.getId());
+    }
+
+    @DeleteMapping("{channelId}")
+    public Mono<Void> readNotification(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                       @PathVariable("channelId") Long channelId) {
+        return notificationFacade.deleteNotification(userPrincipal.getId(), channelId);
     }
 }

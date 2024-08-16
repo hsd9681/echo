@@ -19,5 +19,5 @@ public class ChannelResponseDto {
     private Long id;
     private String channelName;
     private String channelType;
-
+    private boolean push;
 }

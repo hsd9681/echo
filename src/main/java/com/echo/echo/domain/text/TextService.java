@@ -49,4 +49,8 @@ public class TextService {
         return repository.findAllByChannelId(channelId)
                         .map(TextResponse::new);
     }
+
+    public void startSession(Long userId, Long channelId) {
+        log.info("채팅방 입장, 유저 id {}, channelId {} notification 데이터를 삭제합니다.", userId, channelId);
+    }
 }
