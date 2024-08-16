@@ -29,6 +29,12 @@ create table if not exists channel
     foreign key (space_id) references space (id)
 );
 
+create table if not exists dm
+(
+    id           bigint primary key auto_increment,
+    nickname varchar(50)
+);
+
 create table if not exists space_member
 (
     user_id  bigint,

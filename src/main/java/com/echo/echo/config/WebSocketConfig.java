@@ -2,6 +2,7 @@ package com.echo.echo.config;
 
 import com.echo.echo.common.redis.RedisPublisher;
 import com.echo.echo.common.util.ObjectStringConverter;
+import com.echo.echo.domain.dm.DmService;
 import com.echo.echo.domain.text.TextService;
 import com.echo.echo.domain.text.controller.TextWebSocketHandler;
 import com.echo.echo.domain.thread.ThreadWebSocketHandler;
@@ -22,14 +23,6 @@ import java.util.Map;
 @Configuration
 @RequiredArgsConstructor
 public class WebSocketConfig {
-
-    @Bean
-    public TextWebSocketHandler textWebSocketHandler(JwtProvider jwtProvider,
-                                                     TextService textService,
-                                                     ObjectStringConverter objectStringConverter,
-                                                     RedisPublisher redisPublisher) {
-        return new TextWebSocketHandler(jwtProvider, textService, objectStringConverter, redisPublisher);
-    }
 
     @Bean
     public HandlerMapping handlerMapping(TextWebSocketHandler textHandler, VideoHandler videoHandler, ThreadWebSocketHandler threadWebSocketHandler) {

@@ -82,7 +82,8 @@ public class SseAspect {
 
         // sendMessage가 발생 시, 모든 space의 멤버에 Notification 데이터를 저장.
         objectStringConverter.stringToObject(body, TextResponse.class)
-               .flatMapMany(response -> getSpaceMembers(response.getChannelId())
+                .filter(response -> response.getChannelId() != null)
+                .flatMapMany(response -> getSpaceMembers(response.getChannelId())
                        // 메시지 보낸 사람은 제외하고 전송 및 저장
                        .filter(spaceMemberDto -> !Objects.equals(spaceMemberDto.getUserId(), response.getUserId()))
                        .flatMap(spaceMemberDto -> Flux.merge(
