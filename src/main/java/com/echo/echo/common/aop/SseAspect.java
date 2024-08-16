@@ -49,6 +49,9 @@ public class SseAspect {
     @Pointcut("execution(* com.echo.echo.domain.text.TextService.startSession(..))")
     private void startSessionPointcut() {}
 
+    @Pointcut("execution(* com.echo.echo.domain.channel.ChannelService.checkAndIncrementMemberCount(..)) || execution(* com.echo.echo.domain.channel.ChannelService.decrementMemberCount(..))")
+    private void memberCountChangePointcut() {}
+
     @Around("createChannelPointcut()")
     public Object aroundChannelCreated(ProceedingJoinPoint joinPoint) throws Throwable {
         Mono<ChannelResponseDto> result = (Mono<ChannelResponseDto>) joinPoint.proceed();
@@ -58,6 +61,13 @@ public class SseAspect {
 
     @Around("updateChannelPointcut()")
     public Object aroundChannelUpdated(ProceedingJoinPoint joinPoint) throws Throwable {
+        Mono<ChannelResponseDto> result = (Mono<ChannelResponseDto>) joinPoint.proceed();
+
+        return messageSend(result, Notification.EventType.UPDATED);
+    }
+
+    @Around("memberCountChangePointcut()")
+    public Object memberCountChangePointcut(ProceedingJoinPoint joinPoint) throws Throwable {
         Mono<ChannelResponseDto> result = (Mono<ChannelResponseDto>) joinPoint.proceed();
 
         return messageSend(result, Notification.EventType.UPDATED);

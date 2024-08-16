@@ -22,10 +22,13 @@ create table if not exists space
 
 create table if not exists channel
 (
-    id           bigint primary key auto_increment,
-    channel_name varchar(50),
-    channel_type varchar(1),
-    space_id     bigint not null,
+    id                     bigint primary key auto_increment,
+    channel_name           varchar(50),
+    channel_type           varchar(1),
+    space_id               bigint not null,
+    max_capacity           int not null,
+    current_member_count   int not null,
+    version                bigint not null,
     foreign key (space_id) references space (id)
 );
 
