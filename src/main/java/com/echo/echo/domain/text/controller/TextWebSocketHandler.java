@@ -56,6 +56,7 @@ public class TextWebSocketHandler implements WebSocketHandler {
 
         Flux<TextResponse> textResponseFlux = textResponseSink.asFlux();
 
+
         Flux<WebSocketMessage> sendMessagesFlux = textResponseFlux
                 .flatMap(objectStringConverter::objectToString)
                 .map(session::textMessage)
