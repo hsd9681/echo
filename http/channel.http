@@ -5,7 +5,8 @@ Authorization: Bearer {{accessToken}}
 
 {
   "channelName": "Channel Name",
-  "channelType": "T"
+  "channelType": "T",
+  "maxCapacity": "2"
 }
 
 > {%

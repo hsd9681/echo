@@ -11,6 +11,7 @@ import org.springframework.web.reactive.socket.WebSocketSession;
 import com.echo.echo.common.redis.RedisConst;
 import com.echo.echo.common.redis.RedisPublisher;
 import com.echo.echo.common.util.ObjectStringConverter;
+import com.echo.echo.domain.channel.ChannelService;
 import com.echo.echo.domain.text.TextService;
 import com.echo.echo.domain.text.dto.TextRequest;
 import com.echo.echo.domain.text.dto.TextResponse;
@@ -31,6 +32,7 @@ public class TextWebSocketHandler implements WebSocketHandler {
 
     private final JwtProvider jwtProvider;
     private final TextService textService;
+    private final ChannelService channelService;
     private final ObjectStringConverter objectStringConverter;
     private final RedisPublisher redisPublisher;
 
@@ -43,51 +45,61 @@ public class TextWebSocketHandler implements WebSocketHandler {
         String username = jwtProvider.getNickName(token);
         Long userId = jwtProvider.getUserId(token);
 
-        Sinks.Many<TextResponse> textResponseSink = textService.getSink(channelId);
-        Flux<TextResponse> textResponseFlux = textResponseSink.asFlux();
+        return channelService.checkAndIncrementMemberCount(channelId)
+            .then(Mono.defer(() -> {
+                Sinks.Many<TextResponse> textResponseSink = textService.getSink(channelId);
+                Flux<TextResponse> textResponseFlux = textResponseSink.asFlux();
 
-        Flux<WebSocketMessage> sendMessagesFlux = textResponseFlux
-                .flatMap(objectStringConverter::objectToString)
-                .map(session::textMessage)
-                .doOnError(throwable -> log.error("웹소켓 메시지 변환 간 오류 발생", throwable));
+                Flux<WebSocketMessage> sendMessagesFlux = textResponseFlux
+                    .flatMap(objectStringConverter::objectToString)
+                    .map(session::textMessage)
+                    .doOnError(throwable -> log.error("웹소켓 메시지 변환 간 오류 발생", throwable));
 
-        Mono<Void> output = session.send(sendMessagesFlux);
+                Mono<Void> output = session.send(sendMessagesFlux);
 
-        Mono<Void> input = session.receive()
-                .map(WebSocketMessage::getPayloadAsText)
-                .flatMap(payload -> {
-                    if (payload.contains("typing")) {
-                        Mono<TypingRequest> request = objectStringConverter.stringToObject(payload, TypingRequest.class);
-                        return textService.sendTyping(request, username, channelId)
-                            .flatMap(response -> {
-                                ChannelTopic topic = new ChannelTopic(RedisConst.TYPING.name());
-                                return redisPublisher.publish(topic, response);
-                            });
-                    } else {
-                        Mono<TextRequest> request = objectStringConverter.stringToObject(payload, TextRequest.class);
-                        return textService.sendText(request, username, userId, channelId, Text.TextType.TEXT)
-                            .flatMap(response -> {
-                                ChannelTopic topic = new ChannelTopic(RedisConst.TEXT.name());
-                                return redisPublisher.publish(topic, response);
-                            });
-                    }
-                })
-                .doOnSubscribe(subscription -> {
-                    textService.loadTextByChannelId(channelId)
+                Mono<Void> input = session.receive()
+                    .map(WebSocketMessage::getPayloadAsText)
+                    .flatMap(payload -> {
+                        if (payload.contains("typing")) {
+                            Mono<TypingRequest> request = objectStringConverter.stringToObject(payload, TypingRequest.class);
+                            return textService.sendTyping(request, username, channelId)
+                                .flatMap(response -> {
+                                    ChannelTopic topic = new ChannelTopic(RedisConst.TYPING.name());
+                                    return redisPublisher.publish(topic, response);
+                                });
+                        } else {
+                            Mono<TextRequest> request = objectStringConverter.stringToObject(payload, TextRequest.class);
+                            return textService.sendText(request, username, userId, channelId, Text.TextType.TEXT)
+                                .flatMap(response -> {
+                                    ChannelTopic topic = new ChannelTopic(RedisConst.TEXT.name());
+                                    return redisPublisher.publish(topic, response);
+                                });
+                        }
+                    })
+                    .doOnSubscribe(subscription -> {
+                        textService.loadTextByChannelId(channelId)
                             .flatMap(objectStringConverter::objectToString)
                             .map(session::textMessage)
                             .flatMap(messages -> session.send(Mono.just(messages)))
                             .then()
                             .subscribe();
-                }).then()
-                .doOnError(e -> {
-                    session.close();
-                })
-                .doFinally(signal -> {
-                    session.close();
-                });
+                    }).then()
+                    .doOnError(e -> {
+                        session.close();
+                    })
+                    .doFinally(signal -> {
+                        channelService.decrementMemberCount(channelId).subscribe(); // 클라이언트가 연결을 끊을 때 인원 수 감소
+                        session.close();
+                    });
 
-        return Mono.when(input, output);
+                return Mono.when(input, output);
+            }))
+            .onErrorResume(e -> {
+                log.error(e.getMessage());
+                WebSocketMessage errorMessage = session.textMessage("{\"msg\": \"" + e.getMessage() + "\"}");
+                return session.send(Mono.just(errorMessage))
+                    .then(session.close());
+            });
     }
 
     private Map<String, String> getParamFromSession(WebSocketSession session) {

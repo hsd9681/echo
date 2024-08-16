@@ -19,5 +19,6 @@ public class ChannelResponseDto {
     private Long id;
     private String channelName;
     private String channelType;
-
+    private Integer maxCapacity;
+    private Integer currentMemberCount;
 }

@@ -8,8 +8,12 @@ import com.echo.echo.domain.channel.entity.Channel;
 import com.echo.echo.domain.channel.repository.ChannelRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.ReactiveTransactionManager;
+import org.springframework.transaction.reactive.TransactionalOperator;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 
@@ -22,6 +26,7 @@ import java.util.List;
 public class ChannelService {
 
     private final ChannelRepository channelRepository;
+    private final TransactionalOperator transactionalOperator;
 
     public Mono<ChannelResponseDto> createChannel(Long spaceId, ChannelRequestDto requestDto) {
         Channel channel = buildChannel(null, spaceId, requestDto);
@@ -48,6 +53,22 @@ public class ChannelService {
             .flatMap(channelRepository::delete);
     }
 
+    public Mono<Void> checkAndIncrementMemberCount(Long channelId) {
+        return channelRepository.findById(channelId)
+            .flatMap(channel -> channel.incrementMemberCount()
+                .flatMap(channelRepository::save))
+            .as(transactionalOperator::transactional)
+            .then();
+    }
+
+    public Mono<Void> decrementMemberCount(Long channelId) {
+        return channelRepository.findById(channelId)
+            .flatMap(channel -> channel.decrementMemberCount()
+                .flatMap(channelRepository::save))
+            .as(transactionalOperator::transactional)
+            .then();
+    }
+
     protected Mono<Channel> findChannelById(Long channelId) {
         return channelRepository.findById(channelId)
             .switchIfEmpty(Mono.error(new CustomException(ChannelErrorCode.CHANNEL_NOT_FOUND)));
@@ -59,6 +80,7 @@ public class ChannelService {
             .spaceId(spaceId)
             .channelName(requestDto.getChannelName())
             .channelType(Channel.Type.valueOf(requestDto.getChannelType()).name())
+            .maxCapacity(requestDto.getMaxCapacity())
             .build();
     }
 
@@ -67,6 +89,8 @@ public class ChannelService {
             .id(channel.getId())
             .channelName(channel.getChannelName())
             .channelType(channel.getChannelType())
+            .maxCapacity(channel.getMaxCapacity())
+            .currentMemberCount(channel.getCurrentMemberCount())
             .build();
     }
 

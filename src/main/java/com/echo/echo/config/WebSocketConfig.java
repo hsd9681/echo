@@ -2,6 +2,7 @@ package com.echo.echo.config;
 
 import com.echo.echo.common.redis.RedisPublisher;
 import com.echo.echo.common.util.ObjectStringConverter;
+import com.echo.echo.domain.channel.ChannelService;
 import com.echo.echo.domain.text.TextService;
 import com.echo.echo.domain.text.controller.TextWebSocketHandler;
 import com.echo.echo.domain.video.VideoHandler;
@@ -25,9 +26,10 @@ public class WebSocketConfig {
     @Bean
     public TextWebSocketHandler textWebSocketHandler(JwtProvider jwtProvider,
                                                      TextService textService,
+                                                     ChannelService channelService,
                                                      ObjectStringConverter objectStringConverter,
                                                      RedisPublisher redisPublisher) {
-        return new TextWebSocketHandler(jwtProvider, textService, objectStringConverter, redisPublisher);
+        return new TextWebSocketHandler(jwtProvider, textService, channelService, objectStringConverter, redisPublisher);
     }
 
     @Bean
