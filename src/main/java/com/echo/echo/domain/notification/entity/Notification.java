@@ -38,14 +38,4 @@ public class Notification {
         this.notificationType = notificationType.name();
         this.message = message;
     }
-
-//    public Notification(String id, Long userId, Long spaceId, Long channelId, String eventType, String notificationType, String messageId) {
-//        this.id = id;
-//        this.userId = userId;
-//        this.spaceId = spaceId;
-//        this.channelId = channelId;
-//        this.eventType = eventType;
-//        this.notificationType = notificationType;
-//        this.messageId = messageId;
-//    }
 }

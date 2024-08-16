@@ -34,6 +34,12 @@ public class ChannelController {
         return channelFacade.getChannels(userPrincipal.getId(), spaceId);
     }
 
+    @GetMapping("/{channelId}")
+    public Mono<ChannelResponseDto> getChannel(@AuthenticationPrincipal UserPrincipal userPrincipal,
+                                               @PathVariable Long channelId) {
+        return channelFacade.getChannel(userPrincipal.getId(), channelId);
+    }
+
     @PutMapping("/{channelId}")
     public Mono<ResponseEntity<ChannelResponseDto>> updateChannel(@PathVariable Long channelId, @Valid @RequestBody ChannelRequestDto requestDto) {
         return channelFacade.updateChannel(channelId, requestDto)

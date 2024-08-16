@@ -20,4 +20,5 @@ public class ChannelResponseDto {
     private String channelName;
     private String channelType;
     private boolean push;
+    private String lastReadMessageId;
 }

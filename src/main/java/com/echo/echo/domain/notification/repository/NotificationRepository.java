@@ -10,6 +10,8 @@ import reactor.core.publisher.Mono;
 public interface NotificationRepository extends ReactiveMongoRepository<Notification, String> {
     Flux<Notification> findAllByUserIdAndEventType(Long userId, String eventType);
 
+    Mono<Notification> findByUserIdAndChannelIdAndNotificationType(Long userId, Long channelId, String notificationType);
+
     Flux<Notification> findAllByUserIdAndNotificationType(Long userId, String notificationType);
 
     Mono<Boolean> existsByUserIdAndChannelIdAndEventTypeAndNotificationType(Long userId, Long channelId, String eventType, String notificationType);

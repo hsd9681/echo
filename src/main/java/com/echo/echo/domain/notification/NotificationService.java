@@ -38,6 +38,15 @@ public class NotificationService {
         return notificationRepository.findAllByUserIdAndNotificationType(userId, Notification.NotificationType.TEXT.name());
     }
 
+    /**
+     * 해당 유저, 채널의 알림 메시지 정보를 가져온다.
+     * @param userId 유저 아이디
+     * @param channelId 채널 아이디
+     */
+    public Mono<Notification> getNotificationTextByUserId(Long userId, Long channelId) {
+        return notificationRepository.findByUserIdAndChannelIdAndNotificationType(userId, channelId, Notification.NotificationType.TEXT.name());
+    }
+
     public Flux<Notification> getNotifications(Long userId, Notification.EventType eventType) {
         return notificationRepository.findAllByUserIdAndEventType(userId, eventType.name());
     }

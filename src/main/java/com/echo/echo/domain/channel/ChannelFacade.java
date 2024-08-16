@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Objects;
+
 /**
  * ChannelFacade는 채널 관련 비즈니스 로직을 처리하는 서비스 레이어
  */
@@ -32,9 +34,8 @@ public class ChannelFacade {
     public Flux<ChannelResponseDto> getChannels(Long userId, Long spaceId) {
         // 채널 가져올 때, 각 채널에 대해 push 여부를 판단한다.
         return notificationService.getNotificationsTextByUserId(userId)
-                .map(Notification::getChannelId)
-                .collectList()
-                .flatMapMany(pushChannelIds -> channelService.getChannels(spaceId, pushChannelIds));
+                .collectMap(Notification::getChannelId)
+                .flatMapMany(pushMessage -> channelService.getChannels(spaceId, pushMessage));
     }
 
     public Mono<ChannelResponseDto> updateChannel(Long channelId, ChannelRequestDto requestDto) {
@@ -51,4 +52,8 @@ public class ChannelFacade {
                 .map(SpaceMemberDto::new);
     }
 
+    public Mono<ChannelResponseDto> getChannel(Long userId, Long channelId) {
+        return notificationService.getNotificationTextByUserId(userId, channelId)
+                .flatMap(pushMessage -> channelService.getChannel(channelId, pushMessage));
+    }
 }
