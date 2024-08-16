@@ -6,12 +6,14 @@ import com.echo.echo.domain.channel.dto.ChannelRequestDto;
 import com.echo.echo.domain.channel.dto.ChannelResponseDto;
 import com.echo.echo.domain.channel.entity.Channel;
 import com.echo.echo.domain.channel.repository.ChannelRepository;
+import com.echo.echo.domain.notification.entity.Notification;
 import lombok.RequiredArgsConstructor;
+import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
+import java.util.Map;
 
 /**
  * ChannelService는 채널 관련 비즈니스 로직을 처리.
@@ -29,9 +31,24 @@ public class ChannelService {
             .map(this::toChannelResponseDto);
     }
 
-    public Flux<ChannelResponseDto> getChannels(Long spaceId) {
+    public Flux<ChannelResponseDto> getChannels(Long spaceId, Map<Long, Notification> pushMessage) {
         return channelRepository.findBySpaceId(spaceId)
-            .map(this::toChannelResponseDto);
+                .map(channel -> {
+                    if (pushMessage.containsKey(channel.getId())) {
+                        return toChannelResponseDto(channel, true, pushMessage.get(channel.getId()).getMessage());
+                    }
+                    return toChannelResponseDto(channel, false, null);
+                });
+    }
+
+    public Mono<ChannelResponseDto> getChannel(Long channelId, Notification pushMessage) {
+        return channelRepository.findById(channelId)
+                .map(channel -> {
+                    if (pushMessage != null) {
+                        return toChannelResponseDto(channel, true, pushMessage.getMessage());
+                    }
+                    return toChannelResponseDto(channel, false, null);
+                });
     }
 
     public Mono<ChannelResponseDto> updateChannel(Long channelId, ChannelRequestDto requestDto) {
@@ -70,4 +87,13 @@ public class ChannelService {
             .build();
     }
 
+    private ChannelResponseDto toChannelResponseDto(Channel channel, boolean isPush, String lastReadMessageId) {
+        return ChannelResponseDto.builder()
+                .id(channel.getId())
+                .channelName(channel.getChannelName())
+                .channelType(channel.getChannelType())
+                .push(isPush)
+                .lastReadMessageId(lastReadMessageId)
+                .build();
+    }
 }

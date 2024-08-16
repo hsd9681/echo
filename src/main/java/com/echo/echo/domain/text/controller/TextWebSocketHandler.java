@@ -43,6 +43,8 @@ public class TextWebSocketHandler implements WebSocketHandler {
         String username = jwtProvider.getNickName(token);
         Long userId = jwtProvider.getUserId(token);
 
+        textService.startSession(userId, channelId);
+
         Sinks.Many<TextResponse> textResponseSink = textService.getSink(channelId);
         Flux<TextResponse> textResponseFlux = textResponseSink.asFlux();
 

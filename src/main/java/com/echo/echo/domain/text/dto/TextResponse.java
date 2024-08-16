@@ -23,6 +23,7 @@ public class TextResponse {
     private Long channelId;
     private Text.TextType type;
     private String contents;
+    private Long userId;
     private String username;
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
@@ -33,6 +34,7 @@ public class TextResponse {
         this.type = text.getType();
         this.contents = text.getContents();
         this.channelId = text.getChannelId();
+        this.userId = text.getUserId();
         this.username = text.getUsername();
         this.createdAt = text.getCreatedAt();
     }

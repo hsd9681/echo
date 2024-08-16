@@ -1,12 +1,8 @@
 package com.echo.echo.domain.notification;
 
-import com.echo.echo.common.exception.CustomException;
-import com.echo.echo.common.exception.codes.CommonErrorCode;
 import com.echo.echo.domain.notification.dto.NotificationDto;
 import com.echo.echo.domain.notification.entity.Notification;
 import com.echo.echo.domain.notification.repository.NotificationRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -18,17 +14,37 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
 
-    public Mono<Notification> createNotification(NotificationDto dto) {
-        return notificationRepository.save(
-                Notification.builder()
-                        .userId(dto.getUserId())
-                        .spaceId(dto.getSpaceId())
-                        .channelId(dto.getChannelId())
-                        .eventType(dto.getEventType())
-                        .notificationType(dto.getNotificationType())
-                        .data(dto.getData())
-                        .build()
-                );
+    public Mono<Void> createNotification(NotificationDto dto) {
+        return userAndChannelDataExists(dto.getUserId(), dto.getChannelId())
+                .filter(isExists -> !isExists)
+                .flatMap(isExists  -> notificationRepository.save(
+                        Notification.builder()
+                                .userId(dto.getUserId())
+                                .spaceId(dto.getSpaceId())
+                                .channelId(dto.getChannelId())
+                                .eventType(dto.getEventType())
+                                .notificationType(dto.getNotificationType())
+                                .message(dto.getMessage())
+                                .build()
+                ))
+                .then();
+    }
+
+    /**
+     * 채팅 메시지에 해당하는 알림 메시지 정보를 가져온다.
+     * @param userId 해당하는 유저
+     */
+    public Flux<Notification> getNotificationsTextByUserId(Long userId) {
+        return notificationRepository.findAllByUserIdAndNotificationType(userId, Notification.NotificationType.TEXT.name());
+    }
+
+    /**
+     * 해당 유저, 채널의 알림 메시지 정보를 가져온다.
+     * @param userId 유저 아이디
+     * @param channelId 채널 아이디
+     */
+    public Mono<Notification> getNotificationTextByUserId(Long userId, Long channelId) {
+        return notificationRepository.findByUserIdAndChannelIdAndNotificationType(userId, channelId, Notification.NotificationType.TEXT.name());
     }
 
     public Flux<Notification> getNotifications(Long userId, Notification.EventType eventType) {
@@ -37,5 +53,13 @@ public class NotificationService {
 
     public Mono<Void> deleteNotification(String id) {
         return notificationRepository.deleteById(id);
+    }
+
+    public Mono<Void> deleteNotification(Long userId, Long channelId) {
+        return notificationRepository.deleteByUserIdAndChannelId(userId, channelId);
+    }
+
+    private Mono<Boolean> userAndChannelDataExists(Long userId, Long channelId) {
+        return notificationRepository.existsByUserIdAndChannelIdAndEventTypeAndNotificationType(userId, channelId, Notification.EventType.CREATED.name(), Notification.NotificationType.TEXT.name());
     }
 }
