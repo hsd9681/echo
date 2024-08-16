@@ -1,5 +1,7 @@
 package com.echo.echo.security.config;
 
+import com.echo.echo.common.exception.CustomException;
+import com.echo.echo.common.exception.codes.CommonErrorCode;
 import com.echo.echo.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -85,7 +87,8 @@ public class SecurityConfig {
     private ServerAuthenticationConverter serverAuthenticationConverter() {
         return exchange -> jwtProvider.resolveToken(exchange.getRequest())
                 .filter(jwtProvider::isValidToken)
-                .flatMap(token -> Mono.justOrEmpty(jwtProvider.getAuthentication(token)));
+                .flatMap(token -> Mono.justOrEmpty(jwtProvider.getAuthentication(token)))
+                .onErrorResume(err -> Mono.error(new CustomException(CommonErrorCode.UNAUTHORIZED)));
     }
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
