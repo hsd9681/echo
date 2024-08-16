@@ -80,6 +80,31 @@ CREATE TABLE IF NOT EXISTS request_friend
     FOREIGN KEY (to_user_id) REFERENCES user (id)
 );
 
+CREATE TABLE IF NOT EXISTS thread
+(
+    id          BIGINT PRIMARY KEY AUTO_INCREMENT,
+    status      int(1),
+    channel_id   BIGINT,
+    text_id     VARCHAR(30) UNIQUE,
+    creator_id  BIGINT,
+    created_at   TIMESTAMP   NOT NULL,
+    modified_at  TIMESTAMP   NOT NULL,
+    FOREIGN KEY (channel_id) REFERENCES channel (id),
+    FOREIGN KEY (creator_id) REFERENCES user (id)
+);
+
+CREATE TABLE IF NOT EXISTS thread_message
+(
+    id          BIGINT PRIMARY KEY AUTO_INCREMENT,
+    thread_id   BIGINT,
+    author_id   BIGINT,
+    content     text(1000),
+    created_at   TIMESTAMP   NOT NULL,
+    modified_at  TIMESTAMP   NOT NULL,
+    FOREIGN KEY (thread_id) REFERENCES thread (id) ON DELETE CASCADE,
+    FOREIGN KEY (author_id) REFERENCES user (id)
+);
+
 INSERT INTO user (nickname, email, password, intro, status)
 SELECT '정현경', 'gusrud@test.com', '$2a$10$6UXZchkxO93nMUKrt.kXTeHx6o1/6Dij8eDfp5UBMWFJQAT2xG.GW', '', 0
 WHERE NOT EXISTS (SELECT 1 FROM user WHERE email = 'gusrud@test.com');

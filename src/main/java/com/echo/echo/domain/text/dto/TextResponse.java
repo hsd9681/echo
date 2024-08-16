@@ -24,6 +24,7 @@ public class TextResponse {
     private Text.TextType type;
     private String dmId; // 추가된 필드
     private String contents;
+    private Long userId;
     private String username;
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
@@ -35,6 +36,7 @@ public class TextResponse {
         this.contents = text.getContents();
         this.channelId = text.getChannelId();
         this.dmId = text.getDmId(); // 추가된 필드 초기화
+        this.userId = text.getUserId();
         this.username = text.getUsername();
         this.createdAt = text.getCreatedAt();
     }

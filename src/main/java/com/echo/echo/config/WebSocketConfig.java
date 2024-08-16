@@ -2,8 +2,10 @@ package com.echo.echo.config;
 
 import com.echo.echo.common.redis.RedisPublisher;
 import com.echo.echo.common.util.ObjectStringConverter;
+import com.echo.echo.domain.dm.DmService;
 import com.echo.echo.domain.text.TextService;
 import com.echo.echo.domain.text.controller.TextWebSocketHandler;
+import com.echo.echo.domain.thread.ThreadWebSocketHandler;
 import com.echo.echo.domain.video.VideoHandler;
 import com.echo.echo.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
@@ -23,18 +25,11 @@ import java.util.Map;
 public class WebSocketConfig {
 
     @Bean
-    public TextWebSocketHandler textWebSocketHandler(JwtProvider jwtProvider,
-                                                     TextService textService,
-                                                     ObjectStringConverter objectStringConverter,
-                                                     RedisPublisher redisPublisher) {
-        return new TextWebSocketHandler(jwtProvider, textService, objectStringConverter, redisPublisher);
-    }
-
-    @Bean
-    public HandlerMapping handlerMapping(TextWebSocketHandler textHandler, VideoHandler videoHandler) {
+    public HandlerMapping handlerMapping(TextWebSocketHandler textHandler, VideoHandler videoHandler, ThreadWebSocketHandler threadWebSocketHandler) {
         Map<String, WebSocketHandler> map = new HashMap<>();
         map.put("/video/**", videoHandler);
         map.put("/text", textHandler);
+        map.put("/threads", threadWebSocketHandler);
 
         SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();
         mapping.setUrlMap(map);

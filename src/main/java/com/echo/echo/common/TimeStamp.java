@@ -19,4 +19,12 @@ public class TimeStamp {
     @LastModifiedDate
     @Column("modified_at")
     private LocalDateTime modifiedAt;
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setModifiedAt(LocalDateTime modifiedAt) {
+        this.modifiedAt = modifiedAt;
+    }
 }

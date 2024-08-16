@@ -1,16 +1,9 @@
 package com.echo.echo.domain.text.controller;
 
-import java.util.*;
-
-import com.echo.echo.domain.dm.DmService;
-import org.springframework.data.redis.listener.ChannelTopic;
-import org.springframework.web.reactive.socket.WebSocketHandler;
-import org.springframework.web.reactive.socket.WebSocketMessage;
-import org.springframework.web.reactive.socket.WebSocketSession;
-
 import com.echo.echo.common.redis.RedisConst;
 import com.echo.echo.common.redis.RedisPublisher;
 import com.echo.echo.common.util.ObjectStringConverter;
+import com.echo.echo.domain.dm.DmService;
 import com.echo.echo.domain.text.TextService;
 import com.echo.echo.domain.text.dto.TextRequest;
 import com.echo.echo.domain.text.dto.TextResponse;
@@ -18,10 +11,10 @@ import com.echo.echo.domain.text.dto.TypingRequest;
 import com.echo.echo.domain.text.dto.TypingResponse;
 import com.echo.echo.domain.text.entity.Text;
 import com.echo.echo.security.jwt.JwtProvider;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
@@ -34,6 +27,7 @@ import java.util.Map;
 
 @Slf4j(topic = "textHandler")
 @RequiredArgsConstructor
+@Component
 public class TextWebSocketHandler implements WebSocketHandler {
 
     private final JwtProvider jwtProvider;
@@ -45,7 +39,8 @@ public class TextWebSocketHandler implements WebSocketHandler {
     @Override
     public Mono<Void> handle(WebSocketSession session) {
         Map<String, String> uriQuery = getParamFromSession(session);
-        String channelId = uriQuery.get("channel");
+        Long channelId = uriQuery.get("channel") == null? null : Long.valueOf(uriQuery.get("channel"));
+
         String dmId = uriQuery.get("dmId"); // DM 관련 파라미터
         String token = uriQuery.get("token");
 
@@ -54,10 +49,11 @@ public class TextWebSocketHandler implements WebSocketHandler {
 
         // Determine which Sinks to use based on presence of dmId
         Sinks.Many<TextResponse> textResponseSink = dmId != null ?
-                dmService.getDmSink(dmId) : textService.getSink(Long.valueOf(channelId));
+                dmService.getDmSink(dmId) : textService.getSink(channelId);
+
+        textService.startSession(userId, channelId);
 
         Flux<TextResponse> textResponseFlux = textResponseSink.asFlux();
-
 
         Flux<WebSocketMessage> sendMessagesFlux = textResponseFlux
                 .flatMap(objectStringConverter::objectToString)
@@ -74,7 +70,7 @@ public class TextWebSocketHandler implements WebSocketHandler {
                     }
                     if (payload.contains("typing") && channelId != null) {
                         Mono<TypingRequest> request = objectStringConverter.stringToObject(payload, TypingRequest.class);
-                        return textService.sendTyping(request, username, Long.valueOf(channelId))
+                        return textService.sendTyping(request, username, channelId)
                             .flatMap(response -> {
                                 ChannelTopic topic = new ChannelTopic(RedisConst.TYPING.name());
                                 return redisPublisher.publish(topic, response);
@@ -83,7 +79,7 @@ public class TextWebSocketHandler implements WebSocketHandler {
                         Mono<TextRequest> request = objectStringConverter.stringToObject(payload, TextRequest.class);
                         return (dmId != null ?
                                 dmService.sendTextToDm(request, username, userId, dmId, Text.TextType.TEXT) :
-                                textService.sendText(request, username, userId, Long.valueOf(channelId), Text.TextType.TEXT))
+                                textService.sendText(request, username, userId, channelId, Text.TextType.TEXT))
                             .flatMap(response -> {
                                 ChannelTopic topic = new ChannelTopic(RedisConst.TEXT.name());
                                 return redisPublisher.publish(topic, response);
@@ -93,7 +89,7 @@ public class TextWebSocketHandler implements WebSocketHandler {
                 .doOnSubscribe(subscription -> {
                     (dmId != null ?
                             dmService.loadTextByDmId(dmId) :
-                            textService.loadTextByChannelId(Long.valueOf(channelId)))
+                            textService.loadTextByChannelId(channelId))
                             .flatMap(objectStringConverter::objectToString)
                             .map(session::textMessage)
                             .flatMap(messages -> session.send(Mono.just(messages)))
