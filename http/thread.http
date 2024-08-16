@@ -1,0 +1,53 @@
+@spaceId = 1
+@channelId = 1
+@textId = 66b5ee6a944045267f8ac60f03
+@threadId = 6
+
+### 1. create thread
+POST localhost:8080/api/spaces/{{spaceId}}/channels/{{channelId}}/texts/{{textId}}/threads
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+> {%
+    client.global.set("threadId", response.body.id)
+ %}
+
+### 2. get thread list by channelId
+GET localhost:8080/api/spaces/{{spaceId}}/channels/{{channelId}}/texts/{{textId}}/threads/list
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+### 2.1 get thread by textId
+GET localhost:8080/api/spaces/{{spaceId}}/channels/{{channelId}}/texts/{{textId}}/threads
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+### 3. save thread Message
+POST localhost:8080/api/spaces/{{spaceId}}/channels/{{channelId}}/texts/{{textId}}/threads/{{threadId}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "content": "thread message"
+}
+
+### 4. get thread Message by threadId
+GET localhost:8080/api/spaces/{{spaceId}}/channels/{{channelId}}/texts/{{textId}}/threads/{{threadId}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+
+### 5. update thread status (open)
+PUT localhost:8080/api/spaces/{{spaceId}}/channels/{{channelId}}/texts/{{textId}}/threads/{{threadId}}/open
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+### 6. update thread status (close)
+PUT localhost:8080/api/spaces/{{spaceId}}/channels/{{channelId}}/texts/{{textId}}/threads/{{threadId}}/close
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+### 7. delete thread
+DELETE localhost:8080/api/spaces/{{spaceId}}/channels/{{channelId}}/texts/{{textId}}/threads/{{threadId}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}

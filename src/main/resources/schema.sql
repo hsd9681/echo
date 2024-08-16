@@ -32,6 +32,12 @@ create table if not exists channel
     foreign key (space_id) references space (id)
 );
 
+create table if not exists dm
+(
+    id           bigint primary key auto_increment,
+    nickname varchar(50)
+);
+
 create table if not exists space_member
 (
     user_id  bigint,
@@ -75,6 +81,31 @@ CREATE TABLE IF NOT EXISTS request_friend
     modified_at  TIMESTAMP   NOT NULL,
     FOREIGN KEY (from_user_id) REFERENCES user (id),
     FOREIGN KEY (to_user_id) REFERENCES user (id)
+);
+
+CREATE TABLE IF NOT EXISTS thread
+(
+    id          BIGINT PRIMARY KEY AUTO_INCREMENT,
+    status      int(1),
+    channel_id   BIGINT,
+    text_id     VARCHAR(30) UNIQUE,
+    creator_id  BIGINT,
+    created_at   TIMESTAMP   NOT NULL,
+    modified_at  TIMESTAMP   NOT NULL,
+    FOREIGN KEY (channel_id) REFERENCES channel (id),
+    FOREIGN KEY (creator_id) REFERENCES user (id)
+);
+
+CREATE TABLE IF NOT EXISTS thread_message
+(
+    id          BIGINT PRIMARY KEY AUTO_INCREMENT,
+    thread_id   BIGINT,
+    author_id   BIGINT,
+    content     text(1000),
+    created_at   TIMESTAMP   NOT NULL,
+    modified_at  TIMESTAMP   NOT NULL,
+    FOREIGN KEY (thread_id) REFERENCES thread (id) ON DELETE CASCADE,
+    FOREIGN KEY (author_id) REFERENCES user (id)
 );
 
 INSERT INTO user (nickname, email, password, intro, status)

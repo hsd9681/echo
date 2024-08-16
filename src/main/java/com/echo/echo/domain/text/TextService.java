@@ -32,7 +32,6 @@ public class TextService {
             return existingSink;
         });
     }
-
     public Mono<TypingResponse> sendTyping(Mono<TypingRequest> request, String username, Long channelId) {
         return request
             .map(req -> new TypingResponse(req, username, channelId));
@@ -44,9 +43,12 @@ public class TextService {
                 .flatMap(repository::save)
                 .map(TextResponse::new);
     }
-
     public Flux<TextResponse> loadTextByChannelId(Long channelId) {
         return repository.findAllByChannelId(channelId)
-                        .map(TextResponse::new);
+                .map(TextResponse::new);
+    }
+
+    public void startSession(Long userId, Long channelId) {
+        log.info("채팅방 입장, 유저 id {}, channelId {} notification 데이터를 삭제합니다.", userId, channelId);
     }
 }

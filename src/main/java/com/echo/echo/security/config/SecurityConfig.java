@@ -1,5 +1,7 @@
 package com.echo.echo.security.config;
 
+import com.echo.echo.common.exception.CustomException;
+import com.echo.echo.common.exception.codes.CommonErrorCode;
 import com.echo.echo.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,6 +59,7 @@ public class SecurityConfig {
                 )
 
                 .authorizeExchange(authorizeExchangeSpec -> authorizeExchangeSpec
+                        .pathMatchers(HttpMethod.OPTIONS).permitAll()
                         .pathMatchers(HttpMethod.GET,"/auth").permitAll()
                         .pathMatchers(HttpMethod.POST, "/users/signup", "/users/activate/**", "/auth/**").permitAll()
                         .pathMatchers(HttpMethod.POST, "/users/find/id", "/users/find/password", "/users/verify/**").permitAll()
@@ -65,6 +68,7 @@ public class SecurityConfig {
                         .pathMatchers(HttpMethod.GET, "/text/**").permitAll()
                         .pathMatchers("/actuator/health").permitAll()
                         .pathMatchers("/user/kakao/callback").permitAll()
+                        .pathMatchers("/threads/**").permitAll()
                         .anyExchange().authenticated()
                 )
                 .addFilterAt(authenticationWebFilter(), SecurityWebFiltersOrder.AUTHENTICATION)
@@ -84,7 +88,8 @@ public class SecurityConfig {
     private ServerAuthenticationConverter serverAuthenticationConverter() {
         return exchange -> jwtProvider.resolveToken(exchange.getRequest())
                 .filter(jwtProvider::isValidToken)
-                .flatMap(token -> Mono.justOrEmpty(jwtProvider.getAuthentication(token)));
+                .flatMap(token -> Mono.justOrEmpty(jwtProvider.getAuthentication(token)))
+                .onErrorResume(err -> Mono.error(new CustomException(CommonErrorCode.UNAUTHORIZED)));
     }
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -94,7 +99,8 @@ public class SecurityConfig {
             "http://localhost:3000",
             "http://127.0.0.1:5500",
             "https://echo-web-theta.vercel.app",
-            "http://echo-web-theta.vercel.app"
+            "http://echo-web-theta.vercel.app",
+            "https://www.echotalk.online"
         ));
 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));

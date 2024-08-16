@@ -21,4 +21,6 @@ public class ChannelResponseDto {
     private String channelType;
     private Integer maxCapacity;
     private Integer currentMemberCount;
+    private boolean push;
+    private String lastReadMessageId;
 }

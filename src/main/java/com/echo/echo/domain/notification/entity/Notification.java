@@ -18,7 +18,7 @@ public class Notification {
     private Long channelId;
     private String eventType;
     private String notificationType;
-    private Object data;
+    private String message;
 
     public enum EventType {
         CREATED, UPDATED, DELETED
@@ -29,23 +29,13 @@ public class Notification {
     }
 
     @Builder
-    public Notification(String id, Long userId, Long spaceId, Long channelId, EventType eventType, NotificationType notificationType, Object data) {
+    public Notification(String id, Long userId, Long spaceId, Long channelId, EventType eventType, NotificationType notificationType, String message) {
         this.id = id;
         this.userId = userId;
         this.spaceId = spaceId;
         this.channelId = channelId;
         this.eventType = eventType.name();
         this.notificationType = notificationType.name();
-        this.data = data;
-    }
-
-    public Notification(String id, Long userId, Long spaceId, Long channelId, String eventType, String notificationType, Object data) {
-        this.id = id;
-        this.userId = userId;
-        this.spaceId = spaceId;
-        this.channelId = channelId;
-        this.eventType = eventType;
-        this.notificationType = notificationType;
-        this.data = data;
+        this.message = message;
     }
 }

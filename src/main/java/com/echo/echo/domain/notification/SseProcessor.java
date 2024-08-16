@@ -1,6 +1,9 @@
 package com.echo.echo.domain.notification;
 
+import com.echo.echo.common.util.ObjectStringConverter;
 import com.echo.echo.domain.notification.dto.NotificationResponseDto;
+import com.echo.echo.domain.notification.entity.Notification;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Component;
@@ -13,25 +16,37 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j(topic = "SseProcessor")
+@RequiredArgsConstructor
 @Component
 public class SseProcessor {
+    private final ObjectStringConverter objectStringConverter;
     private final Map<Long, Sinks.Many<ServerSentEvent<NotificationResponseDto>>> sinks = new ConcurrentHashMap<>();
     private final static String PING_TYPE = "ping";
     private final static int PING_SEC = 40;
 
     /**
+     * redis에서 메시지가 발생하면 실행
+     * @param body 발행된 메시지
+     */
+    public Mono<Void> redisListen(String body) {
+        return objectStringConverter.stringToObject(body, NotificationResponseDto.class)
+                .flatMap(responseDto -> {
+                    if (sinks.containsKey(responseDto.getUserId())) {
+                        log.info("sendId: {}", responseDto.getUserId());
+                        messageSend(responseDto);
+                    }
+                    return Mono.empty();
+                });
+    }
+
+    /**
      * 메시지 발행
-     * @param id 발행할 유저 아이디
      * @param dto 메시지 정보
      */
-    public Mono<Void> messageSend(Long id, NotificationResponseDto dto) {
-        if (sinks.containsKey(id)) {
-            log.info("sendId: {}", id);
-            sinks.get(id).tryEmitNext(ServerSentEvent.<NotificationResponseDto>builder()
-                    .data(dto)
-                    .build());
-        }
-        return Mono.empty();
+    public void messageSend(NotificationResponseDto dto) {
+        sinks.get(dto.getUserId()).tryEmitNext(ServerSentEvent.<NotificationResponseDto>builder()
+                .data(dto)
+                .build());
     }
 
     /**
