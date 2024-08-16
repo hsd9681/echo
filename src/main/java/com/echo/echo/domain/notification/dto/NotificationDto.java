@@ -14,17 +14,17 @@ public class NotificationDto {
     private Long channelId;
     private Notification.EventType eventType;
     private Notification.NotificationType notificationType;
-    private Object data;
+    private String message;
 
     @Builder
-    public NotificationDto(String id, Long userId, Long spaceId, Long channelId, Notification.EventType eventType, Notification.NotificationType notificationType, Object data) {
+    public NotificationDto(String id, Long userId, Long spaceId, Long channelId, Notification.EventType eventType, Notification.NotificationType notificationType, String message) {
         this.id = id;
         this.userId = userId;
         this.spaceId = spaceId;
         this.channelId = channelId;
         this.eventType = eventType;
         this.notificationType = notificationType;
-        this.data = data;
+        this.message = message;
     }
 
     public NotificationDto(Notification notification) {
@@ -34,6 +34,6 @@ public class NotificationDto {
         this.channelId = notification.getChannelId();
         this.eventType = Notification.EventType.valueOf(notification.getEventType());
         this.notificationType = Notification.NotificationType.valueOf(notification.getNotificationType());
-        this.data = notification.getData();
+        this.message = notification.getMessage();
     }
 }
