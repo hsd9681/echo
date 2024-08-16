@@ -2,12 +2,13 @@ package com.echo.echo.common.aop;
 
 import com.echo.echo.common.redis.RedisConst;
 import com.echo.echo.common.redis.RedisPublisher;
+import com.echo.echo.common.util.ObjectStringConverter;
 import com.echo.echo.domain.channel.ChannelFacade;
 import com.echo.echo.domain.channel.dto.ChannelResponseDto;
-import com.echo.echo.domain.notification.SseProcessor;
 import com.echo.echo.domain.notification.dto.NotificationResponseDto;
 import com.echo.echo.domain.notification.entity.Notification;
 import com.echo.echo.domain.space.dto.SpaceMemberDto;
+import com.echo.echo.domain.text.dto.TextResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -25,10 +26,11 @@ import reactor.core.publisher.Mono;
 @Aspect
 @Slf4j
 @Component
-public class ChannelEventAspect {
+public class SseAspect {
 
     private final ChannelFacade channelFacade;
     private final RedisPublisher redisPublisher;
+    private final ObjectStringConverter objectStringConverter;
 
     @Pointcut("execution(* com.echo.echo.domain.channel.ChannelService.createChannel(..))")
     private void createChannelPointcut() {}
@@ -38,6 +40,9 @@ public class ChannelEventAspect {
 
     @Pointcut("execution(* com.echo.echo.domain.channel.ChannelService.deleteChannel(..))")
     private void deleteChannelPointcut() {}
+
+    @Pointcut("execution(* com.echo.echo.domain.text.controller.TextWebSocketHandler.sendText(..))")
+    private void sendMessagePointcut() {}
 
     @Around("createChannelPointcut()")
     public Object aroundChannelCreated(ProceedingJoinPoint joinPoint) throws Throwable {
@@ -64,6 +69,23 @@ public class ChannelEventAspect {
                 .subscribe();
     }
 
+    // ** websocket send message ** //
+
+    @AfterReturning(value = "sendMessagePointcut()", returning = "result")
+    public void afterReturningSendMessage(JoinPoint joinPoint, Mono<?> result) {
+        String body = (String)(joinPoint.getArgs()[0]);
+
+        objectStringConverter.stringToObject(body, TextResponse.class)
+               .flatMapMany(response -> getSpaceMembers(response.getChannelId())
+                       .flatMap(spaceMemberDto -> redisPublisher.publish(
+                               new ChannelTopic(RedisConst.SSE.name()),
+                               toNotificationResponseDto(spaceMemberDto.getUserId(), Notification.EventType.CREATED, Notification.NotificationType.TEXT, response))
+                       )
+               )
+               .then()
+               .subscribe();
+    }
+
     /**
      * redis로 메시지를 발행한다.
      * @param result 메서드 반환 값
@@ -85,6 +107,15 @@ public class ChannelEventAspect {
                 .userId(userId)
                 .eventType(eventType)
                 .notificationType(Notification.NotificationType.CHANNEL)
+                .data(data)
+                .build();
+    }
+
+    private NotificationResponseDto toNotificationResponseDto(Long userId, Notification.EventType eventType, Notification.NotificationType notificationType, Object data) {
+        return NotificationResponseDto.builder()
+                .userId(userId)
+                .eventType(eventType)
+                .notificationType(notificationType)
                 .data(data)
                 .build();
     }
