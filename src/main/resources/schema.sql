@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS thread
     creator_id  BIGINT,
     created_at   TIMESTAMP   NOT NULL,
     modified_at  TIMESTAMP   NOT NULL,
-    FOREIGN KEY (channel_id) REFERENCES channel (id),
+    FOREIGN KEY (channel_id) REFERENCES channel (id) ON DELETE CASCADE,
     FOREIGN KEY (creator_id) REFERENCES user (id)
 );
 
