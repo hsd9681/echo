@@ -42,6 +42,9 @@ public class VideoHandler implements WebSocketHandler {
                     .then(session.receive()
                         .map(WebSocketMessage::getPayloadAsText)
                         .flatMap(message -> {
+                            if (message.contains("$p&ing")) {
+                                return Mono.empty();
+                            }
                             // 받은 메시지를 다른 세션들에게 전파
                             return Flux.fromIterable(channels.get(channelId).values())
                                 .filter(WebSocketSession::isOpen)
