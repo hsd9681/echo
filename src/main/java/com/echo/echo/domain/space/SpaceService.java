@@ -37,7 +37,7 @@ public class SpaceService {
 
     public Mono<SpaceResponseDto> updateSpace(Long spaceId, SpaceRequestDto requestDto) {
         return spaceRepository.findById(spaceId)
-            .switchIfEmpty(Mono.error(new CustomException(SpaceErrorCode.SPACE_NOT_FOUND)))
+            .switchIfEmpty(Mono.defer(() -> Mono.error(new CustomException(SpaceErrorCode.SPACE_NOT_FOUND))))
             .flatMap(existingSpace -> {
                 Space updatedSpace = existingSpace.update(
                     requestDto.getSpaceName(),
@@ -69,7 +69,7 @@ public class SpaceService {
 
     public Mono<SpaceResponseDto> joinSpace(String uuid, Long userId) {
         return spaceRepository.findByUuid(uuid)
-            .switchIfEmpty(Mono.error(new CustomException(SpaceErrorCode.SPACE_ENTRY_FAILURE)))
+            .switchIfEmpty(Mono.defer(() -> Mono.error(new CustomException(SpaceErrorCode.SPACE_ENTRY_FAILURE))))
             .flatMap(space -> spaceMemberRepository.findByUserIdAndSpaceId(userId, space.getId())
                 .flatMap(existingMember -> Mono.error(new CustomException(SpaceErrorCode.SPACE_ALREADY_JOINED)))
                 .switchIfEmpty(spaceMemberRepository.save(SpaceMember.builder()
@@ -90,20 +90,20 @@ public class SpaceService {
 
     public Flux<SpaceMember> getSpaceMembers(Long spaceId) {
         return spaceRepository.findById(spaceId)
-            .switchIfEmpty(Mono.error(new CustomException(SpaceErrorCode.SPACE_NOT_FOUND)))
+            .switchIfEmpty(Mono.defer(() -> Mono.error(new CustomException(SpaceErrorCode.SPACE_NOT_FOUND))))
             .flatMapMany(existingSpace -> spaceMemberRepository.findAllBySpaceId(spaceId));
     }
 
     public Mono<Space> findSpaceById(Long spaceId) {
         return spaceRepository.findById(spaceId)
-            .switchIfEmpty(Mono.error(new CustomException(SpaceErrorCode.SPACE_NOT_FOUND)));
+            .switchIfEmpty(Mono.defer(() -> Mono.error(new CustomException(SpaceErrorCode.SPACE_NOT_FOUND))));
     }
 
     public Flux<SpaceResponseDto> getUserSpaces(Long userId) {
         return spaceMemberRepository.findAllByUserId(userId)
             .flatMap(spaceMember -> spaceRepository.findById(spaceMember.getSpaceId())
                 .map(SpaceResponseDto::new))
-            .switchIfEmpty(Flux.error(new CustomException(SpaceErrorCode.NO_SPACES_JOINED)));
+            .switchIfEmpty(Flux.defer(() -> Flux.error(new CustomException(SpaceErrorCode.NO_SPACES_JOINED))));
     }
 
     private Mono<SpaceMember> addUserToSpace(Long userId, Long spaceId) {

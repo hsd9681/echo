@@ -90,7 +90,7 @@ public class ChannelService {
 
 	protected Mono<Channel> findChannelById(Long channelId) {
 		return channelRepository.findById(channelId)
-			.switchIfEmpty(Mono.error(new CustomException(ChannelErrorCode.CHANNEL_NOT_FOUND)));
+			.switchIfEmpty(Mono.defer(() -> Mono.error(new CustomException(ChannelErrorCode.CHANNEL_NOT_FOUND))));
 	}
 
 	private Channel buildChannel(Long channelId, Long spaceId, ChannelRequestDto requestDto) {

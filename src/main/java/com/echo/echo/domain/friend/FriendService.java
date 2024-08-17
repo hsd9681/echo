@@ -86,7 +86,7 @@ public class FriendService {
 
     public Mono<FriendshipResponseDto> acceptFriendRequest(Long requestId) {
         return processFriendRequest(requestId, RequestFriend.Status.ACCEPTED)
-            .switchIfEmpty(Mono.error(new CustomException(FriendErrorCode.FRIEND_REQUEST_NOT_FOUND)))
+            .switchIfEmpty(Mono.defer(() -> Mono.error(new CustomException(FriendErrorCode.FRIEND_REQUEST_NOT_FOUND))))
             .flatMap(request -> {
                 Mono<Friendship> saveFriendship1 = saveFriendship(request.getFromUserId(), request.getToUserId());
                 Mono<Friendship> saveFriendship2 = saveFriendship(request.getToUserId(), request.getFromUserId());
@@ -100,7 +100,7 @@ public class FriendService {
 
     public Mono<Void> rejectFriendRequest(Long requestId) {
         return processFriendRequest(requestId, RequestFriend.Status.REJECTED)
-            .switchIfEmpty(Mono.error(new CustomException(FriendErrorCode.FRIEND_REQUEST_NOT_FOUND)))
+            .switchIfEmpty(Mono.defer(() -> Mono.error(new CustomException(FriendErrorCode.FRIEND_REQUEST_NOT_FOUND))))
             .then();
     }
 
@@ -125,7 +125,7 @@ public class FriendService {
     public Flux<RequestFriendResponseDto> getFriendRequests(Long userId) {
         return requestFriendRepository.findAllByToUserIdAndStatus(userId, RequestFriend.Status.PENDING)
             .filterWhen(request -> friendshipRepository.existsByUserIdAndFriendId(request.getFromUserId(), request.getToUserId()).map(exists -> !exists))
-            .switchIfEmpty(Mono.error(new CustomException(FriendErrorCode.NO_FRIEND_REQUESTS)))
+            .switchIfEmpty(Mono.defer(() -> Mono.error(new CustomException(FriendErrorCode.NO_FRIEND_REQUESTS))))
             .map(request -> RequestFriendResponseDto.builder()
                 .fromUserId(request.getFromUserId())
                 .toUserId(request.getToUserId())
@@ -135,6 +135,6 @@ public class FriendService {
 
     public Flux<Friendship> getFriends(Long userId) {
         return friendshipRepository.findAllByUserId(userId)
-            .switchIfEmpty(Mono.error(new CustomException(FriendErrorCode.NO_FRIENDS_FOUND)));
+            .switchIfEmpty(Mono.defer(() -> Mono.error(new CustomException(FriendErrorCode.NO_FRIENDS_FOUND))));
     }
 }
