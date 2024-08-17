@@ -1,0 +1,13 @@
+### 수정
+PUT localhost:8080/api/text/66c0605d9d707656cb68c08b
+Content-Type: application/json
+Authorization: Bearer
+
+{
+  "contents": "수정 테스트"
+}
+
+### 삭제
+DELETE localhost:8080/api/text/66c0605d9d707656cb68c08b
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJkYmdoa3NAdGVzdC5jb20iLCJhdXRoIjpbXSwiaWQiOjQsIm5pY2tuYW1lIjoi7J207Jyg7ZmYIiwiZXhwIjoxODAwMTcyMzg3ODYxMCwiaWF0IjoxNzIzODc4NjEwfQ.FednRDDxU3i3eoqnxhqyqdK7wi6mu6u1sDKbri8d3dK7ZGw5oq9pQei7GqSXBYmg55UVTDsi8-HcN-QT5HqjWw
