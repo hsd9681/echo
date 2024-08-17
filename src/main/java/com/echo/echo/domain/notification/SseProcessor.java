@@ -32,7 +32,7 @@ public class SseProcessor {
         return objectStringConverter.stringToObject(body, NotificationResponseDto.class)
                 .flatMap(responseDto -> {
                     if (sinks.containsKey(responseDto.getUserId())) {
-                        log.info("sendId: {}", responseDto.getUserId());
+                        log.debug("sendId: {}", responseDto.getUserId());
                         messageSend(responseDto);
                     }
                     return Mono.empty();
@@ -65,7 +65,7 @@ public class SseProcessor {
      * @param id 입장한 유저의 아이디 (고유값)
      */
     protected Flux<ServerSentEvent<NotificationResponseDto>> connect(Long id) {
-        log.info("Connecting to {}", id);
+        log.debug("Connecting to {}", id);
 
         if (sinks.containsKey(id)) {
             return sinks.get(id).asFlux();
@@ -75,9 +75,9 @@ public class SseProcessor {
         return Flux.merge(sinks.get(id).asFlux(),
                 sendPing())
                 .doOnCancel(() -> {
-                    log.info("Notification service canceled" + id);
+                    log.debug("Notification service canceled" + id);
                     sinks.remove(id);
                 })
-                .doFinally(data -> log.info("[{}] 연결이 해지되었습니다.", id));
+                .doFinally(data -> log.debug("[{}] 연결이 해지되었습니다.", id));
     }
 }

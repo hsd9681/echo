@@ -28,7 +28,7 @@ public class DmService {
     public Mono<DmResponse> saveDm(Dm dm) {
         return dmRepository.save(dm)
                 .map(DmResponse::new)
-                .doOnSuccess(response -> log.info("DM 생성 성공: {}", response))
+                .doOnSuccess(response -> log.debug("DM 생성 성공: {}", response))
                 .doOnError(error -> log.error("DM 생성 실패", error));
     }
 
@@ -36,14 +36,14 @@ public class DmService {
     public Flux<DmResponse> getAllDms(Long userId) {
         return dmRepository.findAllBySenderIdOrReceiverId(userId, userId)
                 .map(DmResponse::new)
-                .doOnSubscribe(subscription -> log.info("전체 DM 조회 시작"))
+                .doOnSubscribe(subscription -> log.debug("전체 DM 조회 시작"))
                 .doOnError(error -> log.error("전체 DM 조회 실패", error));
     }
 
     // DM 삭제
     public Mono<Void> deleteDmById(String id) {
         return dmRepository.deleteById(id)
-                .doOnSuccess(aVoid -> log.info("DM 삭제 성공: {}", id))
+                .doOnSuccess(aVoid -> log.debug("DM 삭제 성공: {}", id))
                 .doOnError(error -> log.error("DM 삭제 실패", error));
     }
     public Sinks.Many<TextResponse> getDmSink(String dmId) {

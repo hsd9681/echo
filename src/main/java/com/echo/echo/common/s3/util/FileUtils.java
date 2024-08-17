@@ -35,7 +35,7 @@ public class FileUtils {
     };
 
     private boolean isValidType(final FilePart filePart) {
-        log.info(String.valueOf(filePart.headers().getContentType()));
+        log.debug(String.valueOf(filePart.headers().getContentType()));
         return isSupportedContentType(Objects.requireNonNull(filePart.headers().getContentType()).toString());
     }
 
@@ -49,7 +49,7 @@ public class FileUtils {
     }
 
     public ByteBuffer dataBufferToByteBuffer(List<DataBuffer> buffers) {
-        log.info("Creating ByteBuffer from {} chunks", buffers.size());
+        log.debug("Creating ByteBuffer from {} chunks", buffers.size());
 
         int partSize = 0;
         for(DataBuffer b : buffers) {
@@ -64,7 +64,7 @@ public class FileUtils {
         });
         partData.rewind();
 
-        log.info("PartData: capacity={}", partData.capacity());
+        log.debug("PartData: capacity={}", partData.capacity());
         return partData;
     }
 

@@ -79,7 +79,7 @@ public class KakaoService {
                         String email = jsonNode.path("kakao_account").path("email").asText();
 
                         // 사용자 정보를 로깅
-                        log.info("카카오 사용자 정보: ID: " + id + ", Nickname: " + nickname + ", Email: " + email);
+                        log.debug("카카오 사용자 정보: ID: " + id + ", Nickname: " + nickname + ", Email: " + email);
 
                         // 사용자 정보 DTO를 Mono로 감싸서 반환
                         return Mono.just(new KakaoUserInfoDto(id, nickname, email));

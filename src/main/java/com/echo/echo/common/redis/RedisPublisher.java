@@ -18,7 +18,7 @@ public class RedisPublisher {
         return Mono.defer(() -> reactiveRedisTemplate.convertAndSend(topic.getTopic(), t)
                 .doOnSuccess(success -> {
                     if (success > 0)
-                        log.info("메시지 퍼블리싱 성공");
+                        log.debug("메시지 퍼블리싱 성공");
                     else
                         log.warn("퍼블리싱 메시지를 받을 구독자가 없음");
                 })

@@ -29,7 +29,7 @@ public class VideoHandler implements WebSocketHandler {
         String sessionId = session.getId();
         String path = session.getHandshakeInfo().getUri().getPath();
         String channelId = extractChannelId(path);
-		log.info("channelID: {}, sessionID: {}, message: {}", channelId, sessionId, session.receive().toString());
+		log.debug("channelID: {}, sessionID: {}, message: {}", channelId, sessionId, session.receive().toString());
 
         return channelService.checkAndIncrementMemberCount(Long.valueOf(channelId))
             .then(Mono.defer(() -> {

@@ -50,7 +50,7 @@ public class RedisConfig {
                 .flatMap(message -> {
                     RedisConst channel = RedisConst.valueOf(message.getChannel()) ;
                     String body = message.getMessage();
-                    log.info("[{}] topic으로 받은 메시지: {}", channel, body);
+                    log.debug("[{}] topic으로 받은 메시지: {}", channel, body);
 
                     return redisListener.handleMessage(channel, body);
                 }))

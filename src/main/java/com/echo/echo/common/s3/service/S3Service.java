@@ -38,7 +38,7 @@ public class S3Service {
     private Long uploadMaxSize;
 
     public Mono<Void> deleteObject(String objectKey) {
-        log.info("Delete Object with key: {}", objectKey);
+        log.debug("Delete Object with key: {}", objectKey);
         return Mono.just(DeleteObjectRequest.builder()
                         .bucket(bucketName)
                         .key(objectKey)
@@ -49,7 +49,7 @@ public class S3Service {
     }
 
     public Flux<AWSS3Object> getObjects() {
-        log.info("Listing objects in S3 bucket: {}", bucketName);
+        log.debug("Listing objects in S3 bucket: {}", bucketName);
         return Flux.from(s3Client.listObjectsV2Paginator(ListObjectsV2Request.builder()
                         .bucket(bucketName)
                         .build()))

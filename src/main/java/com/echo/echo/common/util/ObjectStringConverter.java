@@ -16,7 +16,7 @@ public class ObjectStringConverter {
     private final ObjectMapper mapper;
 
     public  <T> Mono<String> objectToString(T object) {
-        return Mono.fromCallable(() -> mapper.writeValueAsString(object)).log()
+        return Mono.fromCallable(() -> mapper.writeValueAsString(object))
                 .doOnError(throwable -> log.error("[{}] 객체를 문자열로 변환중 오류 발생.", object));
     }
 
