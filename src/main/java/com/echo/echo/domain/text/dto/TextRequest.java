@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class TextRequest {
 
     private String contents;
+
 }

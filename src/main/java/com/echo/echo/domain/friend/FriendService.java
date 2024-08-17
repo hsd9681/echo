@@ -203,4 +203,5 @@ public class FriendService {
         return friendshipRepository.findAllByUserId(userId)
             .switchIfEmpty(Mono.defer(() -> Mono.error(new CustomException(FriendErrorCode.NO_FRIENDS_FOUND))));
     }
+
 }

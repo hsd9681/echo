@@ -12,6 +12,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @Service
 public class MailService {
+
     private final MailConfig mailConfig;
     private final JavaMailSender javaMailSender;
 
@@ -32,4 +33,5 @@ public class MailService {
             return true;
         }).doOnError(error -> System.out.println("error = " + error)).then(Mono.just(false));
     }
+
 }

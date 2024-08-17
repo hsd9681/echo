@@ -15,6 +15,7 @@ import java.time.Duration;
 @Service
 @Slf4j
 public class VerificationCodeService {
+
     private final RedisService redisService;
 
     /**
@@ -76,4 +77,5 @@ public class VerificationCodeService {
                 .flatMap(updateCode -> redisService.setValue(uuid, updateCode))
                 .then();
     }
+
 }

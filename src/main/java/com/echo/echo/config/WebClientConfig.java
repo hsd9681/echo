@@ -13,4 +13,5 @@ public class WebClientConfig {
                 .baseUrl("https://kauth.kakao.com").build();
 
     }
+
 }

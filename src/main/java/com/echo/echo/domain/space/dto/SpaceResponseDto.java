@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 public class SpaceResponseDto {
+
     private Long id;
     private String spaceName;
     private String isPublic;
@@ -29,4 +30,5 @@ public class SpaceResponseDto {
         this.thumbnail = space.getThumbnail();
         this.uuid = space.getUuid();
     }
+
 }

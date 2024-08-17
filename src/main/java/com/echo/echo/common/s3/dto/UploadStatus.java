@@ -12,9 +12,12 @@ public class UploadStatus {
 
     private final String fileKey;
     private final String contentType;
+
     @Setter
     private String uploadId;
+
     private int partCounter;
+
     @Setter
     private int buffered;
 
@@ -33,4 +36,5 @@ public class UploadStatus {
     public int getAddedPartCounter() {
         return ++this.partCounter;
     }
+
 }

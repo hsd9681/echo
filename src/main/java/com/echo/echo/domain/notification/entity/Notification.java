@@ -11,8 +11,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Getter
 @Document(collection = "notification")
 public class Notification {
+
     @Id
     private String id;
+
     private Long userId;
     private Long spaceId;
     private Long channelId;
@@ -38,4 +40,5 @@ public class Notification {
         this.notificationType = notificationType.name();
         this.message = message;
     }
+
 }

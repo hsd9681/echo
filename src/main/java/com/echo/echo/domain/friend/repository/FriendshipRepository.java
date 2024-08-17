@@ -16,6 +16,9 @@ public interface FriendshipRepository extends ReactiveCrudRepository<Friendship,
 
     @Query("SELECT * FROM friendship WHERE user_id = :userId")
     Flux<Friendship> findAllByUserId(Long userId);
+
     Mono<Boolean> existsByUserIdAndFriendId(Long userId, Long friendId);
+
     Mono<Void> deleteByUserIdAndFriendId(Long userId, Long friendId);
+
 }

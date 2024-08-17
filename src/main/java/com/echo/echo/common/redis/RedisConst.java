@@ -6,6 +6,7 @@ import org.springframework.data.redis.listener.PatternTopic;
 
 @Getter
 public enum RedisConst {
+
     TEXT,
     TYPING,
     SSE,
@@ -20,4 +21,5 @@ public enum RedisConst {
         String patternTopic = this.name() + pattern;
         return new PatternTopic(patternTopic);
     }
+
 }

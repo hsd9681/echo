@@ -22,4 +22,5 @@ public class MongoDBConfig {
         converter.setTypeMapper(new DefaultMongoTypeMapper(null));
         return converter;
     }
+
 }

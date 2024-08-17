@@ -24,4 +24,5 @@ public class AuthController {
     public Mono<ResponseEntity<TokenResponseDto>> reissueToken(@RequestBody TokenRequestDto req) {
         return authFacade.reissueToken(req.getToken()).map(ResponseEntity::ok);
     }
+
 }

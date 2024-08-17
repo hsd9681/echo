@@ -31,4 +31,5 @@ public enum CommonErrorCode implements BaseCode {
             .msg(msg)
             .build();
     }
+
 }

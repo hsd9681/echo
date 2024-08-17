@@ -12,4 +12,5 @@ public class DmRequest {
 
     @Email
     private String recipientEmail;
+
 }

@@ -7,6 +7,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface ThreadRepository extends ReactiveCrudRepository<Thread, Long> {
+
     @Query("select t.*, u.email, u.nickname from thread t " +
             "left join user u on t.creator_id = u.id " +
             "where t.id = :id")
@@ -23,4 +24,5 @@ public interface ThreadRepository extends ReactiveCrudRepository<Thread, Long> {
     Flux<Thread> findAllByChannelIdWithUser(Long channelId);
 
     Mono<Boolean> existsByTextId(String textId);
+
 }

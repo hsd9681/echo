@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 public class ThreadResponseDto {
+
     @JsonProperty
     private Long id;
     @JsonProperty
@@ -26,8 +27,10 @@ public class ThreadResponseDto {
     private String nickname;
     @JsonProperty
     private String status;
+
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
+
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime modifiedAt;
 
@@ -48,4 +51,5 @@ public class ThreadResponseDto {
         this.createdAt = thread.getCreatedAt();
         this.modifiedAt = thread.getModifiedAt();
     }
+
 }

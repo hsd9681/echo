@@ -6,6 +6,7 @@ import lombok.Getter;
 
 @Getter
 public class TokenResponseDto {
+
     @JsonProperty
     private String accessToken;
     @JsonProperty
@@ -15,4 +16,5 @@ public class TokenResponseDto {
         this.accessToken = token.getAccessToken();
         this.refreshToken = token.getRefreshToken();
     }
+
 }

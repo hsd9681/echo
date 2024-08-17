@@ -5,6 +5,8 @@ package com.echo.echo.common.exception;
  */
 
 public interface BaseCode {
+
     public String getRemark();
     public CommonReason getCommonReason();
+
 }

@@ -24,6 +24,7 @@ import java.util.List;
 @EnableR2dbcAuditing
 @EnableR2dbcRepositories
 public class R2dbcConfig {
+
     @Bean
     public ConnectionFactoryInitializer initializer(ConnectionFactory connectionFactory) {
 
@@ -45,4 +46,5 @@ public class R2dbcConfig {
 
         return R2dbcCustomConversions.of(MySqlDialect.INSTANCE, converters);
     }
+
 }

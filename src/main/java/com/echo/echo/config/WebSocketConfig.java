@@ -34,4 +34,5 @@ public class WebSocketConfig {
 		mapping.setOrder(1);
 		return mapping;
 	}
+
 }

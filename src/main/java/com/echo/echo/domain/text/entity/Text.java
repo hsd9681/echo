@@ -13,14 +13,16 @@ import java.time.LocalDateTime;
 @Getter
 @Document(collection = "text")
 public class Text {
+
     @Id
     private String id;
+
     private TextType type;
     private String contents;
     private String username;
     private Long channelId;
     private Long userId;
-    private String dmId; // 추가된 필드
+    private String dmId;
     private LocalDateTime createdAt;
 
     public Text(String contents, String username, Long userId, Long channelId, TextType type) {
@@ -45,4 +47,5 @@ public class Text {
         this.userId = userId;
         this.createdAt = LocalDateTime.now();
     }
+
 }

@@ -62,4 +62,5 @@ public class NotificationService {
     private Mono<Boolean> userAndChannelDataExists(Long userId, Long channelId) {
         return notificationRepository.existsByUserIdAndChannelIdAndEventTypeAndNotificationType(userId, channelId, Notification.EventType.CREATED.name(), Notification.NotificationType.TEXT.name());
     }
+
 }

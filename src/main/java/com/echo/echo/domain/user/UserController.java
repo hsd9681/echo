@@ -109,4 +109,5 @@ public class UserController {
         return userFacade.checkVerificationCodeAndChangePassword(uuid, req)
                 .then(Mono.just(ResponseEntity.ok(UserSuccessCode.PASSWORD_CHANGE_SUCCESS.getMsg())));
     }
+
 }

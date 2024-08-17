@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class ThreadMessageResponseDto {
+
     @JsonProperty
     private Long id;
     @JsonProperty
@@ -26,10 +27,12 @@ public class ThreadMessageResponseDto {
     private String nickname;
     @JsonProperty
     private String content;
+
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
+
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
@@ -54,4 +57,5 @@ public class ThreadMessageResponseDto {
         this.createdAt = threadMessage.getCreatedAt();
         this.modifiedAt = threadMessage.getModifiedAt();
     }
+
 }

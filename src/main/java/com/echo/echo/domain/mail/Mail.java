@@ -5,6 +5,7 @@ import lombok.Getter;
 
 @Getter
 public class Mail {
+
     private final String to;
     private final String subject;
     private final String body;
@@ -25,4 +26,5 @@ public class Mail {
                 </body>
                 </html>""".replace("${code}", verificationCode);
     }
+
 }

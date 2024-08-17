@@ -76,4 +76,5 @@ public class VideoHandler implements WebSocketHandler {
         String[] segments = path.split("/");
         return segments.length > 3 ? segments[3] : "1";
     }
+
 }

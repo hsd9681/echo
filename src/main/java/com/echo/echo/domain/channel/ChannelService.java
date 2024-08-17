@@ -191,4 +191,5 @@ public class ChannelService {
 			.lastReadMessageId(lastReadMessageId)
 			.build();
 	}
+
 }

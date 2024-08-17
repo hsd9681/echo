@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 
 @ReadingConverter
 public class ThreadMessageReadConverter implements Converter<Row, ThreadMessage> {
+
     @Override
     public ThreadMessage convert(Row source) {
         User user = User.builder()
@@ -41,4 +42,5 @@ public class ThreadMessageReadConverter implements Converter<Row, ThreadMessage>
     private Thread.Status getStatus(int ordinal) {
         return Thread.Status.values()[ordinal];
     }
+
 }

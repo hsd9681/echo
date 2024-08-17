@@ -19,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 @Component
 public class SseProcessor {
+
     private final ObjectStringConverter objectStringConverter;
     private final Map<Long, Sinks.Many<ServerSentEvent<NotificationResponseDto>>> sinks = new ConcurrentHashMap<>();
     private final static String PING_TYPE = "ping";
@@ -80,4 +81,5 @@ public class SseProcessor {
                 })
                 .doFinally(data -> log.debug("[{}] 연결이 해지되었습니다.", id));
     }
+
 }

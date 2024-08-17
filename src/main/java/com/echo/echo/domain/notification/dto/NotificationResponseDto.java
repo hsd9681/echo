@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class NotificationResponseDto {
+
     private Long userId;
     @JsonProperty
     private String eventType;
@@ -28,4 +29,5 @@ public class NotificationResponseDto {
     public NotificationResponseDto(String eventType) {
         this.eventType = eventType;
     }
+
 }

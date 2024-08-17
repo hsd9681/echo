@@ -10,6 +10,7 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 public class VerificationCode {
+
     public static int TIME_LIMIT = 10;
     private String uuid;
     private String userId;
@@ -37,4 +38,5 @@ public class VerificationCode {
         this.status = true;
         return this;
     }
+    
 }

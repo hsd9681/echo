@@ -98,4 +98,5 @@ public class FriendController {
         Long userId = userPrincipal.getUser().getId();
         return friendFacade.getFriends(userId);
     }
+
 }

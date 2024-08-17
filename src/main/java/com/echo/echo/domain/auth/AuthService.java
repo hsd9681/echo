@@ -1,22 +1,18 @@
 package com.echo.echo.domain.auth;
 
 import com.echo.echo.common.exception.CustomException;
-import com.echo.echo.common.exception.codes.CommonErrorCode;
 import com.echo.echo.common.redis.RedisService;
-import com.echo.echo.domain.auth.dto.TokenRequestDto;
 import com.echo.echo.domain.auth.dto.TokenResponseDto;
 import com.echo.echo.domain.auth.error.AuthErrorCode;
 import com.echo.echo.domain.user.entity.RefreshToken;
 import com.echo.echo.domain.user.entity.User;
 import com.echo.echo.security.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
-import java.util.Objects;
 
 @RequiredArgsConstructor
 @Service
@@ -70,4 +66,5 @@ public class AuthService {
                 .flatMap(token -> createToken(token.getId(), token.getEmail(), token.getNickname()))
                 .flatMap(newToken -> deleteRefreshToken(inputRefreshToken).then(Mono.just(newToken)));
     }
+
 }

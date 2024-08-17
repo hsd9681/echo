@@ -11,5 +11,7 @@ import reactor.core.publisher.Flux;
 
 @Repository
 public interface RequestFriendRepository extends ReactiveCrudRepository<RequestFriend, Long> {
+
     Flux<RequestFriend> findAllByToUserIdAndStatus(Long toUserId, RequestFriend.Status status);
+
 }

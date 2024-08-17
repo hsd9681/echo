@@ -52,4 +52,5 @@ public class ChannelFacade {
         return notificationService.getNotificationTextByUserId(userId, channelId)
                 .flatMap(pushMessage -> channelService.getChannel(channelId, pushMessage));
     }
+
 }

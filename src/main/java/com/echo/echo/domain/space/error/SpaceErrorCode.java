@@ -36,4 +36,5 @@ public enum SpaceErrorCode implements BaseCode {
             .msg(msg)
             .build();
     }
+
 }

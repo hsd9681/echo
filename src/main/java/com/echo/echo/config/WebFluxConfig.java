@@ -26,4 +26,5 @@ public class WebFluxConfig implements WebFluxConfigurer {
 
         configurer.defaultCodecs().maxInMemorySize(512 * 1024);
     }
+
 }

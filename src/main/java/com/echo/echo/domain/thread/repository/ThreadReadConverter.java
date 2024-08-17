@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 
 @ReadingConverter
 public class ThreadReadConverter implements Converter<Row, Thread> {
+
     @Override
     public Thread convert(Row source) {
         User user = User.builder()
@@ -32,4 +33,5 @@ public class ThreadReadConverter implements Converter<Row, Thread> {
     private Thread.Status getStatus(int ordinal) {
         return Thread.Status.values()[ordinal];
     }
+
 }

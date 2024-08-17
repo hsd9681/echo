@@ -11,9 +11,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "dm")
 @NoArgsConstructor
 public class Dm {
+
     @Id
-    private String id;  // 자동 증가하는 ID 필드
-//    private String nickname;  // 사용자 닉네임 추가
+    private String id;
+
+//  private String nickname;
     private Long senderId;
     private String sender;
     private Long receiverId;
@@ -25,4 +27,5 @@ public class Dm {
         this.receiverId = receiverId;
         this.receiver = receiver;
     }
+
 }

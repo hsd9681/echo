@@ -24,4 +24,5 @@ public class ObjectStringConverter {
         return Mono.fromCallable(() -> mapper.readValue(payload, clazz))
                 .doOnError(throwable -> log.error("[{}] 문자열을 '{}' 객체로 변환중 오류 발생.", payload, clazz.getSimpleName()));
     }
+
 }

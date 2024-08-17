@@ -21,6 +21,7 @@ public class Space extends TimeStamp {
 
     @Id
     private Long id;
+
     private String spaceName;
     private String isPublic;
     private byte[] thumbnail;
@@ -44,4 +45,5 @@ public class Space extends TimeStamp {
             .uuid(this.uuid)
             .build();
     }
+
 }

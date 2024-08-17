@@ -21,9 +21,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 @RequiredArgsConstructor
 public class DmService {
+
     private final TextRepository repository;
     private final DmRepository dmRepository;
-    private final Map<String, Sinks.Many<TextResponse>> dmSinks = new ConcurrentHashMap<>(); // DM 용
+    private final Map<String, Sinks.Many<TextResponse>> dmSinks = new ConcurrentHashMap<>();
 
     public Mono<DmResponse> saveDm(Dm dm) {
         return dmRepository.save(dm)

@@ -22,13 +22,16 @@ import java.util.Date;
 
 @Component
 public class JwtProvider {
+
     private Key key;
     public static final String HEADER_PREFIX = "Bearer ";
     private final String AUTHORITIES_KEY = "auth";
     private final String ID_KEY = "id";
     private final String NICKNAME_KEY = "nickname";
+
     @Value("${jwt.time.access}")
     private Long ACCESS_TOKEN_TIME;
+
     @Value("${jwt.time.refresh}")
     private Long REFRESH_TOKEN_TIME;
 
@@ -130,4 +133,5 @@ public class JwtProvider {
     public Long getUserId(String token){
         return Long.valueOf((Integer) getClaims(token).get(ID_KEY));
     }
+
 }

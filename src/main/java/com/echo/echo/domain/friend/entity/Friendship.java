@@ -33,4 +33,5 @@ public class Friendship extends TimeStamp {
         this.userId = userId;
         this.friendId = friendId;
     }
+
 }

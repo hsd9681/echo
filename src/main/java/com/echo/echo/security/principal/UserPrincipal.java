@@ -10,6 +10,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 public class UserPrincipal implements UserDetails {
+
     private final User user;
 
     public User getUser() {
@@ -54,4 +55,5 @@ public class UserPrincipal implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
 }

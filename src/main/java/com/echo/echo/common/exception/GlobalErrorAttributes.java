@@ -11,6 +11,7 @@ import java.util.Map;
 
 @Component
 public class GlobalErrorAttributes extends DefaultErrorAttributes {
+
     @Override
     public Map<String, Object> getErrorAttributes(ServerRequest request, ErrorAttributeOptions options) {
         Map<String, Object> originMap = super.getErrorAttributes(request, options);
@@ -35,5 +36,6 @@ public class GlobalErrorAttributes extends DefaultErrorAttributes {
 
         return map;
     }
+
 }
 

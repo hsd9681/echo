@@ -27,4 +27,5 @@ public class SpaceMember {
         this.userId = userId;
         this.spaceId = spaceId;
     }
+
 }

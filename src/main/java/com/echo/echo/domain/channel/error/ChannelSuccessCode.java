@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum ChannelSuccessCode implements BaseCode {
+
     CHANNEL_DELETE(3, "채널 삭제 완료입니다.", "채널 삭제가 성공적으로 완료되었습니다.");
 
     private final int code;
@@ -27,4 +28,5 @@ public enum ChannelSuccessCode implements BaseCode {
                 .msg(msg)
                 .build();
     }
+
 }
