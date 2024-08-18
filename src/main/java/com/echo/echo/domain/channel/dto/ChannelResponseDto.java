@@ -23,4 +23,5 @@ public class ChannelResponseDto {
     private Integer currentMemberCount;
     private boolean push;
     private String lastReadMessageId;
+
 }

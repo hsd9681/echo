@@ -3,8 +3,6 @@ package com.echo.echo.domain.text.controller;
 import com.echo.echo.domain.text.TextFacade;
 import com.echo.echo.domain.text.TextService;
 import com.echo.echo.domain.text.dto.TextRequest;
-import com.echo.echo.domain.text.dto.TextResponse;
-import com.echo.echo.domain.user.entity.User;
 import com.echo.echo.security.principal.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.codec.multipart.FilePart;
@@ -42,4 +40,5 @@ public class TextController {
                                  @AuthenticationPrincipal UserPrincipal userPrincipal) {
         return textFacade.deleteTextChat(channelId, textId, userPrincipal.getUser());
     }
+
 }

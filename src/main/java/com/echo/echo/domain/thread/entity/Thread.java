@@ -16,18 +16,21 @@ import java.time.LocalDateTime;
 @Table(name = "thread")
 @Getter
 public class Thread extends TimeStamp {
+
     @Id
     private Long id;
+
     private Long channelId;
     private String textId;
     private int status;
     private Long creatorId;
-    public enum Status {
-        CLOSE, OPEN
-    }
 
     @Transient
     private User user;
+
+    public enum Status {
+        CLOSE, OPEN
+    }
 
     @Builder
     public Thread(Long id, Long channelId, String textId, Status status, Long creatorId, User user, LocalDateTime createdAt, LocalDateTime modifiedAt) {
@@ -48,4 +51,5 @@ public class Thread extends TimeStamp {
     public void closeThread() {
         this.status = Status.CLOSE.ordinal();
     }
+
 }

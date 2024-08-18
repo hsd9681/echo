@@ -5,6 +5,7 @@ import lombok.Getter;
 
 @Getter
 public class RefreshToken {
+
     private Long id;
     private String email;
     private String nickname;
@@ -15,4 +16,5 @@ public class RefreshToken {
         this.email = email;
         this.nickname = nickname;
     }
+
 }

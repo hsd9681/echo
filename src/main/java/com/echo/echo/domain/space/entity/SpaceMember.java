@@ -16,10 +16,8 @@ import org.springframework.data.relational.core.mapping.Table;
 @Table(name = "space_member")
 public class SpaceMember {
 
-    @Column("user_id")
     private Long userId;
 
-    @Column("space_id")
     private Long spaceId;
 
     @Builder
@@ -27,4 +25,5 @@ public class SpaceMember {
         this.userId = userId;
         this.spaceId = spaceId;
     }
+
 }

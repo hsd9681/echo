@@ -9,4 +9,5 @@ public class SuccessResponse {
 
     Object data;
     String message;
+
 }

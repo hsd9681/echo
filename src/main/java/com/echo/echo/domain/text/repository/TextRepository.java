@@ -8,5 +8,6 @@ public interface TextRepository extends ReactiveMongoRepository<Text, String> {
 
     Flux<Text> findAllByChannelId(Long channelId);
 
-    Flux<Text> findAllByDmId(String dmId); // 추가된 메서드
+    Flux<Text> findAllByDmId(String dmId);
+
 }

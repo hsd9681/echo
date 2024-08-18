@@ -120,7 +120,6 @@ public class KakaoService {
                 );
     }
 
-    //토큰생성 부분
     private Mono<TokenResponseDto> generateTokens(User user) {
         return jwtProvider.createToken(user.getId(), user.getEmail(), user.getNickname())
                 .flatMap(token -> saveRefreshToken(user.getId(), user.getEmail(), user.getNickname(), token.getRefreshToken())
@@ -136,6 +135,5 @@ public class KakaoService {
                         Duration.ofMillis(jwtProvider.getRefreshTokenTime()))
                 .then();
     }
-
 
 }

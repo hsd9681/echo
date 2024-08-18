@@ -56,4 +56,5 @@ public class TextFacade {
                     return redisPublisher.publish(RedisConst.TEXT.getChannelTopic(), response);
                 }));
     }
+
 }

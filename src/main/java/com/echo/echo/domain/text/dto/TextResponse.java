@@ -21,14 +21,16 @@ public class TextResponse {
     private String id;
     private Long channelId;
     private Text.TextType textType;
-    private String dmId; // 추가된 필드
+    private String dmId;
     private String contents;
     private Long userId;
     private String username;
     private TextResponse.HandleType handleType;
+
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime createdAt;
+
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime modifiedAt;
@@ -69,4 +71,5 @@ public class TextResponse {
     public enum HandleType {
         CREATED, UPDATED, DELETED
     }
+
 }

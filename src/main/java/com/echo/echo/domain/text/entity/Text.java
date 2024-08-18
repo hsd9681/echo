@@ -7,22 +7,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import reactor.core.publisher.Mono;
-
-import java.time.LocalDateTime;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Document(collection = "text")
 public class Text extends TimeStamp {
+
     @Id
     private String id;
+
     private TextType type;
     private String contents;
     private String username;
     private Long channelId;
     private Long userId;
-    private String dmId; // 추가된 필드
+    private String dmId;
 
     public Text(String contents, String username, Long userId, Long channelId, TextType type) {
         this.contents = contents;

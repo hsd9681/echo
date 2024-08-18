@@ -26,4 +26,5 @@ public class TypingResponse extends TextResponse {
 		this.username = username;
 		this.typing = typing;
 	}
+
 }

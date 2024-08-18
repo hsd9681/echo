@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class NotificationDto {
+
     private String id;
     private Long userId;
     private Long spaceId;
@@ -36,4 +37,5 @@ public class NotificationDto {
         this.notificationType = Notification.NotificationType.valueOf(notification.getNotificationType());
         this.message = notification.getMessage();
     }
+
 }

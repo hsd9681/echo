@@ -10,6 +10,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @Component
 public class NotificationFacade {
+
     private final NotificationService notificationService;
 
     public Mono<Void> createNotification(NotificationDto dto) {
@@ -23,4 +24,5 @@ public class NotificationFacade {
     public Mono<Void> deleteNotification(Long userId, Long channelId) {
         return notificationService.deleteNotification(userId, channelId);
     }
+
 }

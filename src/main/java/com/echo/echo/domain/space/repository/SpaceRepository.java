@@ -9,5 +9,7 @@ import reactor.core.publisher.Mono;
  */
 
 public interface SpaceRepository extends ReactiveCrudRepository<Space, Long> {
+
     Mono<Space> findByUuid(String uuid);
+
 }

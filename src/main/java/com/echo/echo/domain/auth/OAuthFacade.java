@@ -1,4 +1,3 @@
-// OAuthFacade.java
 package com.echo.echo.domain.auth;
 
 import com.echo.echo.domain.auth.dto.TokenResponseDto;
@@ -15,4 +14,5 @@ public class OAuthFacade {
     public Mono<TokenResponseDto> handleKakaoLogin(String code) {
         return kakaoService.kakaoLogin(code);
     }
+
 }

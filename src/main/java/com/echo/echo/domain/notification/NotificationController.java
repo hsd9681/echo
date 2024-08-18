@@ -28,4 +28,5 @@ public class NotificationController {
                                        @PathVariable("channelId") Long channelId) {
         return notificationFacade.deleteNotification(userPrincipal.getId(), channelId);
     }
+
 }

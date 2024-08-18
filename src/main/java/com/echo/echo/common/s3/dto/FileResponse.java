@@ -10,4 +10,5 @@ public class FileResponse {
     String path;
     String type;
     String eTag;
+
 }

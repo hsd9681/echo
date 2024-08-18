@@ -11,8 +11,10 @@ import org.springframework.data.relational.core.mapping.Table;
 @Getter
 @Table(name = "user")
 public class User {
+
     @Id
     private Long id;
+
     private String email;
     private String password;
     private String intro;
@@ -20,7 +22,6 @@ public class User {
     private int status;
     private Long kakaoId;
 
-    // 상태: 인증 전, 인증 완료, 탈퇴
     public enum Status {
         ACTIVATE, DEACTIVATE
     }
@@ -33,7 +34,7 @@ public class User {
         this.intro = intro;
         this.nickname = nickname;
         this.status = status == null ? Status.ACTIVATE.ordinal() : status.ordinal();
-        this.kakaoId = kakaoId; // kakaoId 필드 초기화
+        this.kakaoId = kakaoId;
     }
     public void updateKakaoId(Long kakaoId) {
         this.kakaoId = kakaoId;
@@ -54,4 +55,5 @@ public class User {
     public void updatePassword(String password) {
         this.password = password;
     }
+
 }

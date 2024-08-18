@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class FindUserResponseDto {
+
     private boolean isFind;
     private String msg;
 
@@ -15,4 +16,5 @@ public class FindUserResponseDto {
         this.isFind = isFind;
         this.msg = msg;
     }
+
 }

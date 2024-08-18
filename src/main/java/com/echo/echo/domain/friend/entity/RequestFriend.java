@@ -49,4 +49,5 @@ public class RequestFriend extends TimeStamp {
             .status(newStatus)
             .build();
     }
+
 }

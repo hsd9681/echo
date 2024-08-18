@@ -16,8 +16,10 @@ import java.time.LocalDateTime;
 @Table(name = "thread_message")
 @Getter
 public class ThreadMessage extends TimeStamp {
+
     @Id
     private Long id;
+
     private Long threadId;
     private Long authorId;
     private String content;
@@ -43,4 +45,5 @@ public class ThreadMessage extends TimeStamp {
     public void updateMessage(String content) {
         this.content = content;
     }
+
 }

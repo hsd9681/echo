@@ -1,4 +1,3 @@
-// OAuthController.java
 package com.echo.echo.domain.auth;
 
 import com.echo.echo.domain.auth.dto.TokenResponseDto;
@@ -18,4 +17,5 @@ public class OAuthController {
     public Mono<TokenResponseDto> kakaoLogin(@RequestParam String code) {
         return oAuthFacade.handleKakaoLogin(code);
     }
+
 }

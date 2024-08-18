@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 @Slf4j
 public class CustomException extends RuntimeException {
+
     private final BaseCode baseCode;
 
     public CustomException(BaseCode baseCode) {
@@ -24,4 +25,5 @@ public class CustomException extends RuntimeException {
         String methodName = Thread.currentThread().getStackTrace()[3].getMethodName();
         return className + "." + methodName;
     }
+
 }

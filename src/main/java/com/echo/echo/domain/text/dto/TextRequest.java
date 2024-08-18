@@ -12,4 +12,5 @@ public class TextRequest {
 
     @NotBlank(message = "공백은 전송할 수 없습니다.")
     private String contents;
+
 }

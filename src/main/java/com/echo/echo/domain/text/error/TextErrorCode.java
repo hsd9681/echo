@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum TextErrorCode implements BaseCode {
+
     AUTHOR_NOT_MATCHES(HttpStatus.BAD_REQUEST, 1,"요청자와 작성자의 정보가 일치하지 않습니다.", "요청자와 사용자의 정보가 일치하지 않습니다."),
     ;
 
@@ -25,4 +26,5 @@ public enum TextErrorCode implements BaseCode {
                 .msg(msg)
                 .build();
     }
+
 }

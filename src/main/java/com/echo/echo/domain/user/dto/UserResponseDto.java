@@ -29,4 +29,5 @@ public class UserResponseDto {
         this.intro = user.getIntro();
         this.status = User.Status.values()[user.getStatus()].name();
     }
+
 }

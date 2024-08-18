@@ -7,6 +7,7 @@ import lombok.Getter;
 
 @Getter
 public class FindUserDto {
+
     @Email
     @NotBlank
     private String email;
@@ -23,4 +24,5 @@ public class FindUserDto {
         )
         private String newPassword;
     }
+
 }

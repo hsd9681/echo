@@ -26,4 +26,5 @@ public class SpaceRequestDto {
     private String isPublic;
 
     private byte[] thumbnail;
+
 }

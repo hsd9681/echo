@@ -35,4 +35,5 @@ public enum UserErrorCode implements BaseCode {
                 .msg(msg)
                 .build();
     }
+
 }

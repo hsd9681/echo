@@ -16,6 +16,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @RequestMapping("/spaces/{spaceId}/channels/{channelId}/texts/{textId}/threads")
 public class ThreadController {
+
     private final ThreadFacade threadFacade;
 
     /**
@@ -105,4 +106,5 @@ public class ThreadController {
         return threadFacade.deleteThread(spaceId, userPrincipal.getUser(), threadId)
                 .map(data -> ResponseEntity.ok("성공적으로 삭제되었습니다."));
     }
+
 }

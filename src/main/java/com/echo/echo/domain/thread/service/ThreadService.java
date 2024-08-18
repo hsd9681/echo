@@ -149,4 +149,5 @@ public class ThreadService {
         return threadMessageRepository.findById(threadMessageId)
                 .switchIfEmpty(Mono.defer(() -> Mono.error(new CustomException(ThreadErrorCode.NOT_FOUND_THREAD))));
     }
+
 }

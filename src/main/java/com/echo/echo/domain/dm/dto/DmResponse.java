@@ -21,4 +21,5 @@ public class DmResponse {
         this.receiverId = dm.getReceiverId();
         this.receiver = dm.getReceiver();
     }
+
 }

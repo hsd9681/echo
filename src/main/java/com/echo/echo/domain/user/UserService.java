@@ -18,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class UserService {
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final VerificationCodeService verificationCodeService;
@@ -203,4 +204,5 @@ public class UserService {
     protected Mono<Boolean> existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
+
 }

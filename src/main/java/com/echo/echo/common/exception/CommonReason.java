@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public class CommonReason {
+
     private final HttpStatus status;
     private final int code;
     private final String msg;
@@ -20,4 +21,5 @@ public class CommonReason {
         this.code = code;
         this.msg = msg;
     }
+
 }

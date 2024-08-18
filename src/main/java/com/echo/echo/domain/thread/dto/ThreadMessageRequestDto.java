@@ -4,5 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class ThreadMessageRequestDto {
+
     private String content;
+
 }

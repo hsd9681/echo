@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateProfileRequestDto {
+
     private String nickname;
     private String intro;
+
 }

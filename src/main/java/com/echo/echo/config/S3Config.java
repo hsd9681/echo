@@ -51,4 +51,5 @@ public class S3Config {
     public AwsCredentialsProvider awsCredentialsProvider() {
         return () -> AwsBasicCredentials.create(accessKey, secretKey);
     }
+
 }

@@ -15,6 +15,7 @@ import reactor.core.scheduler.Schedulers;
 @RequiredArgsConstructor
 @Component
 public class UserFacade {
+
     private final UserService userService;
     private final MailService mailService;
 

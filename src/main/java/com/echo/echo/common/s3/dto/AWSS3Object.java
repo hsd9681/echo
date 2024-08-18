@@ -13,4 +13,5 @@ public class AWSS3Object {
     Instant lastModified;
     String eTag;
     Long size;
+
 }

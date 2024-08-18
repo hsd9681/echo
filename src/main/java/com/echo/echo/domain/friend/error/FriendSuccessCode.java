@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum FriendSuccessCode implements BaseCode {
+
     REQUEST_REJECTED(3, "친구 요청이 거부 되었습니다.", "친구 요청이 거부 되었습니다."),
     REQUEST_ACCEPTED(4, "친구 요청이 수락되었습니다.", "친구 요청이 수락되었습니다."),
     REQUEST_SENT(5, "친구 요청이 성공적으로 전송되었습니다.", "친구 요청이 성공적으로 전송되었습니다."),
@@ -31,4 +32,5 @@ public enum FriendSuccessCode implements BaseCode {
             .msg(msg)
             .build();
     }
+
 }

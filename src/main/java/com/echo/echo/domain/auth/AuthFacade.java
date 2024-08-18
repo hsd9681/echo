@@ -10,6 +10,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @Component
 public class AuthFacade {
+
     private final AuthService authService;
     private final UserService userService;
 
@@ -21,4 +22,5 @@ public class AuthFacade {
     public Mono<TokenResponseDto> reissueToken(String inputRefreshToken) {
         return authService.reissueToken(inputRefreshToken);
     }
+
 }

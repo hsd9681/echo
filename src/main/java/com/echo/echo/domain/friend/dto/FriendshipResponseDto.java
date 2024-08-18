@@ -16,4 +16,5 @@ public class FriendshipResponseDto {
     private String friendNickname;
     private String friendEmail;
     private String friendIntro;
+
 }

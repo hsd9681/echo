@@ -8,6 +8,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface NotificationRepository extends ReactiveMongoRepository<Notification, String> {
+
     Flux<Notification> findAllByUserIdAndEventType(Long userId, String eventType);
 
     Mono<Notification> findByUserIdAndChannelIdAndNotificationType(Long userId, Long channelId, String notificationType);
@@ -17,4 +18,5 @@ public interface NotificationRepository extends ReactiveMongoRepository<Notifica
     Mono<Boolean> existsByUserIdAndChannelIdAndEventTypeAndNotificationType(Long userId, Long channelId, String eventType, String notificationType);
 
     Mono<Void> deleteByUserIdAndChannelId(Long userId, Long channelId);
+
 }

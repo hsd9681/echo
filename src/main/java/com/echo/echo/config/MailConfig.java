@@ -11,6 +11,7 @@ import java.util.Properties;
 
 @Configuration
 public class MailConfig {
+
     @Value("${spring.mail.username}")
     private String username;
 
@@ -40,4 +41,5 @@ public class MailConfig {
     public String getUsername() {
         return username;
     }
+
 }

@@ -5,5 +5,7 @@ import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import reactor.core.publisher.Flux;
 
 public interface DmRepository extends ReactiveMongoRepository<Dm, String> {
+
     Flux<Dm> findAllBySenderIdOrReceiverId(Long senderId, Long ReceiverId);
+
 }

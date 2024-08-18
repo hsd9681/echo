@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Component
 public class ThreadWebSocketRepository {
+
     private final Map<Long, Sinks.Many<ThreadMessageResponseDto>> sinkByThread = new ConcurrentHashMap<>();
 
     /**
@@ -30,4 +31,5 @@ public class ThreadWebSocketRepository {
     public void deleteSink(Long threadId) {
         sinkByThread.remove(threadId);
     }
+
 }

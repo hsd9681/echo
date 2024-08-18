@@ -25,4 +25,5 @@ public class RedisPublisher {
                 .doOnError(throwable -> log.error("메시지 퍼블리싱 오류", throwable))
                 .then());
     }
+
 }
