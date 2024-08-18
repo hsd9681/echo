@@ -25,6 +25,7 @@ import reactor.core.publisher.Sinks;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j(topic = "textHandler")
 @RequiredArgsConstructor
@@ -49,7 +50,20 @@ public class TextWebSocketHandler implements WebSocketHandler {
 		String username = jwtProvider.getNickName(token);
 		Long userId = jwtProvider.getUserId(token);
 
-		return channelService.checkAndIncrementMemberCount(channelId)
+        AtomicBoolean isMemberIncremented = new AtomicBoolean(false);
+
+        Mono<Void> channelCheckMono = (channelId != null) ?
+                channelService.checkAndIncrementMemberCount(channelId)
+                        .then()
+                        .doOnSuccess(unused -> isMemberIncremented.set(true))
+                        .onErrorResume(e -> {
+                            log.error(e.getMessage());
+                            WebSocketMessage errorMessage = session.textMessage("{\"msg\": \"" + e.getMessage() + "\"}");
+                            return session.send(Mono.just(errorMessage))
+                                    .then(session.close());
+                        }): Mono.empty();
+
+		return channelCheckMono
 			.then(Mono.defer(() -> {
 				Sinks.Many<TextResponse> textResponseSink = dmId != null ?
 					dmService.getDmSink(dmId) : textService.getSink(channelId);
@@ -105,18 +119,14 @@ public class TextWebSocketHandler implements WebSocketHandler {
 						session.close();
 					})
 					.doFinally(signal -> {
-						channelService.decrementMemberCount(channelId).subscribe();
+                        if (isMemberIncremented.get()) {
+                            channelService.decrementMemberCount(channelId).subscribe();
+                        }
 						session.close();
 					});
 
 				return Mono.when(input, output);
-			}))
-			.onErrorResume(e -> {
-				log.error(e.getMessage());
-				WebSocketMessage errorMessage = session.textMessage("{\"msg\": \"" + e.getMessage() + "\"}");
-				return session.send(Mono.just(errorMessage))
-					.then(session.close());
-			});
+			}));
 	}
 
 	private Map<String, String> getParamFromSession(WebSocketSession session) {
