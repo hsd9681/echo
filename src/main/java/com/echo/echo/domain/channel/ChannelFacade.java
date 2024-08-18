@@ -1,11 +1,14 @@
 package com.echo.echo.domain.channel;
 
+import com.echo.echo.common.s3.service.S3Service;
 import com.echo.echo.domain.channel.dto.ChannelRequestDto;
 import com.echo.echo.domain.channel.dto.ChannelResponseDto;
 import com.echo.echo.domain.notification.NotificationService;
 import com.echo.echo.domain.notification.entity.Notification;
 import com.echo.echo.domain.space.SpaceService;
 import com.echo.echo.domain.space.dto.SpaceMemberDto;
+import com.echo.echo.domain.text.TextService;
+import com.echo.echo.domain.text.entity.Text;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -22,6 +25,8 @@ public class ChannelFacade {
     private final ChannelService channelService;
     private final SpaceService spaceService;
     private final NotificationService notificationService;
+    private final TextService textService;
+    private final S3Service s3Service;
 
     public Mono<ChannelResponseDto> createChannel(Long spaceId, ChannelRequestDto requestDto) {
         return spaceService.findSpaceById(spaceId)
@@ -39,7 +44,18 @@ public class ChannelFacade {
     }
 
     public Mono<Void> deleteChannel(Long channelId) {
-        return channelService.deleteChannel(channelId);
+        return textService.findTextsByChannelId(channelId)
+                .flatMap(text -> {
+                    if (text.getType().equals(Text.TextType.TEXT)) {
+                        return textService.deleteText(text.getId());
+                    } else if (text.getType().equals(Text.TextType.FILE)) {
+                        return s3Service.deleteObject(text.getContents())
+                                .then(textService.deleteText(text.getId()));
+                    } else {
+                        return Mono.empty();
+                    }
+                })
+                .then(channelService.deleteChannel(channelId));
     }
 
     public Flux<SpaceMemberDto> getSpaceMembersByChannelId(Long channelId) {

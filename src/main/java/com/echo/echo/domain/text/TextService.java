@@ -58,6 +58,10 @@ public class TextService {
                 .flatMap(repository::delete);
     }
 
+    public Mono<Void> deleteText(String textId) {
+        return repository.deleteById(textId);
+    }
+
     public Sinks.Many<TextResponse> getSink(Long channelId) {
         return channelSinks.compute(channelId, (id, existingSink) -> {
             if (existingSink == null || existingSink.currentSubscriberCount() == 0) {
@@ -79,6 +83,10 @@ public class TextService {
 
     public void startSession(Long userId, Long channelId) {
         log.debug("채팅방 입장, 유저 id {}, channelId {} notification 데이터를 삭제합니다.", userId, channelId);
+    }
+
+    public Flux<Text> findTextsByChannelId(Long channelId) {
+        return repository.findAllByChannelId(channelId);
     }
 
 }

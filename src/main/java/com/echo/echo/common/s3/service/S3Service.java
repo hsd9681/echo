@@ -37,8 +37,8 @@ public class S3Service {
     @Value("${aws.s3.upload.max.size}")
     private Long uploadMaxSize;
 
-    public Mono<Void> deleteObject(String objectKey) {
-        log.debug("Delete Object with key: {}", objectKey);
+    public Mono<Void> deleteObject(String objectKeyUri) {
+        String objectKey = FileUtils.extractKeyFromUrl(objectKeyUri);
         return Mono.just(DeleteObjectRequest.builder()
                         .bucket(bucketName)
                         .key(objectKey)
@@ -49,7 +49,6 @@ public class S3Service {
     }
 
     public Flux<AWSS3Object> getObjects() {
-        log.debug("Listing objects in S3 bucket: {}", bucketName);
         return Flux.from(s3Client.listObjectsV2Paginator(ListObjectsV2Request.builder()
                         .bucket(bucketName)
                         .build()))
@@ -57,11 +56,11 @@ public class S3Service {
                 .map(s3Object -> new AWSS3Object(s3Object.key(), s3Object.lastModified(),s3Object.eTag(), s3Object.size()));
     }
 
-    public Mono<byte[]> getByteObject(String key) {
-        log.debug("Fetching object as byte array from S3 bucket: {}, key: {}", bucketName, key);
+    public Mono<byte[]> getByteObject(String objectKeyUri) {
+        String objectKey = FileUtils.extractKeyFromUrl(objectKeyUri);
         return Mono.just(GetObjectRequest.builder()
                         .bucket(bucketName)
-                        .key(key)
+                        .key(objectKey)
                         .build())
                 .map(it -> s3Client.getObject(it, AsyncResponseTransformer.toBytes()))
                 .flatMap(Mono::fromFuture)

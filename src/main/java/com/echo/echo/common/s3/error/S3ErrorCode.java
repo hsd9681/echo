@@ -14,6 +14,7 @@ public enum S3ErrorCode implements BaseCode {
     FILE_TYPE_INVALID(HttpStatus.BAD_REQUEST, 91, "업로드할 수 있는 파일 확장자가 아닙니다.", "업드할 수 있는 파일 확장자가 아닙니다."),
     FILE_IS_NULL(HttpStatus.BAD_REQUEST, 92, "파일이 유효하지 않습니다.", "파일이 유효하지 않습니다."),
     FILE_SIZE_OVER(HttpStatus.BAD_REQUEST, 93, "파일의 용량이 허용크기를 초과했습니다.", "파일의 용량이 허용크기를 초과했습니다."),
+    S3_URL_INVALID(HttpStatus.NOT_FOUND, 94, "파일의 저장경로 변환 간 오류가 발생했습니다.", "파일의 저장경로 변환 간 오류가 발생했습니다.")
     ;
 
     private final HttpStatus httpStatus;

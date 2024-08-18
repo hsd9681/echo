@@ -17,10 +17,9 @@ public class WebFluxConfig implements WebFluxConfigurer {
         var partReader = new DefaultPartHttpMessageReader();
         partReader.setMaxParts(4);
 
-        partReader.setMaxDiskUsagePerPart(5L * 1024L * 1024L); // 업로드 파트 당 허용크기, 현재 5MB로 설정
+        partReader.setMaxDiskUsagePerPart(20L * 1024L * 1024L); // 최대 업로드 허용크기, 현재 20MB로 설정
         partReader.setEnableLoggingRequestDetails(true);
-        MultipartHttpMessageReader multipartReader = new
-                MultipartHttpMessageReader(partReader);
+        MultipartHttpMessageReader multipartReader = new MultipartHttpMessageReader(partReader);
         multipartReader.setEnableLoggingRequestDetails(true);
         configurer.defaultCodecs().multipartReader(multipartReader);
 

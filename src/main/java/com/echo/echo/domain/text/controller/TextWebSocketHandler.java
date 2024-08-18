@@ -3,8 +3,8 @@ package com.echo.echo.domain.text.controller;
 import com.echo.echo.common.redis.RedisConst;
 import com.echo.echo.common.redis.RedisPublisher;
 import com.echo.echo.common.util.ObjectStringConverter;
-import com.echo.echo.domain.dm.DmService;
 import com.echo.echo.domain.channel.ChannelService;
+import com.echo.echo.domain.dm.DmService;
 import com.echo.echo.domain.text.TextService;
 import com.echo.echo.domain.text.dto.TextRequest;
 import com.echo.echo.domain.text.dto.TextResponse;
@@ -12,16 +12,13 @@ import com.echo.echo.domain.text.dto.TypingRequest;
 import com.echo.echo.domain.text.dto.TypingResponse;
 import com.echo.echo.domain.text.entity.Text;
 import com.echo.echo.security.jwt.JwtProvider;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
