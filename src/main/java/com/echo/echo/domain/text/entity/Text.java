@@ -44,8 +44,7 @@ public class Text extends TimeStamp {
     }
 
     public enum TextType {
-        TEXT,
-        FILE,
+        TEXT, FILE
     }
 
 }

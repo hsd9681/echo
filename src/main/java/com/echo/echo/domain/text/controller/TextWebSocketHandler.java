@@ -3,8 +3,8 @@ package com.echo.echo.domain.text.controller;
 import com.echo.echo.common.redis.RedisConst;
 import com.echo.echo.common.redis.RedisPublisher;
 import com.echo.echo.common.util.ObjectStringConverter;
-import com.echo.echo.domain.dm.DmService;
 import com.echo.echo.domain.channel.ChannelService;
+import com.echo.echo.domain.dm.DmService;
 import com.echo.echo.domain.text.TextService;
 import com.echo.echo.domain.text.dto.TextRequest;
 import com.echo.echo.domain.text.dto.TextResponse;
@@ -12,22 +12,20 @@ import com.echo.echo.domain.text.dto.TypingRequest;
 import com.echo.echo.domain.text.dto.TypingResponse;
 import com.echo.echo.domain.text.entity.Text;
 import com.echo.echo.security.jwt.JwtProvider;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j(topic = "textHandler")
 @RequiredArgsConstructor
@@ -52,7 +50,20 @@ public class TextWebSocketHandler implements WebSocketHandler {
 		String username = jwtProvider.getNickName(token);
 		Long userId = jwtProvider.getUserId(token);
 
-		return channelService.checkAndIncrementMemberCount(channelId)
+        AtomicBoolean isMemberIncremented = new AtomicBoolean(false);
+
+        Mono<Void> channelCheckMono = (channelId != null) ?
+                channelService.checkAndIncrementMemberCount(channelId)
+                        .then()
+                        .doOnSuccess(unused -> isMemberIncremented.set(true))
+                        .onErrorResume(e -> {
+                            log.error(e.getMessage());
+                            WebSocketMessage errorMessage = session.textMessage("{\"msg\": \"" + e.getMessage() + "\"}");
+                            return session.send(Mono.just(errorMessage))
+                                    .then(session.close());
+                        }): Mono.empty();
+
+		return channelCheckMono
 			.then(Mono.defer(() -> {
 				Sinks.Many<TextResponse> textResponseSink = dmId != null ?
 					dmService.getDmSink(dmId) : textService.getSink(channelId);
@@ -108,18 +119,14 @@ public class TextWebSocketHandler implements WebSocketHandler {
 						session.close();
 					})
 					.doFinally(signal -> {
-						channelService.decrementMemberCount(channelId).subscribe();
+                        if (isMemberIncremented.get()) {
+                            channelService.decrementMemberCount(channelId).subscribe();
+                        }
 						session.close();
 					});
 
 				return Mono.when(input, output);
-			}))
-			.onErrorResume(e -> {
-				log.error(e.getMessage());
-				WebSocketMessage errorMessage = session.textMessage("{\"msg\": \"" + e.getMessage() + "\"}");
-				return session.send(Mono.just(errorMessage))
-					.then(session.close());
-			});
+			}));
 	}
 
 	private Map<String, String> getParamFromSession(WebSocketSession session) {

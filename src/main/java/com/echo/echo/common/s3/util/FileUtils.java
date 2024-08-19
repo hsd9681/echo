@@ -2,6 +2,7 @@ package com.echo.echo.common.s3.util;
 
 import com.echo.echo.common.exception.CustomException;
 import com.echo.echo.common.s3.error.S3ErrorCode;
+import io.jsonwebtoken.MalformedJwtException;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
@@ -11,6 +12,7 @@ import org.springframework.util.ObjectUtils;
 import reactor.core.publisher.Mono;
 import software.amazon.awssdk.core.SdkResponse;
 
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
@@ -97,6 +99,18 @@ public class FileUtils {
                     }
                     return Mono.empty();
                 });
+    }
+
+    public String extractKeyFromUrl(String s3Url) {
+        try {
+            URI uri = URI.create(s3Url);
+            String path = uri.getPath();
+            String key = path.substring(1);
+            log.info("S3 Object Key : {}", key);
+            return key;
+        } catch (MalformedJwtException e) {
+            throw new CustomException(S3ErrorCode.S3_URL_INVALID);
+        }
     }
 
 }

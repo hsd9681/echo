@@ -1,7 +1,6 @@
 package com.echo.echo.domain.text.controller;
 
 import com.echo.echo.domain.text.TextFacade;
-import com.echo.echo.domain.text.TextService;
 import com.echo.echo.domain.text.dto.TextRequest;
 import com.echo.echo.security.principal.UserPrincipal;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +15,6 @@ import reactor.core.publisher.Mono;
 public class TextController {
 
     private final TextFacade textFacade;
-    private final TextService textService;
 
     @PostMapping("/{channelId}/file")
     public Mono<Void> textChatFileUpload(@PathVariable("channelId") Long channelId,
