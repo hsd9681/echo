@@ -65,6 +65,9 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
     testRuntimeOnly 'org.mariadb:r2dbc-mariadb'
+
+    // monitoring
+    implementation 'io.micrometer:micrometer-registry-prometheus'
 }
 
 tasks.named('test') {

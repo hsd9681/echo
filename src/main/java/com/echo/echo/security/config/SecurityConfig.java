@@ -66,7 +66,7 @@ public class SecurityConfig {
                         .pathMatchers("/users/change/password/**").permitAll()
                         .pathMatchers(HttpMethod.GET, "/video/**").permitAll()
                         .pathMatchers(HttpMethod.GET, "/text/**").permitAll()
-                        .pathMatchers("/actuator/health").permitAll()
+                        .pathMatchers("/actuator/**").permitAll()
                         .pathMatchers("/user/kakao/callback").permitAll()
                         .pathMatchers("/threads/**").permitAll()
                         .anyExchange().authenticated()
@@ -100,7 +100,7 @@ public class SecurityConfig {
             "http://127.0.0.1:5500",
             "https://echo-web-theta.vercel.app",
             "http://echo-web-theta.vercel.app",
-            "https://www.echotalk.online"
+            "https://www.echotalk.online", "http://172.31.37.181:8000", "http://172.31.37.181"
         ));
 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
