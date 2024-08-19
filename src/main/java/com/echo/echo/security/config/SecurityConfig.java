@@ -100,7 +100,7 @@ public class SecurityConfig {
             "http://127.0.0.1:5500",
             "https://echo-web-theta.vercel.app",
             "http://echo-web-theta.vercel.app",
-            "https://www.echotalk.online", "http://172.31.37.181:8000", "http://172.31.37.181"
+            "https://www.echotalk.online", "http://172.31.37.181:8000", "http://172.31.37.181", "http://3.39.24.109:3000"
         ));
 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
