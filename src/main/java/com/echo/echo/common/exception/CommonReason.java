@@ -12,11 +12,11 @@ import org.springframework.http.HttpStatus;
 public class CommonReason {
 
     private final HttpStatus status;
-    private final int code;
+    private final String code;
     private final String msg;
 
     @Builder
-    public CommonReason(HttpStatus status, int code, String msg) {
+    public CommonReason(HttpStatus status, String code, String msg) {
         this.status = status;
         this.code = code;
         this.msg = msg;
