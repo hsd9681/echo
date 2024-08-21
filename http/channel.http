@@ -1,0 +1,34 @@
+### create channel
+POST localhost:8080/api/spaces/{{spaceId}}/channels
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "channelName": "Channel Name",
+  "channelType": "T",
+  "maxCapacity": "2"
+}
+
+> {%
+  client.global.set("channelId", response.body.id)
+%}
+
+
+### read channels
+GET localhost:8080/api/spaces/{{spaceId}}/channels
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+### update channel
+PUT localhost:8080/api/spaces/{{spaceId}}/channels/{{channelId}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "channelName": "New Channel Name",
+  "channelType": "V"
+}
+
+### delete channel
+DELETE localhost:8080/api/spaces/{{spaceId}}/channels/{{channelId}}
+Authorization: Bearer {{accessToken}}

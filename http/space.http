@@ -1,0 +1,56 @@
+### create space
+POST localhost:8080/api/spaces
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "spaceName": "space Name",
+  "isPublic": "Y",
+  "thumbnail": "VGhpcyBpcyBhIHRlc3QgdGh1bWJuYWls"
+}
+
+> {%
+  client.global.set("spaceId", response.body.id)
+%}
+
+
+### read space
+GET localhost:8080/api/spaces/{{spaceId}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+### update space
+PUT localhost:8080/api/spaces/{{spaceId}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "spaceName": "New spaceName",
+  "isPublic": "N",
+  "thumbnail": "VGhpcyBpcyBhIHRlc3QgdGh1bWJuYWls"
+}
+
+### get public space
+GET localhost:8080/api/spaces/public
+Authorization: Bearer {{accessToken}}
+
+### get my spaces(자신이 들어가 있는 스페이스 목록 조회)
+GET localhost:8080/api/spaces/my
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+> {%
+  let responseData = JSON.parse(responseBody);
+  client.global.set("mySpaceId", responseData[0].id);
+%}
+
+### get space members(특정 스페이스 멤버 조회)
+GET localhost:8080/api/spaces/{{spaceId}}/members
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+
+
+### delete space
+DELETE localhost:8080/api/spaces/{{spaceId}}
+Authorization: Bearer {{accessToken}}

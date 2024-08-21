@@ -1,0 +1,83 @@
+### create verification code
+POST localhost:8080/api/users/verify/email
+Content-Type: application/json
+
+{
+  "email": "test@test12321.com"
+}
+
+### user activate
+POST localhost:8080/api/users/verify/252888
+Content-Type: application/json
+
+{
+  "email": "test@test12321.com"
+}
+
+### user signup
+POST localhost:8080/api/users/signup
+Content-Type: application/json
+
+{
+  "email": "test@test12321.com",
+  "nickname":"이름",
+  "password": "password123!@#A",
+  "intro": "intro"
+}
+
+### get user profile
+GET localhost:8080/api/users/profile
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+### update user profile
+PUT localhost:8080/api/users/profile
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "nickname": "newUsername",
+  "intro": "newIntro"
+}
+
+### change user password
+PUT localhost:8080/api/users/password
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "password": "password123!@#A",
+  "newPassword": "newPassword"
+}
+
+### find user id
+POST localhost:8080/api/users/find/id
+Content-Type: application/json
+
+{
+  "email": "test@test12321.com"
+}
+
+### find password and send verification code to user
+POST localhost:8080/api/users/find/password
+Content-Type: application/json
+
+{
+  "email": "test@test.com"
+}
+
+> {%
+    client.global.set("uuid", response.body)
+%}
+
+### verify verification code
+POST localhost:8080/api/users/verify/{{uuid}}/843274
+
+### change password
+PUT localhost:8080/api/users/change/password/{{uuid}}
+Content-Type: application/json
+
+{
+  "email": "test@test.com",
+  "newPassword": "Aasdfghjkl1!"
+}

@@ -1,0 +1,10 @@
+
+
+
+
+
+### 음성 채널 생성
+POST
+
+
+GET http://localhost:8080/api/create
