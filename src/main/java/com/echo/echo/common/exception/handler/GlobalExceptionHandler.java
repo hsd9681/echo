@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
         String defaultMessage = e.getAllErrors().get(0).getDefaultMessage();
         CommonReason reason = CommonReason.builder()
             .status(HttpStatus.BAD_REQUEST)
-            .code(400)
+            .code("400")
             .msg(defaultMessage)
             .build();
         return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(reason));

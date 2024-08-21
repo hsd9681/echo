@@ -13,13 +13,12 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum CommonErrorCode implements BaseCode {
 
-    FAIL(HttpStatus.INTERNAL_SERVER_ERROR, -1, "실패했습니다.", "서버 에러"),
-    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, 401, "로그인이 안되어있거나 만료된 사용자입니다.", "비정상적인 토큰입니다."),
-    NOT_FOUND_DATA(HttpStatus.NOT_FOUND, 402, "데이터를 찾을 수 없습니다.", "데이터를 찾을 수 없습니다.");
-    ;
+    FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "Co_01", "서버 처리 중 오류가 발생했습니다.", "서버 내부 에러"),
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "Co_02", "인증되지 않은 사용자입니다.", "비정상적인 또는 만료된 토큰"),
+    NOT_FOUND_DATA(HttpStatus.NOT_FOUND, "Co_03", "요청한 데이터를 찾을 수 없습니다.", "데이터가 존재하지 않음");
 
     private final HttpStatus status;
-    private final int code;
+    private final String code;
     private final String msg;
     private final String remark;
 

@@ -14,9 +14,10 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum SpaceSuccessCode implements BaseCode {
 
-    SPACE_DELETE(3, "스페이스 삭제 완료입니다.", "스페이스 삭제가 성공적으로 완료되었습니다.");
+    SPACE_DELETE("SpS_01", "스페이스가 성공적으로 삭제되었습니다.", "스페이스 삭제가 성공적으로 완료되었습니다."),
+    ;
 
-    private final int code;
+    private final String code;
     private final String msg;
     private final String remark;
 
