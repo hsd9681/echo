@@ -27,6 +27,9 @@
 
 등의 기능이 구현된 실시간 메신저 커뮤니티 웹 애플리케이션입니다.
 
+
+##시연영상
+![Image](https://github.com/user-attachments/assets/df8bca87-98be-4788-ae4a-db6c5be41490)
 [(Back to top)](#table)
 
 <br>
